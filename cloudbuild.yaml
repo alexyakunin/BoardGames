@@ -2,12 +2,16 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - build
-      - -t us.gcr.io/personal-303908/boardgames:latest
-      - -f Dockerfile .
+      - -t
+      - us.gcr.io/personal-303908/boardgames:latest
+      - -f
+      - Dockerfile
+      - .
     id: Build
   - name: gcr.io/cloud-builders/docker
     args:
-      - push us.gcr.io/personal-303908/boardgames:latest
+      - push
+      - us.gcr.io/personal-303908/boardgames:latest
     id: Push
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     args:

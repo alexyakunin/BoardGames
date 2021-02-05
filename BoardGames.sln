@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{01ABB1
 ProjectSection(SolutionItems) = preProject
 	Dockerfile = Dockerfile
 	docker-compose.yml = docker-compose.yml
+	cloudbuild.yaml = cloudbuild.yaml
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{8CA34149-29AE-4AC7-8808-822FE83008D3}"
