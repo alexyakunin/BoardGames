@@ -179,7 +179,9 @@ namespace BoardGames.Host
                 app.UseHttpsRedirection();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions {
-                ForwardedHeaders = ForwardedHeaders.All
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+                KnownProxies = { },
+                KnownNetworks = { },
             });
             app.UseWebSockets(new WebSocketOptions() {
                 KeepAliveInterval = TimeSpan.FromSeconds(30),
