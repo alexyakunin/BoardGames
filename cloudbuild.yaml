@@ -2,16 +2,17 @@ steps:
   - name: gcr.io/cloud-builders/docker
     args:
       - build
-      - -t
-      - us.gcr.io/personal-303908/boardgames:latest
-      - -f
-      - Dockerfile
+      - '--no-cache'
+      - '-t'
+      - '$_GCR_IMAGE:$COMMIT_SHA'
       - .
+      - '-f'
+      - Dockerfile
     id: Build
   - name: gcr.io/cloud-builders/docker
     args:
       - push
-      - us.gcr.io/personal-303908/boardgames:latest
+      - '$_GCR_IMAGE:$COMMIT_SHA'
     id: Push
   - name: gcr.io/google.com/cloudsdktool/cloud-sdk
     args:
@@ -19,25 +20,23 @@ steps:
       - services
       - update
       - $_SERVICE_NAME
-      - --platform=managed
-      - --image=us.gcr.io/personal-303908/boardgames:latest
+      - '--platform=managed'
+      - '--image=$_GCR_IMAGE:$COMMIT_SHA'
       - >-
-        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,gcb-trigger-id=$_TRIGGER_ID,$_LABELS
+        --labels=managed-by=gcp-cloud-build-deploy-cloud-run,commit-sha=$COMMIT_SHA,gcb-build-id=$BUILD_ID,$_LABELS
       - '--region=$_DEPLOY_REGION'
       - '--quiet'
     id: Deploy
     entrypoint: gcloud
 images:
-  - us.gcr.io/personal-303908/boardgames:latest
+  - '$_GCR_IMAGE:$COMMIT_SHA'
 options:
   substitutionOption: ALLOW_LOOSE
 substitutions:
-  _LABELS: gcb-trigger-id=3aec4e26-27a9-4911-983d-3fa39d5d5e19
-  _TRIGGER_ID: 3aec4e26-27a9-4911-983d-3fa39d5d5e19
   _DEPLOY_REGION: us-west1
-  _GCR_HOSTNAME: us.gcr.io
-  _PLATFORM: managed
+  _GCR_IMAGE: us.gcr.io/personal-303908/boardgames
   _SERVICE_NAME: boardgames
+  _LABELS: gcb-trigger-id=boardgames-ci
 tags:
   - gcp-cloud-build-deploy-cloud-run
   - gcp-cloud-build-deploy-cloud-run-managed
