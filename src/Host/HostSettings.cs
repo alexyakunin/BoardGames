@@ -7,6 +7,9 @@ namespace BoardGames.Host
     [Settings("BoardGames")]
     public class HostSettings
     {
+        // Web
+        public bool UseHttpsRedirection { get; set; } = true;
+
         // Fusion
         public string PublisherId { get; set; } = "p";
 

@@ -36,6 +36,7 @@ namespace BoardGames.Host
     {
         private IConfiguration Cfg { get; }
         private IWebHostEnvironment Env { get; }
+        private HostSettings HostSettings { get; set; } = null!;
         private ILogger Log { get; set; } = NullLogger<Startup>.Instance;
 
         public Startup(IConfiguration cfg, IWebHostEnvironment environment)
@@ -47,7 +48,7 @@ namespace BoardGames.Host
         public void ConfigureServices(IServiceCollection services)
         {
             #pragma warning disable ASP0000
-            var hostSettings = services
+            HostSettings = services
                 .UseAttributeScanner(s => s.AddService<HostSettings>())
                 .BuildServiceProvider()
                 .GetRequiredService<HostSettings>();
@@ -68,8 +69,8 @@ namespace BoardGames.Host
             var appTempDir = PathEx.GetApplicationTempDirectory("", true);
             var dbPath = appTempDir & "App_v0_1.db";
             services.AddDbContextFactory<AppDbContext>(builder => {
-                if (!string.IsNullOrEmpty(hostSettings.UsePostgreSql))
-                    builder.UseNpgsql(hostSettings.UsePostgreSql);
+                if (!string.IsNullOrEmpty(HostSettings.UsePostgreSql))
+                    builder.UseNpgsql(HostSettings.UsePostgreSql);
                 else
                     builder.UseSqlite($"Data Source={dbPath}");
                 if (Env.IsDevelopment())
@@ -94,7 +95,7 @@ namespace BoardGames.Host
             });
 
             // Fusion services
-            services.AddSingleton(new Publisher.Options() { Id = hostSettings.PublisherId });
+            services.AddSingleton(new Publisher.Options() { Id = HostSettings.PublisherId });
             var fusion = services.AddFusion();
             var fusionServer = fusion.AddWebServer();
             var fusionClient = fusion.AddRestEaseClient();
@@ -119,15 +120,15 @@ namespace BoardGames.Host
                 if (Env.IsDevelopment())
                     options.Cookie.SecurePolicy = CookieSecurePolicy.None;
             }).AddMicrosoftAccount(options => {
-                options.ClientId = hostSettings.MicrosoftClientId;
-                options.ClientSecret = hostSettings.MicrosoftClientSecret;
+                options.ClientId = HostSettings.MicrosoftClientId;
+                options.ClientSecret = HostSettings.MicrosoftClientSecret;
                 // That's for personal account authentication flow
                 options.AuthorizationEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
                 options.TokenEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
                 options.CorrelationCookie.SameSite = SameSiteMode.Lax;
             }).AddGitHub(options => {
-                options.ClientId = hostSettings.GitHubClientId;
-                options.ClientSecret = hostSettings.GitHubClientSecret;
+                options.ClientId = HostSettings.GitHubClientId;
+                options.ClientSecret = HostSettings.GitHubClientSecret;
                 options.Scope.Add("read:user");
                 options.Scope.Add("user:email");
                 options.CorrelationCookie.SameSite = SameSiteMode.Lax;
@@ -173,8 +174,10 @@ namespace BoardGames.Host
             else {
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
-                // app.UseHttpsRedirection();
             }
+            if (HostSettings.UseHttpsRedirection)
+                app.UseHttpsRedirection();
+
             app.UseForwardedHeaders(new ForwardedHeadersOptions {
                 ForwardedHeaders = ForwardedHeaders.All
             });
