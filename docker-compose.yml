@@ -13,3 +13,4 @@ services:
      - "80:80"
     environment:
       ASPNETCORE_URLS: "http://*:80"
+      HTTPS_PORT: 443

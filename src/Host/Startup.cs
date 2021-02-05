@@ -1,15 +1,12 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using AspNet.Security.OAuth.GitHub;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -28,12 +25,9 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Stl.Fusion.EntityFramework;
 using Stl.Fusion.Operations.Internal;
 using Stl.IO;
-using Stl.Reflection;
-using Stl.Serialization;
 
 namespace BoardGames.Host
 {
@@ -52,16 +46,12 @@ namespace BoardGames.Host
         public void ConfigureServices(IServiceCollection services)
         {
             #pragma warning disable ASP0000
-            var serverSettings = services
-                .UseAttributeScanner(s => s.AddService<ServerSettings>())
+            var hostSettings = services
+                .UseAttributeScanner(s => s.AddService<HostSettings>())
                 .BuildServiceProvider()
-                .GetRequiredService<ServerSettings>();
+                .GetRequiredService<HostSettings>();
             #pragma warning restore ASP0000
 
-            services.AddResponseCompression(opts => {
-                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-                    new[] { "application/octet-stream" });
-            });
             // Logging
             services.AddLogging(logging => {
                 logging.ClearProviders();
@@ -78,7 +68,10 @@ namespace BoardGames.Host
             var appTempDir = PathEx.GetApplicationTempDirectory("", true);
             var dbPath = appTempDir & "App_v0_1.db";
             services.AddDbContextFactory<AppDbContext>(builder => {
-                builder.UseSqlite($"Data Source={dbPath}", sqlite => { });
+                if (!string.IsNullOrEmpty(hostSettings.UsePostgreSql))
+                    builder.UseNpgsql(hostSettings.UsePostgreSql);
+                else
+                    builder.UseSqlite($"Data Source={dbPath}");
                 if (Env.IsDevelopment())
                     builder.EnableSensitiveDataLogging();
             });
@@ -101,7 +94,7 @@ namespace BoardGames.Host
             });
 
             // Fusion services
-            services.AddSingleton(new Publisher.Options() { Id = serverSettings.PublisherId });
+            services.AddSingleton(new Publisher.Options() { Id = hostSettings.PublisherId });
             var fusion = services.AddFusion();
             var fusionServer = fusion.AddWebServer();
             var fusionClient = fusion.AddRestEaseClient();
@@ -126,15 +119,15 @@ namespace BoardGames.Host
                 if (Env.IsDevelopment())
                     options.Cookie.SecurePolicy = CookieSecurePolicy.None;
             }).AddMicrosoftAccount(options => {
-                options.ClientId = serverSettings.MicrosoftAccountClientId;
-                options.ClientSecret = serverSettings.MicrosoftAccountClientSecret;
+                options.ClientId = hostSettings.MicrosoftClientId;
+                options.ClientSecret = hostSettings.MicrosoftClientSecret;
                 // That's for personal account authentication flow
                 options.AuthorizationEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/authorize";
                 options.TokenEndpoint = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token";
                 options.CorrelationCookie.SameSite = SameSiteMode.Lax;
             }).AddGitHub(options => {
-                options.ClientId = serverSettings.GitHubClientId;
-                options.ClientSecret = serverSettings.GitHubClientSecret;
+                options.ClientId = hostSettings.GitHubClientId;
+                options.ClientSecret = hostSettings.GitHubClientSecret;
                 options.Scope.Add("read:user");
                 options.Scope.Add("user:email");
                 options.CorrelationCookie.SameSite = SameSiteMode.Lax;
@@ -180,8 +173,8 @@ namespace BoardGames.Host
             else {
                 app.UseExceptionHandler("/Error");
                 app.UseHsts();
+                app.UseHttpsRedirection();
             }
-            app.UseHttpsRedirection();
 
             app.UseWebSockets(new WebSocketOptions() {
                 KeepAliveInterval = TimeSpan.FromSeconds(30),
