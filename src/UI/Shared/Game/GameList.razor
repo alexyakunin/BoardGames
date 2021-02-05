@@ -36,7 +36,7 @@
                         </TableRowCell>
                         <TableRowCell>
                             <Button Size="Size.Small" Color="Color.Info"
-                                    Type="@ButtonType.Link" To="@(LinkBuilder.Game(game.EngineId, game.Id))">Open</Button>
+                                    Type="@ButtonType.Link" To="@(LinkBuilder.Game(game.EngineId, game.Id))">View</Button>
                         </TableRowCell>
                     </TableRow>
                 }
@@ -58,7 +58,7 @@
     [Parameter]
     public string CssClass { get; set; } = "";
     [Parameter]
-    public string Title { get; set; } = "Other players' games you can join";
+    public string Title { get; set; } = "Open games you can join";
     [Parameter]
     public string GameEngineId { get; set; } = "";
     [Parameter]
