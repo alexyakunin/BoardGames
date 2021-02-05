@@ -10,6 +10,7 @@ namespace BoardGames.Host
         // Web
         public bool AssumeHttps { get; set; } = false;
         public bool UseHttpsRedirection { get; set; } = true;
+        public bool UseForwardedHeaders { get; set; } = true;
 
         // Fusion
         public string PublisherId { get; set; } = "p";

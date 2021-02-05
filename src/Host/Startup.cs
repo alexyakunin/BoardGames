@@ -158,6 +158,7 @@ namespace BoardGames.Host
             Log = log;
 
             if (HostSettings.AssumeHttps) {
+                Log.LogInformation("AssumeHttps on");
                 app.Use((context, next) => {
                     context.Request.Scheme = "https";
                     return next();
@@ -184,13 +185,19 @@ namespace BoardGames.Host
                 app.UseWebAssemblyDebugging();
             }
             else {
-                app.UseExceptionHandler("/Error");
+                // app.UseExceptionHandler("/Error");
+                app.UseDeveloperExceptionPage();
                 app.UseHsts();
             }
-            if (HostSettings.UseHttpsRedirection)
+            if (HostSettings.UseHttpsRedirection) {
+                Log.LogInformation("UseHttpsRedirection on");
                 app.UseHttpsRedirection();
+            }
+            if (HostSettings.UseForwardedHeaders) {
+                Log.LogInformation("UseForwardedHeaders on");
+                app.UseForwardedHeaders();
+            }
 
-            app.UseForwardedHeaders();
             app.UseWebSockets(new WebSocketOptions() {
                 KeepAliveInterval = TimeSpan.FromSeconds(30),
             });
