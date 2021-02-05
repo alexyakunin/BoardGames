@@ -1,0 +1,15 @@
+version: '3.4'
+services:
+  app_debug:
+    build:
+      context: .
+      target: app_debug
+
+  app_ws:
+    build:
+      context: .
+      target: app_ws
+    ports:
+     - "80:80"
+    environment:
+      ASPNETCORE_URLS: "http://*:80"
