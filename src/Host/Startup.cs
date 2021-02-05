@@ -135,6 +135,11 @@ namespace BoardGames.Host
             });
 
             // Web
+            services.Configure<ForwardedHeadersOptions>(options => {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+            });
             services.AddRouting();
             services.AddMvc().AddApplicationPart(Assembly.GetExecutingAssembly());
             services.AddServerSideBlazor(o => o.DetailedErrors = true);
@@ -151,6 +156,13 @@ namespace BoardGames.Host
         public void Configure(IApplicationBuilder app, ILogger<Startup> log)
         {
             Log = log;
+
+            if (HostSettings.AssumeHttps) {
+                app.Use((context, next) => {
+                    context.Request.Scheme = "https";
+                    return next();
+                });
+            }
 
             // This server serves static content from Blazor Client,
             // and since we don't copy it to local wwwroot,
@@ -178,11 +190,7 @@ namespace BoardGames.Host
             if (HostSettings.UseHttpsRedirection)
                 app.UseHttpsRedirection();
 
-            app.UseForwardedHeaders(new ForwardedHeadersOptions {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-                KnownProxies = { },
-                KnownNetworks = { },
-            });
+            app.UseForwardedHeaders();
             app.UseWebSockets(new WebSocketOptions() {
                 KeepAliveInterval = TimeSpan.FromSeconds(30),
             });

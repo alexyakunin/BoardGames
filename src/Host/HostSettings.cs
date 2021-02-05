@@ -8,6 +8,7 @@ namespace BoardGames.Host
     public class HostSettings
     {
         // Web
+        public bool AssumeHttps { get; set; } = false;
         public bool UseHttpsRedirection { get; set; } = true;
 
         // Fusion
