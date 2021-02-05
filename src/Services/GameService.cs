@@ -207,10 +207,11 @@ namespace BoardGames.Services
 
             var user = await AuthService.GetUserAsync(session, cancellationToken);
             user = user.MustBeAuthenticated();
+            var userId = long.Parse(user.Id);
             await PseudoListOwnAsync(user.Id, cancellationToken);
 
             await using var dbContext = CreateDbContext();
-            var games = dbContext.Games.AsQueryable();
+            var games = dbContext.Games.AsQueryable().Where(g => g.UserId == userId);
             if (engineId != null)
                 games = games.Where(g => g.EngineId == engineId);
             if (stage != null) {
