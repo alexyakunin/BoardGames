@@ -7,6 +7,14 @@
 
 <WhenCommandError Exception="@CommandRunner.Error"/>
 
+@if (IsOwner) {
+    <Paragraph>
+        <Switch TValue="bool" Checked="@Game.IsPublic" CheckedChanged="_ => ChangeIsPublicAsync()">
+            Anyone can join
+        </Switch>
+    </Paragraph>
+}
+
 <Paragraph>
     @if (IsOwner) {
         <Button Color="Color.Primary" @onclick="_ => StartAsync()">Start the game</Button>
@@ -26,4 +34,7 @@
 
     private Task LeaveAsync()
         => CommandRunner.CallAsync(new Game.JoinCommand(Session, Game.Id, false));
+
+    private Task ChangeIsPublicAsync()
+        => CommandRunner.CallAsync(new Game.EditCommand(Session, Game.Id, !Game.IsPublic));
 }

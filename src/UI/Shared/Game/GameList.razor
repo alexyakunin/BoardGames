@@ -4,6 +4,7 @@
 @inject IGameService Games
 @inject IGameUserService GameUsers
 @inject ImmutableDictionary<string, IGameEngine> GameEngines;
+@inject AuthStateProvider AuthStateProvider
 
 @{
     var state = State.LastValue;
@@ -62,6 +63,8 @@
     public string GameEngineId { get; set; } = "";
     [Parameter]
     public GameStage? GameStage { get; set; }
+    [Parameter]
+    public bool ExcludeOwnGames { get; set; } = true;
 
     protected override async Task<Model> ComputeStateAsync(CancellationToken cancellationToken)
     {
@@ -72,6 +75,13 @@
             .Concat(games.Select(g => g.UserId))
             .ToHashSet();
         var users = await userIds.ParallelSelectToListAsync((id, ct) => GameUsers.FindAsync(id, ct), cancellationToken);
+        if (ExcludeOwnGames) {
+            var authState = await AuthStateProvider.State.UseAsync(cancellationToken);
+            if (authState.User.IsAuthenticated) {
+                var myUserId = long.Parse(authState.User.Id);
+                games = games.Where(g => g.UserId != myUserId).ToImmutableList();
+            }
+        }
         return new Model() {
             Games = games,
             Users = users.Where(u => u != null).ToImmutableDictionary(u => u!.Id)!,
