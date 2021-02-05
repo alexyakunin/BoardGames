@@ -24,6 +24,7 @@ using Stl.Fusion.Server;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Stl.Fusion.EntityFramework;
 using Stl.Fusion.Operations.Internal;
@@ -60,7 +61,6 @@ namespace BoardGames.Host
                 if (Env.IsDevelopment()) {
                     logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information);
                     logging.AddFilter("Stl.Fusion.Operations", LogLevel.Information);
-
                 }
             });
 
@@ -175,7 +175,9 @@ namespace BoardGames.Host
                 app.UseHsts();
                 // app.UseHttpsRedirection();
             }
-
+            app.UseForwardedHeaders(new ForwardedHeadersOptions {
+                ForwardedHeaders = ForwardedHeaders.All
+            });
             app.UseWebSockets(new WebSocketOptions() {
                 KeepAliveInterval = TimeSpan.FromSeconds(30),
             });
