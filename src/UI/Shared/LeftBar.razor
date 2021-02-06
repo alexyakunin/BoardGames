@@ -2,7 +2,10 @@
 @using BoardGames.Abstractions
 @inject IEnumerable<IGameEngine> GameEngines
 
-<Bar Mode="BarMode.VerticalInline" CollapseMode="BarCollapseMode.Small">
+<Bar Breakpoint="Breakpoint.Desktop"
+     NavigationBreakpoint="Breakpoint.Tablet"
+     Mode="BarMode.VerticalInline"
+     CollapseMode="BarCollapseMode.Small">
     <BarToggler />
     <BarBrand>
         @Item(FontAwesomeIcons.Home, "Home", "")

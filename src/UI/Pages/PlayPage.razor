@@ -46,6 +46,9 @@
     public string GameId { get; set; } = "";
     private IGameEngine GameEngine => GameEngines[GameEngineId];
 
+    protected override void ConfigureState(LiveState<Model>.Options options)
+        => options.WithInstantUpdates();
+
     protected override async Task<Model> ComputeStateAsync(CancellationToken cancellationToken)
     {
         var game = await Games.FindAsync(GameId, cancellationToken);

@@ -92,7 +92,7 @@ namespace BoardGames.UI
 
             // Fusion: default delay for update delayers
             services.AddSingleton(c => new UpdateDelayer.Options() {
-                Delay = TimeSpan.FromSeconds(0.1),
+                Delay = TimeSpan.FromSeconds(0.5),
             });
 
             // Other UI services
