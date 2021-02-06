@@ -27,6 +27,7 @@ using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Stl.Fusion.EntityFramework;
+using Stl.Fusion.EntityFramework.Authentication;
 using Stl.Fusion.Operations.Internal;
 using Stl.IO;
 
@@ -104,13 +105,11 @@ namespace BoardGames.Host
                     options.DefaultScheme = MicrosoftAccountDefaults.AuthenticationScheme;
                 });
 
-            // This method registers services marked with any of ServiceAttributeBase descendants, including:
-            // [Service], [ComputeService], [RestEaseReplicaService], [LiveStateUpdater]
+            // Registering shared services from the client
+            UI.Program.ConfigureSharedServices(services);
             services.UseAttributeScanner()
                 .AddServicesFrom(typeof(GameService).Assembly)
                 .AddServicesFrom(Assembly.GetExecutingAssembly());
-            // Registering shared services from the client
-            UI.Program.ConfigureSharedServices(services);
 
             services.AddAuthentication(options => {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;

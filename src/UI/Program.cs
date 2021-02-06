@@ -52,10 +52,6 @@ namespace BoardGames.UI
         {
             builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
-            // Let's give a chance for UI-specific configuration logic to kick in first
-            ConfigureSharedServices(services);
-            services.UseAttributeScanner(ClientSideScope).AddServicesFrom(Assembly.GetExecutingAssembly());
-
             var baseUri = new Uri(builder.HostEnvironment.BaseAddress);
             var apiBaseUri = new Uri($"{baseUri}api/");
 
@@ -75,6 +71,9 @@ namespace BoardGames.UI
                     fusionAuth.AddBlazor();
                 });
             });
+
+            ConfigureSharedServices(services);
+            services.UseAttributeScanner(ClientSideScope).AddServicesFrom(Assembly.GetExecutingAssembly());
         }
 
         public static void ConfigureSharedServices(IServiceCollection services)
@@ -94,6 +93,7 @@ namespace BoardGames.UI
                 .AddFontAwesomeIcons();
 
             // Fusion
+            services.RemoveAll<UpdateDelayer.Options>();
             services.AddSingleton(c => new UpdateDelayer.Options() {
                 Delay = TimeSpan.FromSeconds(0.5),
             });
