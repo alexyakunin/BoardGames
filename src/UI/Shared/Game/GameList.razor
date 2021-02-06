@@ -17,17 +17,13 @@
     @if (state.Games.Count > 0) {
         <Table Narrow="true" Striped="true">
             <TableHeader>
-                <TableHeaderCell>Creator</TableHeaderCell>
-                <TableHeaderCell>Players</TableHeaderCell>
+                <TableHeaderCell>Creator and players</TableHeaderCell>
                 <TableHeaderCell>Created</TableHeaderCell>
                 <TableHeaderCell></TableHeaderCell>
             </TableHeader>
             <TableBody>
                 @foreach(var game in state.Games) {
                     <TableRow>
-                        <TableRowCell>
-                            <GameUserBadge User="@state.GetUser(game.UserId)"/>
-                        </TableRowCell>
                         <TableRowCell>
                             <GameUsersBadge Users="@game.Players.Select(p => state.GetUser(p.UserId))"/>
                         </TableRowCell>

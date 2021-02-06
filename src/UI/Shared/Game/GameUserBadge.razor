@@ -1,4 +1,4 @@
-<Badge Color="Color.Light">
+<Badge Color="@(IsHighlighted ? Color.Dark : Color.Secondary)">
     <Blazorise.Icon Name="FontAwesomeIcons.User" />
     @User.Name
 </Badge>
@@ -8,4 +8,6 @@
 @code {
     [Parameter]
     public GameUser User { get; set; } = GameUser.None;
+    [Parameter]
+    public bool IsHighlighted { get; set; }
 }

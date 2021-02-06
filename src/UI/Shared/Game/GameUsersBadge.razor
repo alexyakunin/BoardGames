@@ -1,15 +1,18 @@
-@{
-    var first = true;
-}
-@foreach(var user in Users) {
-    if (!first) {
-        <span>, </span>
-    }
-    <GameUserBadge User="@user" />
-    first = false;
+@foreach(var (user, index) in Users.Select((user, index) => (user, index))) {
+    <span>@(index switch { 0 => "", 1 => " with ", _ => ", "})</span>
+    <GameUserBadge User="@user" IsHighlighted="@(index == 0 && HighlightCreator)"/>
 }
 
 @code {
     [Parameter]
     public IEnumerable<GameUser> Users { get; set; } = Enumerable.Empty<GameUser>();
+    [Parameter]
+    public bool HighlightCreator { get; set; } = true;
+
+    private string GetDelimiter(int index)
+        => index switch {
+            0 => "",
+            1 => HighlightCreator ? " and " : ", ",
+            _ => ", "
+        };
 }

@@ -85,9 +85,11 @@ namespace BoardGames.Services
                     throw new InvalidOperationException("You can't join this game: there too many players already.");
                 game = game with { Players = game.Players.Add(new GamePlayer(userId)) };
             } else { // Leave
-                if (game.Players.All(p => p.UserId != userId))
+                var leftPlayer = game.Players.SingleOrDefault(p => p.UserId == userId);
+                if (leftPlayer == null)
                     throw new InvalidOperationException("You've already left this game.");
-                game = game with { Players = game.Players.RemoveAll(p => p.UserId == userId) };
+                game = game with { Players = game.Players.Remove(leftPlayer) };
+                context.Items.Set(OperationItem.New(leftPlayer));
             }
 
             dbGame.UpdateFrom(game);
@@ -211,7 +213,7 @@ namespace BoardGames.Services
             await PseudoListOwnAsync(user.Id, cancellationToken);
 
             await using var dbContext = CreateDbContext();
-            var games = dbContext.Games.AsQueryable().Where(g => g.UserId == userId);
+            var games = dbContext.Games.AsQueryable().Where(g => g.Players.Any(p => p.UserId == userId));
             if (engineId != null)
                 games = games.Where(g => g.EngineId == engineId);
             if (stage != null) {
@@ -292,7 +294,14 @@ namespace BoardGames.Services
 
             // Invalidation
             FindAsync(game.Id, default).Ignore();
-            PseudoListOwnAsync(game.UserId.ToString(), default).Ignore();
+
+            // Own games of all affected players
+            foreach (var gamePlayer in game.Players)
+                PseudoListOwnAsync(gamePlayer.UserId.ToString(), default).Ignore();
+            var leftPlayer = context.Items.Get<OperationItem<GamePlayer>>().Value;
+            PseudoListOwnAsync(leftPlayer.UserId.ToString(), default).Ignore();
+
+            // Global lists
             PseudoListAsync(game.EngineId, game.Stage, default).Ignore();
             PseudoListAsync(game.EngineId, null, default).Ignore();
             PseudoListAsync(null, game.Stage, default).Ignore();
