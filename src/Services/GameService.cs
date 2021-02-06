@@ -12,13 +12,14 @@ using BoardGames.Abstractions;
 using Stl.Async;
 using Stl.CommandR;
 using Stl.CommandR.Configuration;
+using Stl.DependencyInjection;
 using Stl.Fusion.Authentication;
 using Stl.Fusion.EntityFramework;
 using Stl.Fusion.Operations;
 
 namespace BoardGames.Services
 {
-    [ComputeService(typeof(IGameService))]
+    [ComputeService, ServiceAlias(typeof(IGameService))]
     public class GameService : DbServiceBase<AppDbContext>, IGameService
     {
         protected ImmutableDictionary<string, IGameEngine> GameEngines { get; }
@@ -58,7 +59,7 @@ namespace BoardGames.Services
             dbGame.UpdateFrom(game);
             dbContext.Add(dbGame);
             await dbContext.SaveChangesAsync(cancellationToken);
-            context.Items.Set(OperationItem.New(game));
+            context.Operation().Items.Set(game);
             return game;
         }
 
@@ -89,12 +90,12 @@ namespace BoardGames.Services
                 if (leftPlayer == null)
                     throw new InvalidOperationException("You've already left this game.");
                 game = game with { Players = game.Players.Remove(leftPlayer) };
-                context.Items.Set(OperationItem.New(leftPlayer));
+                context.Operation().Items.Set(leftPlayer);
             }
 
             dbGame.UpdateFrom(game);
             await dbContext.SaveChangesAsync(cancellationToken);
-            context.Items.Set(OperationItem.New(game));
+            context.Operation().Items.Set(game);
 
             // Try auto-start
             if (join && engine.AutoStart && game.Players.Count == engine.MaxPlayerCount)
@@ -126,14 +127,14 @@ namespace BoardGames.Services
                 throw new InvalidOperationException(
                     $"Too many players: {engine.MaxPlayerCount - game.Players.Count} player(s) must leave to start the game.");
 
-            context.Items.Set(OperationItem.New(game.Stage)); // Saving prev. stage
+            context.Operation().Items.Set((GameStage?) game.Stage); // Saving prev. stage
             game = game with {
                 StartedAt = Clock.Now,
                 Stage = GameStage.Playing,
             };
             dbGame.UpdateFrom(game);
             await dbContext.SaveChangesAsync(cancellationToken);
-            context.Items.Set(OperationItem.New(game));
+            context.Operation().Items.Set(game);
         }
 
         public virtual async Task MoveAsync(Game.MoveCommand command, CancellationToken cancellationToken = default)
@@ -160,7 +161,7 @@ namespace BoardGames.Services
             state = engine.Move(state, move);
             game = game with { State = state };
             if (state.IsGameEnded) {
-                context.Items.Set(OperationItem.New(game.Stage)); // Saving prev. stage
+                context.Operation().Items.Set((GameStage?) game.Stage); // Saving prev. stage
                 var players = game.Players
                     .Select((p, index) => new GamePlayer(p.UserId, state.PlayerScores[index]))
                     .ToImmutableList();
@@ -173,7 +174,7 @@ namespace BoardGames.Services
             }
             dbGame.UpdateFrom(game);
             await dbContext.SaveChangesAsync(cancellationToken);
-            context.Items.Set(OperationItem.New(game));
+            context.Operation().Items.Set(game);
         }
 
         public virtual async Task EditAsync(Game.EditCommand command, CancellationToken cancellationToken = default)
@@ -189,7 +190,7 @@ namespace BoardGames.Services
             dbGame.IsPublic = isPublic;
             var game = dbGame.ToModel();
             await dbContext.SaveChangesAsync(cancellationToken);
-            context.Items.Set(OperationItem.New(game));
+            context.Operation().Items.Set(game);
         }
 
         // Queries
@@ -289,8 +290,8 @@ namespace BoardGames.Services
                 return;
             }
 
-            var game = context.Items.Get<OperationItem<Game>>().Value;
-            var prevStage = context.Items.TryGet<OperationItem<GameStage>>()?.Value;
+            var game = context.Operation().Items.Get<Game>();
+            var prevStage = context.Operation().Items.TryGet<GameStage?>();
 
             // Invalidation
             FindAsync(game.Id, default).Ignore();
@@ -298,8 +299,9 @@ namespace BoardGames.Services
             // Own games of all affected players
             foreach (var gamePlayer in game.Players)
                 PseudoListOwnAsync(gamePlayer.UserId.ToString(), default).Ignore();
-            var leftPlayer = context.Items.Get<OperationItem<GamePlayer>>().Value;
-            PseudoListOwnAsync(leftPlayer.UserId.ToString(), default).Ignore();
+            var leftPlayer = context.Operation().Items.TryGet<GamePlayer>();
+            if (leftPlayer != null)
+                PseudoListOwnAsync(leftPlayer.UserId.ToString(), default).Ignore();
 
             // Global lists
             PseudoListAsync(game.EngineId, game.Stage, default).Ignore();
