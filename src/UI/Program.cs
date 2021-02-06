@@ -97,6 +97,10 @@ namespace BoardGames.UI
             services.AddSingleton(c => new UpdateDelayer.Options() {
                 Delay = TimeSpan.FromSeconds(0.5),
             });
+            services.RemoveAll<PresenceService.Options>();
+            services.AddSingleton(c => new PresenceService.Options() {
+                UpdatePeriod = TimeSpan.FromMinutes(1),
+            });
 
             // Other UI services
             services.AddSingleton<IMatchingTypeFinder>(new MatchingTypeFinder(typeof(Program).Assembly));

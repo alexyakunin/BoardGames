@@ -13,5 +13,7 @@ namespace BoardGames.UI.Services
         // Queries
         [Get("find/{id}")]
         Task<GameUser?> FindAsync([Path] long id, CancellationToken cancellationToken = default);
+        [Get("isOnline/{id}")]
+        Task<bool> IsOnlineAsync([Path] long id, CancellationToken cancellationToken = default);
     }
 }

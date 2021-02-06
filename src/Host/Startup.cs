@@ -89,7 +89,9 @@ namespace BoardGames.Host
                 var operationLogChangeAlertPath = dbPath + "_changed";
                 b.AddFileBasedDbOperationLogChangeNotifier(operationLogChangeAlertPath);
                 b.AddFileBasedDbOperationLogChangeMonitor(operationLogChangeAlertPath);
-                b.AddDbAuthentication();
+                b.AddDbAuthentication((_, options) => {
+                    options.MinUpdatePresencePeriod = TimeSpan.FromSeconds(55);
+                });
                 b.AddDbEntityResolver<string, DbGame>((_, options) => {
                     options.QueryTransformer = games => games.Include(g => g.Players);
                 });

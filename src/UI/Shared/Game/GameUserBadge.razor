@@ -1,5 +1,12 @@
-<Badge Color="@(IsHighlighted ? Color.Dark : Color.Secondary)">
-    <Blazorise.Icon Name="FontAwesomeIcons.User" />
+@inherits LiveComponentBase<bool>
+@inject IGameUserService GameUserService
+
+@{
+    var isOnline = State.LastValue;
+}
+
+<Badge Color="@(IsHighlighted ? Color.Primary : Color.Secondary)" Style="@(isOnline ? "" : "opacity: 0.5;")">
+    <Blazorise.Icon Name="@(isOnline ? FontAwesomeIcons.User : FontAwesomeIcons.UserMinus)" />
     @User.Name
 </Badge>
 
@@ -10,4 +17,11 @@
     public GameUser User { get; set; } = GameUser.None;
     [Parameter]
     public bool IsHighlighted { get; set; }
+
+    protected override async Task<bool> ComputeStateAsync(CancellationToken cancellationToken)
+    {
+        if (User.Id <= 0)
+            return false;
+        return await GameUserService.IsOnlineAsync(User.Id, cancellationToken);
+    }
 }
