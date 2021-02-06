@@ -1,5 +1,5 @@
 @foreach(var (user, index) in Users.Select((user, index) => (user, index))) {
-    <span>@(index switch { 0 => "", 1 => " with ", _ => ", "})</span>
+    <span>@GetDelimiter(index)</span>
     <GameUserBadge User="@user" IsHighlighted="@(index == 0 && HighlightCreator)"/>
 }
 
