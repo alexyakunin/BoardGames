@@ -18,8 +18,8 @@ using Stl.Fusion.Client;
 using Stl.OS;
 using Stl.DependencyInjection;
 using Stl.Extensibility;
+using Stl.Fusion.Authentication;
 using Stl.Fusion.Blazor;
-using Stl.Serialization;
 
 namespace BoardGames.UI
 {
@@ -52,26 +52,29 @@ namespace BoardGames.UI
         {
             builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
+            // Let's give a chance for UI-specific configuration logic to kick in first
+            ConfigureSharedServices(services);
+            services.UseAttributeScanner(ClientSideScope).AddServicesFrom(Assembly.GetExecutingAssembly());
+
             var baseUri = new Uri(builder.HostEnvironment.BaseAddress);
             var apiBaseUri = new Uri($"{baseUri}api/");
 
-            var fusion = services.AddFusion();
-            var fusionClient = fusion.AddRestEaseClient(
-                (c, o) => {
-                    o.BaseUri = baseUri;
-                    o.MessageLogLevel = LogLevel.Information;
-                }).ConfigureHttpClientFactory(
-                (c, name, o) => {
-                    var isFusionClient = (name ?? "").StartsWith("Stl.Fusion");
-                    var clientBaseUri = isFusionClient ? baseUri : apiBaseUri;
-                    o.HttpClientActions.Add(client => client.BaseAddress = clientBaseUri);
+            services.AddFusion(fusion => {
+                fusion.AddRestEaseClient(
+                    (c, o) => {
+                        o.BaseUri = baseUri;
+                        o.MessageLogLevel = LogLevel.Information;
+                    }).ConfigureHttpClientFactory(
+                    (c, name, o) => {
+                        var isFusionClient = (name ?? "").StartsWith("Stl.Fusion");
+                        var clientBaseUri = isFusionClient ? baseUri : apiBaseUri;
+                        o.HttpClientActions.Add(client => client.BaseAddress = clientBaseUri);
+                    });
+                fusion.AddAuthentication(fusionAuth => {
+                    fusionAuth.AddRestEaseClient();
+                    fusionAuth.AddBlazor();
                 });
-            var fusionAuth = fusion.AddAuthentication().AddRestEaseClient().AddBlazor();
-
-            // This method registers services marked with any of ServiceAttributeBase descendants, including:
-            // [Service], [ComputeService], [RestEaseReplicaService], [LiveStateUpdater]
-            services.UseAttributeScanner(ClientSideScope).AddServicesFrom(Assembly.GetExecutingAssembly());
-            ConfigureSharedServices(services);
+            });
         }
 
         public static void ConfigureSharedServices(IServiceCollection services)
@@ -90,7 +93,7 @@ namespace BoardGames.UI
                 .AddBootstrapProviders()
                 .AddFontAwesomeIcons();
 
-            // Fusion: default delay for update delayers
+            // Fusion
             services.AddSingleton(c => new UpdateDelayer.Options() {
                 Delay = TimeSpan.FromSeconds(0.5),
             });
