@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
+using Stl.Serialization;
 using Stl.Time;
 
 namespace BoardGames.Abstractions
@@ -15,12 +18,11 @@ namespace BoardGames.Abstractions
         int MaxPlayerCount { get; }
         bool AutoStart { get; }
 
-        GameState New();
-        GameState Move(GameState state, GameMove move);
+        Game Start(Game game);
+        Game Move(Game game, GameMove move);
     }
 
     public abstract class GameEngine<TGameState, TGameMove> : IGameEngine
-        where TGameState : GameState
         where TGameMove : GameMove
     {
         public abstract string Id { get; }
@@ -30,25 +32,36 @@ namespace BoardGames.Abstractions
         public abstract int MaxPlayerCount { get; }
         public abstract bool AutoStart { get; }
 
-        public abstract TGameState New();
-        public abstract TGameState Move(TGameState state, TGameMove move);
+        public abstract Game Start(Game game);
+        Game IGameEngine.Move(Game game, GameMove move) => Move(game, (TGameMove) move);
+        public abstract Game Move(Game game, TGameMove move);
 
-        GameState IGameEngine.New() => New();
-        GameState IGameEngine.Move(GameState state, GameMove move)
-            => Move((TGameState) state, (TGameMove) move);
+        public virtual string SerializeState(TGameState state)
+            => JsonSerialized.New(state).SerializedValue;
+
+        public virtual TGameState DeserializeState(string stateJson)
+            => JsonSerialized.New<TGameState>(stateJson).Value;
+
+        protected Game SetPlayerScore(Game game, int playerIndex, long score)
+            => game with {
+                Players = game.Players.Select((p, i) =>
+                    i == playerIndex
+                        ? p with { Score = score}
+                        : p).ToImmutableList(),
+            };
+
+        protected Game IncrementPlayerScore(Game game, int playerIndex, long score)
+            => game with {
+                Players = game.Players.Select((p, i) =>
+                    i == playerIndex
+                        ? p with { Score = p.Score + score}
+                        : p).ToImmutableList(),
+            };
     }
 
     public abstract record GameMove(Moment Time)
     {
         protected GameMove() : this(default(Moment)) { }
-    }
-
-    public record GameState
-    {
-        public string Message { get; init; } = "";
-        public long[] PlayerScores { get; init; } = Array.Empty<long>();
-        public bool IsGameEnded => !string.IsNullOrEmpty(GameEndMessage);
-        public string GameEndMessage { get; init; } = "";
     }
 
     public record CharBoard

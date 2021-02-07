@@ -9,8 +9,10 @@
     public string CssClass { get; set; } = "";
 
     [Parameter]
-    public DateTime Time { get; set; }
+    public DateTime? Value { get; set; }
+    [Parameter]
+    public string None { get; set; } = "n/a";
 
     protected override Task<string> ComputeStateAsync(CancellationToken cancellationToken)
-        => MomentsAgoService.GetMomentsAgoAsync(Time);
+        => Value.HasValue ? MomentsAgoService.GetMomentsAgoAsync(Value.Value) : Task.FromResult(None);
 }

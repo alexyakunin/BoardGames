@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Immutable;
 using System.Reactive;
+using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 using Stl.Fusion.Authentication;
+using Stl.Serialization;
 
 namespace BoardGames.Abstractions
 {
@@ -42,11 +45,15 @@ namespace BoardGames.Abstractions
         public ImmutableList<GamePlayer> Players { get; init; } = ImmutableList<GamePlayer>.Empty;
         public DateTime CreatedAt { get; init; }
         public DateTime? StartedAt { get; init; }
+        public DateTime? LastMoveAt { get; init; }
         public DateTime? EndedAt { get; init; }
+        public long? MaxScore { get; init; }
         public GameStage Stage { get; init; }
-        public GameState? State { get; init; }
-        public string Message { get; init; } = "";
-        public string GameEndMessage { get; init; } = "";
+        public string StateMessage { get; init; } = "";
+        public string StateJson { get; init; } = "";
+
+        public virtual bool Equals(Game? other) => ReferenceEquals(this, other);
+        public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
     }
 
     public record GamePlayer(long UserId, long Score = 0)

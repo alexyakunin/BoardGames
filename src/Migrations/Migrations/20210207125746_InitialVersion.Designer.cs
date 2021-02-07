@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BoardGames.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210207003904_Init")]
-    partial class Init
+    [Migration("20210207125746_InitialVersion")]
+    partial class InitialVersion
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -36,12 +36,14 @@ namespace BoardGames.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("GameEndMessage")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastMoveAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long?>("MaxScore")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Stage")
                         .HasColumnType("integer");
@@ -50,6 +52,10 @@ namespace BoardGames.Migrations.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("StateJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StateMessage")
                         .IsRequired()
                         .HasColumnType("text");
 

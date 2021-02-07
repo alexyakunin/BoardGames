@@ -15,10 +15,9 @@
     protected ImmutableDictionary<long, GameUser> Users { get; set; } = ImmutableDictionary<long, GameUser>.Empty;
     protected ImmutableList<GameUser> OrderedUsers { get; set; } = ImmutableList<GameUser>.Empty;
     protected GameUser Me { get; set; } = GameUser.None;
-    protected GameState GameState { get; set; } = null!;
     protected bool IsOwner => Me.Id == Game.UserId;
     protected bool IsParticipant => !IsOwner && Users.ContainsKey(Me.Id);
-    protected int MyIndex => OrderedUsers.IndexOf(Me);
+    protected int MyPlayerIndex => OrderedUsers.IndexOf(Me);
 
     protected override Task OnParametersSetAsync()
     {
@@ -27,7 +26,6 @@
         Users = Model.Users;
         OrderedUsers = Game.Players.Select(p => Users[p.UserId]).ToImmutableList();
         Me = Model.Me;
-        GameState = Game.State ?? GameEngine.New();
         return Task.CompletedTask;
     }
 }

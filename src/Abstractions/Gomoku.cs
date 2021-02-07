@@ -1,11 +1,15 @@
 using System;
 using System.Linq;
 using Stl.Time;
+using Stl.Time.Internal;
 
 namespace BoardGames.Abstractions
 {
-    public record GomokuState(CharBoard Board, int MoveIndex = 0) : GameState
+    public record GomokuState(CharBoard Board, int MoveIndex = 0, int FirstPlayerIndex = 0)
     {
+        public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % 2;
+        public int NextPlayerIndex => (PlayerIndex + 1) % 2;
+
         public GomokuState() : this((CharBoard) null!) { }
     }
 
@@ -25,35 +29,43 @@ namespace BoardGames.Abstractions
         public override int MaxPlayerCount => 2;
         public override bool AutoStart => true;
 
-        public override GomokuState New()
-            => new(CharBoard.Empty(BoardSize)) {
-                PlayerScores = new long[2],
-            };
-
-        public override GomokuState Move(GomokuState state, GomokuMove move)
+        public override Game Start(Game game)
         {
-            if (state.IsGameEnded)
-                throw new ApplicationException("Game is already ended.");
-            if (move.PlayerIndex != state.MoveIndex % 2)
+            var firstPlayerIndex = CoarseStopwatch.RandomInt32 % 2;
+            var state = new GomokuState(CharBoard.Empty(BoardSize), 0, firstPlayerIndex);
+            return game with {
+                StateJson = SerializeState(state),
+                StateMessage = GameMessages.MoveTurn(state.PlayerIndex),
+            };
+        }
+
+        public override Game Move(Game game, GomokuMove move)
+        {
+            if (game.Stage == GameStage.Ended)
+                throw new ApplicationException("Game is ended.");
+            var state = DeserializeState(game.StateJson);
+            if (move.PlayerIndex != state.PlayerIndex)
                 throw new ApplicationException("It's another player's turn.");
             var board = state.Board;
             if (board[move.Row, move.Column] != ' ')
                 throw new ApplicationException("The cell is already occupied.");
 
             var nextBoard = board.Set(move.Row, move.Column, GetPlayerMarker(move.PlayerIndex));
-            state = state with {
+            var nextState = state with {
                 Board = nextBoard,
                 MoveIndex = state.MoveIndex + 1,
             };
-            if (CheckGameEnded(nextBoard, move)) {
-                var playerScores = state.PlayerScores.ToArray();
-                playerScores[move.PlayerIndex] = 1;
-                state = state with {
-                    GameEndMessage = $"|@p{move.PlayerIndex}| won.",
-                    PlayerScores = playerScores,
+            var nextGame = game with { StateJson = SerializeState(nextState) };
+            if (CheckGameEnded(nextBoard, move))
+                nextGame = IncrementPlayerScore(nextGame, move.PlayerIndex, 1) with {
+                    StateMessage = GameMessages.Win(move.PlayerIndex),
+                    Stage = GameStage.Ended,
                 };
-            }
-            return state;
+            else
+                nextGame = nextGame with {
+                    StateMessage = GameMessages.MoveTurn(nextState.PlayerIndex),
+                };
+            return nextGame;
         }
 
         public char GetPlayerMarker(int playerIndex)

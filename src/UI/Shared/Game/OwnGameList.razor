@@ -6,6 +6,7 @@
 @inject IGameUserService GameUsers
 @inject ImmutableDictionary<string, IGameEngine> GameEngines;
 @inject Session Session
+@inject NavigationManager Navigator
 
 @{
     var state = State.LastValue;
@@ -16,36 +17,48 @@
     <WhenUpdateError Exception="@error" />
     @if (state.Games.Count > 0) {
         <Heading Size="HeadingSize.Is4">@Title</Heading>
-        <Table Narrow="true" Striped="true">
+        <Table Narrow="true" Striped="true" Hoverable="true">
             <TableHeader>
+                <TableHeaderCell Style="width: 1%"></TableHeaderCell>
                 @if (GameEngineId != null) {
-                    <TableHeaderCell>Game type</TableHeaderCell>
+                    <TableHeaderCell Style="width: 20%">Game type</TableHeaderCell>
                 }
-                <TableHeaderCell>Stage</TableHeaderCell>
-                <TableHeaderCell>Creator and players</TableHeaderCell>
-                <TableHeaderCell>Created</TableHeaderCell>
-                <TableHeaderCell></TableHeaderCell>
+                <TableHeaderCell Style="width: 20%">Creator and players</TableHeaderCell>
+                <TableHeaderCell Style="width: auto">State</TableHeaderCell>
+                <TableHeaderCell Style="width: 20%">Last action</TableHeaderCell>
             </TableHeader>
             <TableBody>
                 @foreach(var game in state.Games) {
-                    <TableRow>
+                    var gameUrl = LinkBuilder.Game(game.EngineId, game.Id);
+                    <TableRow Clicked="_ => Navigator.NavigateTo(gameUrl)">
+                        <TableRowCell>
+                            <Button Size="Size.Small" Color="Color.Primary" Type="@ButtonType.Link" To="@gameUrl">
+                                <Blazorise.Icon Name="@FontAwesomeIcons.Gamepad" />
+                            </Button>
+                        </TableRowCell>
                         @if (GameEngineId != null) {
                             <TableHeaderCell>
                                 <a href="@LinkBuilder.Game(game.EngineId)">@GameEngines[game.EngineId].Title</a>
                             </TableHeaderCell>
                         }
                         <TableRowCell>
-                            <Badge Color="@GetStageColor(game.Stage)">@game.Stage</Badge>
-                        </TableRowCell>
-                        <TableRowCell>
                             <GameUsersBadge Users="@game.Players.Select(p => state.GetUser(p.UserId))"/>
                         </TableRowCell>
                         <TableRowCell>
-                            <MomentsAgoBadge Time="@game.CreatedAt"/>
+                            <Badge Color="@GetStageColor(game.Stage)">@game.Stage</Badge>
+                            @if (!string.IsNullOrEmpty(game.StateMessage)) {
+                                <span>, </span>
+                                <GameMessage Message="@game.StateMessage" Players="@game.Players" Users="@state.Users"/>
+                            }
                         </TableRowCell>
                         <TableRowCell>
-                            <Button Size="Size.Small" Color="Color.Info"
-                                    Type="@ButtonType.Link" To="@(LinkBuilder.Game(game.EngineId, game.Id))">View</Button>
+                            @if (game.LastMoveAt.HasValue) {
+                                <MomentsAgoBadge Value="@game.LastMoveAt.GetValueOrDefault()"/>
+                            } else if (game.StartedAt.HasValue) {
+                                <MomentsAgoBadge Value="@game.StartedAt.GetValueOrDefault()"/>
+                            } else {
+                                <MomentsAgoBadge Value="@game.CreatedAt"/>
+                            }
                         </TableRowCell>
                     </TableRow>
                 }

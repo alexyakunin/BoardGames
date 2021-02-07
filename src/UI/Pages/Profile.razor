@@ -1,0 +1,176 @@
+@page "/profile"
+@using UAParser
+@using System.Collections.Concurrent
+@using Stl.Fusion.Authentication.Commands
+@inherits LiveComponentBase<Profile.Model>
+@inject Session Session
+@inject IAuthService AuthService
+@inject MomentsAgoService MomentsAgoService
+@inject ClientAuthHelper ClientAuthHelper
+@inject NavigationManager Navigator
+
+@{
+    var state = State.LastValue;
+    var error = State.Error;
+    var usedAuthSchemas = state.User.Identities.Select(kv => kv.Key.Schema).ToHashSet();
+    var unusedAuthSchemas = AuthSchemas.Where(p => !usedAuthSchemas.Contains(p.Name)).ToArray();
+}
+
+<h1>Profile</h1>
+
+<WhenUpdateError Exception="@error"/>
+
+<AuthorizeView>
+    <NotAuthorized>
+        <SignInDropdown Why="to edit your profile" />
+    </NotAuthorized>
+        <Authorized><!--
+This comment resets the indent :) -->
+
+<h4>User properties</h4>
+
+<WhenCommandError Exception="CommandRunner.Error"/>
+
+<Row Margin="Margin.Is3.OnY">
+    <Column ColumnSize="ColumnSize.Is6">
+        <Form @onsubmit="_ => ChangeUserNameAsync()" >
+            <Addons>
+                <Addon AddonType="AddonType.Start">
+                    <AddonLabel>User name</AddonLabel>
+                </Addon>
+                <TextEdit @bind-Text="@UserName.Current" />
+                <Addon AddonType="AddonType.End">
+                    <Button Type="@ButtonType.Submit" Color="Color.Primary">
+                        Change
+                    </Button>
+                </Addon>
+            </Addons>
+        </Form>
+    </Column>
+</Row>
+
+@if (unusedAuthSchemas.Length != 0) {
+    <Paragraph Margin="Margin.Is3.OnY">
+        <Buttons Margin="Margin.Is0">
+            @foreach (var (name, displayName) in unusedAuthSchemas) {
+                <Button Color="Color.Primary" @onclick="_ => ClientAuthHelper.SignInAsync(name)">
+                    <Blazorise.Icon Name="FontAwesomeIcons.Plus"/>
+                    Add @displayName
+                </Button>
+            }
+        </Buttons>
+    </Paragraph>
+}
+
+<h4>Sessions</h4>
+
+<Table Narrow="true" Striped="true">
+    <TableHeader>
+        <TableHeaderCell Style="width: 10%">IP</TableHeaderCell>
+        <TableHeaderCell Style="width: auto">Browser</TableHeaderCell>
+        <TableHeaderCell Style="width: 20%">Created</TableHeaderCell>
+        <TableHeaderCell Style="width: 20%">Last seen</TableHeaderCell>
+        <TableHeaderCell Style="width: 1%"></TableHeaderCell>
+    </TableHeader>
+    <TableBody>
+        @foreach (var session in state.Sessions) {
+            <TableRow @key="@session.Id">
+                <TableRowCell>@session.IPAddress</TableRowCell>
+                <TableRowCell>@session.UserAgent</TableRowCell>
+                <TableRowCell><MomentsAgoBadge Value="@session.CreatedAt"/></TableRowCell>
+                <TableRowCell><MomentsAgoBadge Value="@session.LastSeenAt"/></TableRowCell>
+                <TableRowCell>
+                    @if (session.IsCurrent) {
+                        <span>Current</span>
+                    }
+                    else {
+                        <Button Size="Size.Small" Color="Color.Danger"
+                                Clicked="@(_ => ClientAuthHelper.SignOutAsync(session.Id))">
+                            Kick
+                        </Button>
+                    }
+                </TableRowCell>
+            </TableRow>
+        }
+    </TableBody>
+</Table>
+
+<h4>Sign out</h4>
+
+<Button Color="Color.Warning" @onclick="_ => ClientAuthHelper.SignOutAsync()">Sign out</Button>
+<Button Color="Color.Danger" @onclick="_ => ClientAuthHelper.SignOutEverywhereAsync()">Sign out everywhere</Button>
+
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    public class Model
+    {
+        public User User { get; init; } = new("none");
+        public ImmutableList<SessionModel> Sessions { get; init; } = ImmutableList<SessionModel>.Empty;
+    }
+
+    public class SessionModel
+    {
+        public string Id { get; init; } = "";
+        public string IPAddress { get; init; } = "";
+        public string UserAgent { get; init; } = "";
+        public DateTime? CreatedAt { get; init; }
+        public DateTime? LastSeenAt { get; init; }
+        public bool IsCurrent { get; init; }
+    }
+
+    private static readonly Parser Parser = Parser.GetDefault();
+    private static readonly ConcurrentDictionary<string, UserAgent> UserAgentCache = new();
+
+    [Inject]
+    private CommandRunner CommandRunner { get; set; } = null!;
+    private (string Name, string DisplayName)[] AuthSchemas { get; set; } = Array.Empty<(string, string)>();
+    private Editor<string> UserName { get; set; } = new();
+
+    protected override void OnParametersSet()
+        => CommandRunner.Component = this;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) {
+            // GetSchemasAsync requires JS interop, so it can be called only at this point
+            AuthSchemas = await ClientAuthHelper.GetSchemasAsync();
+            StateHasChanged();
+        }
+    }
+
+    protected override void ConfigureState(LiveState<Model>.Options options)
+        => options.WithInstantUpdates();
+
+    protected override async Task<Model> ComputeStateAsync(CancellationToken cancellationToken)
+    {
+        var user = await AuthService.GetUserAsync(Session, cancellationToken);
+        var sessions = await AuthService.GetUserSessionsAsync(Session, cancellationToken);
+
+        var sessionModels = new List<SessionModel>();
+        foreach (var session in sessions) {
+            var userAgent = UserAgentCache.GetOrAdd(session.UserAgent, ua => Parser.ParseUserAgent(ua));
+            var sessionModel = new SessionModel() {
+                Id = session.Id,
+                IsCurrent = Session.Id == session.Id,
+                IPAddress = session.IPAddress,
+                UserAgent = $"{userAgent.Family} {userAgent.Major}.{userAgent.Minor}",
+                CreatedAt = session.CreatedAt,
+                LastSeenAt = session.LastSeenAt,
+            };
+            sessionModels.Add(sessionModel);
+        }
+        UserName.Original = user.Name;
+        return new Model() {
+            User = user,
+            Sessions = sessionModels.ToImmutableList(),
+        };
+    }
+
+    private async Task ChangeUserNameAsync()
+    {
+        var command = new EditUserCommand(Session, UserName.Current);
+        await CommandRunner.CallAsync(command);
+    }
+}

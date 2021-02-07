@@ -2,15 +2,16 @@
 @inherits GamePlayBase
 
 @{
-    var gameState = (GomokuState) GameState;
+    var gameEngine = (GomokuEngine) GameEngine;
+    var gameState = gameEngine.DeserializeState(Game.StateJson);
     var board = gameState.Board;
 }
 
 <WhenCommandError Exception="CommandRunner.Error"/>
 
-@if (!gameState.IsGameEnded) {
+@if (Game.Stage != GameStage.Ended) {
     <Paragraph>
-        <GameUserBadge User="OrderedUsers[gameState.MoveIndex % 2]"/>, it's your turn!
+        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users" />
     </Paragraph>
 }
 
@@ -36,7 +37,7 @@
 @code {
     private Task MoveAsync(int r, int c)
     {
-        var move = new GomokuMove(MyIndex, r, c);
+        var move = new GomokuMove(MyPlayerIndex, r, c);
         var command = new Game.MoveCommand(Session, Game.Id, move);
         return CommandRunner.CallAsync(command);
     }

@@ -5,6 +5,7 @@
 @inject IGameUserService GameUsers
 @inject ImmutableDictionary<string, IGameEngine> GameEngines;
 @inject AuthStateProvider AuthStateProvider
+@inject NavigationManager Navigator
 
 @{
     var state = State.LastValue;
@@ -15,24 +16,26 @@
     <Heading Size="HeadingSize.Is4">@Title</Heading>
     <WhenUpdateError Exception="@error" />
     @if (state.Games.Count > 0) {
-        <Table Narrow="true" Striped="true">
+        <Table Narrow="true" Striped="true" Hoverable="true">
             <TableHeader>
-                <TableHeaderCell>Creator and players</TableHeaderCell>
-                <TableHeaderCell>Created</TableHeaderCell>
-                <TableHeaderCell></TableHeaderCell>
+                <TableHeaderCell Style="width: 1%"></TableHeaderCell>
+                <TableHeaderCell Style="width: auto">Creator and players</TableHeaderCell>
+                <TableHeaderCell Style="width: 20%">Created</TableHeaderCell>
             </TableHeader>
             <TableBody>
                 @foreach(var game in state.Games) {
-                    <TableRow>
+                    var gameUrl = LinkBuilder.Game(game.EngineId, game.Id);
+                    <TableRow Clicked="_ => Navigator.NavigateTo(gameUrl)">
+                        <TableRowCell>
+                            <Button Size="Size.Small" Color="Color.Primary" Type="@ButtonType.Link" To="@gameUrl">
+                                <Blazorise.Icon Name="@FontAwesomeIcons.Gamepad" />
+                            </Button>
+                        </TableRowCell>
                         <TableRowCell>
                             <GameUsersBadge Users="@game.Players.Select(p => state.GetUser(p.UserId))"/>
                         </TableRowCell>
                         <TableRowCell>
-                            <MomentsAgoBadge Time="@game.CreatedAt"/>
-                        </TableRowCell>
-                        <TableRowCell>
-                            <Button Size="Size.Small" Color="Color.Info"
-                                    Type="@ButtonType.Link" To="@(LinkBuilder.Game(game.EngineId, game.Id))">View</Button>
+                            <MomentsAgoBadge Value="@game.CreatedAt"/>
                         </TableRowCell>
                     </TableRow>
                 }

@@ -34,16 +34,14 @@ namespace BoardGames.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("GameEndMessage")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<bool>("IsPublic")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("LastMoveAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<long?>("MaxScore")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Stage")
                         .HasColumnType("integer");
@@ -52,6 +50,10 @@ namespace BoardGames.Migrations.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("StateJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("StateMessage")
                         .IsRequired()
                         .HasColumnType("text");
 

@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BoardGames.Migrations.Migrations
 {
-    public partial class Init : Migration
+    public partial class InitialVersion : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -51,12 +51,14 @@ namespace BoardGames.Migrations.Migrations
                     EngineId = table.Column<string>(type: "text", nullable: false),
                     UserId = table.Column<long>(type: "bigint", nullable: false),
                     IsPublic = table.Column<bool>(type: "boolean", nullable: false),
-                    StateJson = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     StartedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    LastMoveAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
                     EndedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
+                    MaxScore = table.Column<long>(type: "bigint", nullable: true),
                     Stage = table.Column<int>(type: "integer", nullable: false),
-                    GameEndMessage = table.Column<string>(type: "text", nullable: false)
+                    StateMessage = table.Column<string>(type: "text", nullable: false),
+                    StateJson = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {

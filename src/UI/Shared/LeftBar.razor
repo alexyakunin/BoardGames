@@ -8,16 +8,16 @@
      CollapseMode="BarCollapseMode.Small">
     <BarToggler />
     <BarBrand>
-        @Item(FontAwesomeIcons.Home, "Home", "")
+        @Item(FontAwesomeIcons.Home, "Home", LinkBuilder.Home())
     </BarBrand>
     <BarMenu>
         <BarStart>
             @foreach(var engine in GameEngines.OrderBy(e => e.Title)) {
                 @Item(engine.Icon, engine.Title, LinkBuilder.Game(engine.Id), Match.Prefix)
             }
-            @* @Item(FontAwesomeIcons.Key, "Authentication", "authentication") *@
             <BarItem Style="min-height: 20px"></BarItem>
-            @Item(FontAwesomeIcons.Code, "Source @ GitHub", "https://github.com/alexyakunin/BoardGames")
+            @Item(FontAwesomeIcons.User, "Profile", LinkBuilder.Profile())
+            @Item(FontAwesomeIcons.Code, "Source @ GitHub", LinkBuilder.SourceCode())
         </BarStart>
     </BarMenu>
 </Bar>

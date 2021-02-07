@@ -5,9 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using BoardGames.Abstractions;
-using Stl.Serialization;
 using Stl.Time;
 
 namespace BoardGames.Services
@@ -18,9 +16,9 @@ namespace BoardGames.Services
     [Index(nameof(UserId), nameof(CreatedAt), nameof(Stage))]
     public class DbGame
     {
-        private readonly JsonSerialized<GameState?> _state = new(default(GameState?));
         private DateTime _createdAt;
         private DateTime? _startedAt;
+        private DateTime? _lastMoveAt;
         private DateTime? _endedAt;
 
         [Key] public string Id { get; set; } = "";
@@ -29,10 +27,6 @@ namespace BoardGames.Services
         public bool IsPublic { get; set; }
 
         public List<DbGamePlayer> Players { get; set; } = new();
-        public string StateJson {
-            get => _state.SerializedValue;
-            set => _state.SerializedValue = value;
-        }
 
         public DateTime CreatedAt {
             get => _createdAt.DefaultKind(DateTimeKind.Utc);
@@ -44,20 +38,20 @@ namespace BoardGames.Services
             set => _startedAt = value.DefaultKind(DateTimeKind.Utc);
         }
 
+        public DateTime? LastMoveAt {
+            get => _lastMoveAt.DefaultKind(DateTimeKind.Utc);
+            set => _lastMoveAt = value.DefaultKind(DateTimeKind.Utc);
+        }
+
         public DateTime? EndedAt {
             get => _endedAt.DefaultKind(DateTimeKind.Utc);
             set => _endedAt = value.DefaultKind(DateTimeKind.Utc);
         }
 
-        [NotMapped, JsonIgnore]
-        public GameState? State {
-            get => _state.Value;
-            set => _state.Value = value;
-        }
-
+        public long? MaxScore { get; set; }
         public GameStage Stage { get; set; }
-        public string Message { get; set; } = "";
-        public string GameEndMessage { get; set; } = "";
+        public string StateMessage { get; set; } = "";
+        public string StateJson { get; set; } = "";
 
         public Game ToModel()
             => new() {
@@ -67,11 +61,12 @@ namespace BoardGames.Services
                 IsPublic = IsPublic,
                 CreatedAt = CreatedAt,
                 StartedAt = StartedAt,
+                LastMoveAt = LastMoveAt,
                 EndedAt = EndedAt,
+                MaxScore = MaxScore,
                 Stage = Stage,
-                State = State,
-                Message = Message,
-                GameEndMessage = GameEndMessage,
+                StateMessage = StateMessage,
+                StateJson = StateJson,
                 Players = Players.OrderBy(p => p.Index).Select(p => p.ToModel()).ToImmutableList(),
             };
 
@@ -85,11 +80,12 @@ namespace BoardGames.Services
             }
             IsPublic = game.IsPublic;
             StartedAt = game.StartedAt;
+            LastMoveAt = game.StartedAt;
             EndedAt = game.EndedAt;
+            MaxScore = game.MaxScore;
             Stage = game.Stage;
-            State = game.State;
-            Message = game.Message;
-            GameEndMessage = game.GameEndMessage;
+            StateMessage = game.StateMessage;
+            StateJson = game.StateJson;
 
             var players = game.Players.ToDictionary(p => p.UserId);
             var dbPlayers = Players.Where(p => players.ContainsKey(p.UserId)).ToDictionary(p => p.UserId);

@@ -4,10 +4,10 @@
     Players: <GameUsersBadge Users="@OrderedUsers" />
 </Paragraph>
 
-@if (GameState.IsGameEnded) {
-    <Paragraph>
-        <GameEndMessage Message="@GameState.GameEndMessage" OrderedUsers="@OrderedUsers"/>
-    </Paragraph>
+@if (Game.Stage == GameStage.Ended) {
+    <Note Title="Game ended!">
+        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users" />
+    </Note>
 }
 
 <MatchingComponentFor

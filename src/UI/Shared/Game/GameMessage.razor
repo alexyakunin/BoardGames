@@ -1,0 +1,35 @@
+@{
+    var splitMessage = Message.Split('|');
+}
+
+@foreach(var part in splitMessage) {
+    if (part.StartsWith("player_")) {
+        var playerIndex = int.Parse(part[7..]);
+        var player = Players[playerIndex];
+        <GameUserBadge User="@Users[player.UserId]" />
+    } else if (part.StartsWith("score_")) {
+        var playerIndex = int.Parse(part[6..]);
+        <Badge Color="Color.Success">
+            @if (MaxScore.HasValue) {
+                @(Players[playerIndex].Score * 1.0 / MaxScore.Value)
+                <span>points</span>
+            } else {
+                @(Players[playerIndex].Score)
+                <Blazorise.Icon Name="FontAwesomeIcons.Star"/>
+            }
+        </Badge>
+    } else {
+        @part
+    }
+}
+
+@code {
+    [Parameter]
+    public string Message { get; set; } = "";
+    [Parameter]
+    public ImmutableList<GamePlayer> Players { get; set; } = ImmutableList<GamePlayer>.Empty;
+    [Parameter]
+    public ImmutableDictionary<long, GameUser> Users { get; set; } = ImmutableDictionary<long, GameUser>.Empty;
+    [Parameter]
+    public long? MaxScore { get; set; }
+}

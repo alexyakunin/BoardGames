@@ -55,5 +55,30 @@ namespace BoardGames.Services
                     IsOnlineAsync(userId, default).Ignore();
             }
         }
+
+        // Validates user name on edit
+        [CommandHandler(IsFilter = true, Priority = 1)]
+        protected virtual async Task OnEditUserAsync(EditUserCommand command, CancellationToken cancellationToken)
+        {
+            var (session, name) = command;
+            var context = CommandContext.GetCurrent();
+            if (Computed.IsInvalidating()) {
+                await context.InvokeRemainingHandlersAsync(cancellationToken);
+                return;
+            }
+            if (name != null) {
+                if (name.Length < 4)
+                    throw new InvalidOperationException("Name is too short");
+
+                var user = await AuthService.GetUserAsync(session, cancellationToken);
+                user = user.MustBeAuthenticated();
+                var userId = long.Parse(user.Id);
+
+                await using var dbContext = CreateDbContext();
+                if (dbContext.Users.Any(u => u.Name == name && u.Id != userId))
+                    throw new InvalidOperationException("This name is already used.");
+            }
+            await context.InvokeRemainingHandlersAsync(cancellationToken);
+        }
     }
 }
