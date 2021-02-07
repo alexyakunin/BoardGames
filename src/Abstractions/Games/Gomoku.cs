@@ -3,7 +3,7 @@ using System.Linq;
 using Stl.Time;
 using Stl.Time.Internal;
 
-namespace BoardGames.Abstractions
+namespace BoardGames.Abstractions.Games
 {
     public record GomokuState(CharBoard Board, int MoveIndex = 0, int FirstPlayerIndex = 0)
     {

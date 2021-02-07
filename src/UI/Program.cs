@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Pluralize.NET;
 using BoardGames.Abstractions;
+using BoardGames.Abstractions.Games;
 using Stl.Fusion;
 using Stl.Fusion.Client;
 using Stl.OS;
