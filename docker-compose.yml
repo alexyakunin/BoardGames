@@ -1,14 +1,27 @@
 version: '3.4'
 services:
+  db:
+    image: "docker.io/bitnami/postgresql:13"
+    environment:
+      POSTGRES_PASSWORD: "Fusion.0.to.1"
+    expose:
+     - "5432"
+    ports:
+     - "5432:5432"
+
   app_debug:
     build:
       context: .
       target: app_debug
+    depends_on:
+     - db
 
   app_ws:
     build:
       context: .
       target: app_ws
+    depends_on:
+     - db
     ports:
      - "80:80"
     environment:

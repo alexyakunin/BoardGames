@@ -16,7 +16,9 @@ namespace BoardGames.Host
         public string PublisherId { get; set; } = "p";
 
         // DBs
-        public string UsePostgreSql { get; set; } = "";
+        public string UsePostgreSql { get; set; } =
+            "Server=localhost;Database=board_games_dev;Port=5432;User Id=postgres;Password=Fusion.0.to.1";
+        public bool UseSqlite { get; set; } = false;
 
         // Sign-in
         public string MicrosoftClientId { get; set; } = "6839dbf7-d1d3-4eb2-a7e1-ce8d48f34d00";

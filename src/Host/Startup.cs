@@ -48,13 +48,6 @@ namespace BoardGames.Host
 
         public void ConfigureServices(IServiceCollection services)
         {
-            #pragma warning disable ASP0000
-            HostSettings = services
-                .UseAttributeScanner(s => s.AddService<HostSettings>())
-                .BuildServiceProvider()
-                .GetRequiredService<HostSettings>();
-            #pragma warning restore ASP0000
-
             // Logging
             services.AddLogging(logging => {
                 logging.ClearProviders();
@@ -66,14 +59,25 @@ namespace BoardGames.Host
                 }
             });
 
+            // Creating Log and HostSettings as early as possible
+            var tmpServices = services
+                .UseAttributeScanner(s => s.AddService<HostSettings>())
+                .BuildServiceProvider();
+            Log = tmpServices.GetRequiredService<ILogger<Startup>>();
+            HostSettings = tmpServices.GetRequiredService<HostSettings>();
+
             // DbContext & related services
             var appTempDir = PathEx.GetApplicationTempDirectory("", true);
-            var dbPath = appTempDir & "App_v0_1.db";
+            var sqliteDbPath = appTempDir & "App_v0_1.db";
             services.AddDbContextFactory<AppDbContext>(builder => {
-                if (!string.IsNullOrEmpty(HostSettings.UsePostgreSql))
+                if (HostSettings.UseSqlite) {
+                    Log.LogInformation("DB: Sqlite @ {sqliteDbPath}", sqliteDbPath);
+                    builder.UseSqlite($"Data Source={sqliteDbPath}");
+                }
+                else {
+                    Log.LogInformation("DB: PostgreSql");
                     builder.UseNpgsql(HostSettings.UsePostgreSql);
-                else
-                    builder.UseSqlite($"Data Source={dbPath}");
+                }
                 if (Env.IsDevelopment())
                     builder.EnableSensitiveDataLogging();
             });
@@ -86,7 +90,7 @@ namespace BoardGames.Host
                     // can be arbitrary long - all depends on the reliability of Notifier-Monitor chain.
                     o.UnconditionalWakeUpPeriod = TimeSpan.FromSeconds(Env.IsDevelopment() ? 60 : 5);
                 });
-                var operationLogChangeAlertPath = dbPath + "_changed";
+                var operationLogChangeAlertPath = sqliteDbPath + "_changed";
                 b.AddFileBasedDbOperationLogChangeNotifier(operationLogChangeAlertPath);
                 b.AddFileBasedDbOperationLogChangeMonitor(operationLogChangeAlertPath);
                 b.AddDbAuthentication((_, options) => {
@@ -156,8 +160,6 @@ namespace BoardGames.Host
 
         public void Configure(IApplicationBuilder app, ILogger<Startup> log)
         {
-            Log = log;
-
             if (HostSettings.AssumeHttps) {
                 Log.LogInformation("AssumeHttps on");
                 app.Use((context, next) => {
