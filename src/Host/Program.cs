@@ -26,10 +26,12 @@ var host = Host.CreateDefaultBuilder()
         .UseStartup<Startup>())
     .Build();
 
-// Ensure the DB is created
+// Migrate the DB to the latest schema
 var dbContextFactory = host.Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
 await using var dbContext = dbContextFactory.CreateDbContext();
-// await dbContext.Database.EnsureDeletedAsync();
-await dbContext.Database.EnsureCreatedAsync();
+var database = dbContext.Database;
+if (database.ProviderName.EndsWith("Sqlite"))
+    await database.EnsureDeletedAsync();
+await database.MigrateAsync();
 
 await host.RunAsync();

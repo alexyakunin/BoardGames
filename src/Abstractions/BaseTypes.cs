@@ -45,6 +45,7 @@ namespace BoardGames.Abstractions
 
     public record GameState
     {
+        public string Message { get; init; } = "";
         public long[] PlayerScores { get; init; } = Array.Empty<long>();
         public bool IsGameEnded => !string.IsNullOrEmpty(GameEndMessage);
         public string GameEndMessage { get; init; } = "";

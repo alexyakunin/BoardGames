@@ -56,6 +56,7 @@ namespace BoardGames.Services
         }
 
         public GameStage Stage { get; set; }
+        public string Message { get; set; } = "";
         public string GameEndMessage { get; set; } = "";
 
         public Game ToModel()
@@ -69,6 +70,7 @@ namespace BoardGames.Services
                 EndedAt = EndedAt,
                 Stage = Stage,
                 State = State,
+                Message = Message,
                 GameEndMessage = GameEndMessage,
                 Players = Players.OrderBy(p => p.Index).Select(p => p.ToModel()).ToImmutableList(),
             };
@@ -86,6 +88,7 @@ namespace BoardGames.Services
             EndedAt = game.EndedAt;
             Stage = game.Stage;
             State = game.State;
+            Message = game.Message;
             GameEndMessage = game.GameEndMessage;
 
             var players = game.Players.ToDictionary(p => p.UserId);

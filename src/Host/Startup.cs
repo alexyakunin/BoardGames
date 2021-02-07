@@ -23,6 +23,7 @@ using Stl.Fusion.Client;
 using Stl.Fusion.Server;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
+using BoardGames.Migrations;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -60,9 +61,11 @@ namespace BoardGames.Host
             });
 
             // Creating Log and HostSettings as early as possible
+#pragma warning disable ASP0000
             var tmpServices = services
                 .UseAttributeScanner(s => s.AddService<HostSettings>())
                 .BuildServiceProvider();
+#pragma warning restore ASP0000
             Log = tmpServices.GetRequiredService<ILogger<Startup>>();
             HostSettings = tmpServices.GetRequiredService<HostSettings>();
 
@@ -72,11 +75,15 @@ namespace BoardGames.Host
             services.AddDbContextFactory<AppDbContext>(builder => {
                 if (HostSettings.UseSqlite) {
                     Log.LogInformation("DB: Sqlite @ {sqliteDbPath}", sqliteDbPath);
-                    builder.UseSqlite($"Data Source={sqliteDbPath}");
+                    builder.UseSqlite(
+                        $"Data Source={sqliteDbPath}",
+                        o => o.MigrationsAssembly(typeof(MigrationsStartup).Assembly.FullName));
                 }
                 else {
                     Log.LogInformation("DB: PostgreSql");
-                    builder.UseNpgsql(HostSettings.UsePostgreSql);
+                    builder.UseNpgsql(
+                        HostSettings.UsePostgreSql,
+                        o => o.MigrationsAssembly(typeof(MigrationsStartup).Assembly.FullName));
                 }
                 if (Env.IsDevelopment())
                     builder.EnableSensitiveDataLogging();

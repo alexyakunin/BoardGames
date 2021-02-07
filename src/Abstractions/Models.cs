@@ -45,6 +45,7 @@ namespace BoardGames.Abstractions
         public DateTime? EndedAt { get; init; }
         public GameStage Stage { get; init; }
         public GameState? State { get; init; }
+        public string Message { get; init; } = "";
         public string GameEndMessage { get; init; } = "";
     }
 
