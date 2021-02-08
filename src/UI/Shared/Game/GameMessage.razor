@@ -9,12 +9,13 @@
         <GameUserBadge User="@Users[player.UserId]" />
     } else if (part.StartsWith("score_")) {
         var playerIndex = int.Parse(part[6..]);
+        var player = Players[playerIndex];
         <Badge Color="Color.Success">
             @if (MaxScore.HasValue) {
-                @(Players[playerIndex].Score * 1.0 / MaxScore.Value)
+                @(player.Score * 1.0 / MaxScore.Value)
                 <span>points</span>
             } else {
-                @(Players[playerIndex].Score)
+                @(player.Score)
                 <Blazorise.Icon Name="FontAwesomeIcons.Star"/>
             }
         </Badge>

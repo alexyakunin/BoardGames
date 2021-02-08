@@ -31,7 +31,7 @@ namespace BoardGames.Abstractions.Games
 
         public override Game Start(Game game)
         {
-            var firstPlayerIndex = CoarseStopwatch.RandomInt32 % 2;
+            var firstPlayerIndex = CoarseStopwatch.RandomInt32 & 1;
             var state = new GomokuState(CharBoard.Empty(BoardSize), 0, firstPlayerIndex);
             return game with {
                 StateJson = SerializeState(state),
