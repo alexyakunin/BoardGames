@@ -25,6 +25,7 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using BoardGames.Migrations;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Stl.Fusion.EntityFramework;
@@ -124,6 +125,11 @@ namespace BoardGames.Host
                 .AddServicesFrom(typeof(GameService).Assembly)
                 .AddServicesFrom(Assembly.GetExecutingAssembly());
 
+            // Data protection
+            services.AddScoped(c => c.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
+            services.AddDataProtection().PersistKeysToDbContext<AppDbContext>();
+
+            // Authentication
             services.AddAuthentication(options => {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             }).AddCookie(options => {
