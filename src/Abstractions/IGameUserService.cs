@@ -10,6 +10,8 @@ namespace BoardGames.Abstractions
         [ComputeMethod(KeepAliveTime = 10)]
         Task<GameUser?> FindAsync(long id, CancellationToken cancellationToken = default);
         [ComputeMethod(KeepAliveTime = 10)]
+        Task<GameUser?> FindByNameAsync(string name, CancellationToken cancellationToken = default);
+        [ComputeMethod(KeepAliveTime = 10)]
         Task<bool> IsOnlineAsync(long id, CancellationToken cancellationToken = default);
     }
 }

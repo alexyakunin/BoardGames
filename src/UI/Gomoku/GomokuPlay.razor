@@ -11,7 +11,7 @@
 
 @if (Game.Stage != GameStage.Ended) {
     <Paragraph>
-        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users" />
+        <GameMessageSpan Text="@Game.StateMessage" />
     </Paragraph>
 }
 

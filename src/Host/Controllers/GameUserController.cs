@@ -26,6 +26,10 @@ namespace BoardGames.Host.Controllers
         public Task<GameUser?> FindAsync([FromRoute] long id, CancellationToken cancellationToken = default)
             => GameUsers.FindAsync(id, cancellationToken);
 
+        [HttpGet("findByName/{name}"), Publish]
+        public Task<GameUser?> FindByNameAsync([FromRoute] string name, CancellationToken cancellationToken = default)
+            => GameUsers.FindByNameAsync(name, cancellationToken);
+
         [HttpGet("isOnline/{id}"), Publish]
         public Task<bool> IsOnlineAsync([FromRoute] long id, CancellationToken cancellationToken = default)
             => GameUsers.IsOnlineAsync(id, cancellationToken);

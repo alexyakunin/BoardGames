@@ -17,7 +17,7 @@ using Stl.Fusion.Authentication;
 using Stl.Fusion.EntityFramework;
 using Stl.Fusion.Operations;
 
-namespace BoardGames.Services
+namespace BoardGames.HostServices
 {
     [ComputeService, ServiceAlias(typeof(IGameService))]
     public class GameService : DbServiceBase<AppDbContext>, IGameService

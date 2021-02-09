@@ -20,8 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HostServices\HostServices.csproj" />
     <ProjectReference Include="..\UI\UI.csproj" />
-    <ProjectReference Include="..\Services\Services.csproj" />
     <ProjectReference Include="..\Migrations\Migrations.csproj" />
   </ItemGroup>
 

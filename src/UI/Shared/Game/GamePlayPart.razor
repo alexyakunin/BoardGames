@@ -6,7 +6,7 @@
 
 @if (Game.Stage == GameStage.Ended) {
     <Note Title="Game ended!">
-        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users" />
+        <GameMessageSpan Text="@Game.StateMessage" />
     </Note>
 }
 

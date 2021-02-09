@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Stl.Fusion.EntityFramework.Authentication;
 using Stl.Fusion.EntityFramework.Operations;
 
-namespace BoardGames.Services
+namespace BoardGames.HostServices
 {
     public class AppDbContext : DbContext, IDataProtectionKeyContext
     {

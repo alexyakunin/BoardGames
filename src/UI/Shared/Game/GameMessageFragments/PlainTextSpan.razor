@@ -1,0 +1,8 @@
+@attribute [MatchFor(typeof(PlainText), ComponentScopes.GameMessage)]
+
+<span class="c-plain-text">@Fragment.Text</span>
+
+@code {
+    [Parameter]
+    public PlainText Fragment { get; set; } = null!;
+}

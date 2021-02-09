@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BoardGames.Host;
-using BoardGames.Services;
+using BoardGames.HostServices;
 
 var host = Host.CreateDefaultBuilder()
     .ConfigureHostConfiguration(builder => {

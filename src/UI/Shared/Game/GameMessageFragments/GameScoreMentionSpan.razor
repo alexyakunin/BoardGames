@@ -1,0 +1,19 @@
+@attribute [MatchFor(typeof(GameScoreMention), ComponentScopes.GameMessage)]
+
+@{
+    var maxScore = Fragment.Game.MaxScore;
+}
+<Badge Color="Color.Success" Class="c-game-score">
+    @if (maxScore.HasValue) {
+        @(Fragment.Score * 1.0 / maxScore.Value)
+        <span>points</span>
+    } else {
+        @Fragment.Score
+        <Blazorise.Icon Name="FontAwesomeIcons.Star"/>
+    }
+</Badge>
+
+@code {
+    [Parameter]
+    public GameScoreMention Fragment { get; set; } = null!;
+}

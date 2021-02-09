@@ -1,0 +1,25 @@
+@inject IJSRuntime JSRuntime
+
+<Addons Class="@CssClass">
+    <Addon AddonType="AddonType.Start">
+        <AddonLabel>@ChildContent</AddonLabel>
+    </Addon>
+    <TextEdit Text="@Url" ReadOnly="true" />
+    <Addon AddonType="AddonType.End">
+        <Button Color="Color.Primary" Clicked="_ => CopyGameUrlAsync()">
+            <Blazorise.Icon Name="FontAwesomeIcons.Copy"/> Copy
+        </Button>
+    </Addon>
+</Addons>
+
+@code {
+    [Parameter]
+    public string CssClass { get; set; } = "";
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = _ => {};
+    [Parameter]
+    public string Url { get; set; } = "";
+
+    private async Task CopyGameUrlAsync()
+        => await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Url);
+}

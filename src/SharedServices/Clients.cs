@@ -6,9 +6,9 @@ using Stl.Fusion.Client;
 using BoardGames.Abstractions;
 using Stl.Fusion.Authentication;
 
-namespace BoardGames.UI.Services
+namespace BoardGames.ClientServices
 {
-    [RestEaseReplicaService(typeof(IGameService), Scope = Program.ClientSideScope)]
+    [RestEaseReplicaService(typeof(IGameService), Scope = ServiceScope.ClientSideOnly)]
     [BasePath("game")]
     public interface IGameServiceClient
     {
@@ -31,5 +31,16 @@ namespace BoardGames.UI.Services
         Task<ImmutableList<Game>> ListOwnAsync(string? engineId, GameStage? stage, int count, Session session, CancellationToken cancellationToken = default);
         [Get("list")]
         Task<ImmutableList<Game>> ListAsync(string? engineId, GameStage? stage, int count, CancellationToken cancellationToken = default);
+    }
+
+    [RestEaseReplicaService(typeof(IGameUserService), Scope = ServiceScope.ClientSideOnly)]
+    [BasePath("gameUser")]
+    public interface IGameUserServiceClient
+    {
+        // Queries
+        [Get("find/{id}")]
+        Task<GameUser?> FindAsync([Path] long id, CancellationToken cancellationToken = default);
+        [Get("isOnline/{id}")]
+        Task<bool> IsOnlineAsync([Path] long id, CancellationToken cancellationToken = default);
     }
 }

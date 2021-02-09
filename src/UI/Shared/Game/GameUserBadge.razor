@@ -5,7 +5,7 @@
     var isOnline = State.LastValue;
 }
 
-<Badge Color="@(IsHighlighted ? Color.Primary : Color.Secondary)" Style="@(isOnline ? "" : "opacity: 0.5;")">
+<Badge Color="Color.Primary" Style="@(isOnline ? "" : "opacity: 0.5;")" Class="@CssClass">
     <Blazorise.Icon Name="@(isOnline ? FontAwesomeIcons.User : FontAwesomeIcons.UserMinus)" />
     @User.Name
 </Badge>
@@ -14,9 +14,9 @@
 
 @code {
     [Parameter]
-    public GameUser User { get; set; } = GameUser.None;
+    public string CssClass { get; set; } = "";
     [Parameter]
-    public bool IsHighlighted { get; set; }
+    public GameUser User { get; set; } = GameUser.None;
 
     protected override async Task<bool> ComputeStateAsync(CancellationToken cancellationToken)
     {

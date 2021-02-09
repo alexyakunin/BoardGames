@@ -16,6 +16,12 @@
         @if (State.HasValue) {
             switch (State.Value.Game.Stage) {
             case GameStage.New:
+                <Row Margin="Margin.Is3.OnY">
+                    <Column ColumnSize="ColumnSize.Is6">
+                        <CopyUrlField Url="@Navigator.Uri"><b>Game URL:</b></CopyUrlField>
+                    </Column>
+                </Row>
+
                 <GameLobbyPart Model="@State.Value" GameEngine="@GameEngine" />
                 break;
             case GameStage.Playing:

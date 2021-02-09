@@ -1,0 +1,22 @@
+@inherits LiveComponentBase<Abstractions.GameMessage>
+@inject IMessageParser MessageParser
+
+@{
+    var message = State.LastValue;
+}
+
+<span class="@CssClass">
+@foreach(var fragment in message.Fragments) {
+    <MatchingComponentFor Source="@fragment" SourceParameterName="Fragment" Scope="@ComponentScopes.GameMessage" />
+}
+</span>
+
+@code {
+    [Parameter]
+    public string CssClass { get; set; } = "";
+    [Parameter]
+    public string Text { get; set; } = "";
+
+    protected override async Task<Abstractions.GameMessage> ComputeStateAsync(CancellationToken cancellationToken)
+        => await MessageParser.ParseAsync(Text, cancellationToken);
+}
