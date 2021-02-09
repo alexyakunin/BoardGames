@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Abstractions;
-using Stl.DependencyInjection;
+using Stl.Fusion;
 
 namespace BoardGames.ClientServices
 {
-    [Service(typeof(IMessageParser))]
+    [ComputeService(typeof(IMessageParser))]
     public class MessageParser : IMessageParser
     {
         protected IGameService GameService { get; }
@@ -25,7 +26,7 @@ namespace BoardGames.ClientServices
             UserNameService = userNameService;
         }
 
-        public async ValueTask<GameMessage> ParseAsync(string text, CancellationToken cancellationToken = default)
+        public virtual async ValueTask<GameMessage> ParseAsync(string text, CancellationToken cancellationToken = default)
         {
             List<MessageFragment> fragments = new();
             var startIndex = 0;

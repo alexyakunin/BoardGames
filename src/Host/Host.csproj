@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Pages\_Host.cshtml" ExcludeFromSingleFile="true" CopyToPublishDirectory="PreserveNewest" />
+    <Content Update="Pages\_Host.cshtml" CopyToPublishDirectory="PreserveNewest" />
     <None Include="$(ProjectDir)\Resources\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" LinkBase="Resources\" />
   </ItemGroup>
 </Project>
