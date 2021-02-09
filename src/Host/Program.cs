@@ -34,6 +34,7 @@ if (database.ProviderName.EndsWith("Sqlite")) {
     await database.EnsureDeletedAsync();
     await database.EnsureCreatedAsync();
 } else {
+    // await database.EnsureDeletedAsync();
     await database.MigrateAsync();
 }
 
