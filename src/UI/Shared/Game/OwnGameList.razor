@@ -30,6 +30,7 @@
             <TableBody>
                 @foreach(var game in state.Games) {
                     var gameUrl = LinkBuilder.Game(game.EngineId, game.Id);
+                    var message = string.IsNullOrEmpty(game.StateMessage) ? game.Intro : game.StateMessage;
                     <TableRow Clicked="_ => Navigator.NavigateTo(gameUrl)">
                         <TableRowCell>
                             <Button Size="Size.Small" Color="Color.Primary" Type="@ButtonType.Link" To="@gameUrl">
@@ -46,9 +47,9 @@
                         </TableRowCell>
                         <TableRowCell>
                             <Badge Color="@GetStageColor(game.Stage)">@game.Stage</Badge>
-                            @if (!string.IsNullOrEmpty(game.StateMessage)) {
-                                <span>, </span>
-                                <GameMessageSpan Text="@game.StateMessage" />
+                            @if (!string.IsNullOrEmpty(message)) {
+                                <span> &ndash; </span>
+                                <GameMessageSpan Text="@message" />
                             }
                         </TableRowCell>
                         <TableRowCell>
@@ -93,7 +94,7 @@
                 Title += $"of {gameEngine.Title}";
             }
         }
-        return base.OnParametersSetAsync();
+        return Task.CompletedTask;
     }
 
     protected Color GetStageColor(GameStage stage)

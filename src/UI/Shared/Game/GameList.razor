@@ -20,6 +20,7 @@
             <TableHeader>
                 <TableHeaderCell Style="width: 1%"></TableHeaderCell>
                 <TableHeaderCell Style="width: auto">Creator and players</TableHeaderCell>
+                <TableHeaderCell Style="width: auto">Intro</TableHeaderCell>
                 <TableHeaderCell Style="width: 20%">Created</TableHeaderCell>
             </TableHeader>
             <TableBody>
@@ -33,6 +34,9 @@
                         </TableRowCell>
                         <TableRowCell>
                             <GameUsersBadge Users="@game.Players.Select(p => state.GetUser(p.UserId))"/>
+                        </TableRowCell>
+                        <TableRowCell>
+                            <GameMessageSpan Text="@game.Intro" />
                         </TableRowCell>
                         <TableRowCell>
                             <MomentsAgoBadge Value="@game.CreatedAt"/>

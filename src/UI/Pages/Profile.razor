@@ -36,13 +36,11 @@ This comment resets the indent :) -->
         <Form @onsubmit="_ => ChangeUserNameAsync()" >
             <Addons>
                 <Addon AddonType="AddonType.Start">
-                    <AddonLabel>User name</AddonLabel>
+                    <AddonLabel>User name:</AddonLabel>
                 </Addon>
                 <TextEdit @bind-Text="@UserName.Current" />
                 <Addon AddonType="AddonType.End">
-                    <Button Type="@ButtonType.Submit" Color="Color.Primary">
-                        Change
-                    </Button>
+                    <Button Type="@ButtonType.Submit" Color="Color.Primary">Change</Button>
                 </Addon>
             </Addons>
         </Form>

@@ -25,6 +25,7 @@ namespace BoardGames.HostServices
         public string EngineId { get; set; } = "";
         public long UserId { get; set; }
         public bool IsPublic { get; set; }
+        public string Intro { get; set; } = "";
 
         public List<DbGamePlayer> Players { get; set; } = new();
 
@@ -59,6 +60,7 @@ namespace BoardGames.HostServices
                 EngineId = EngineId,
                 UserId = UserId,
                 IsPublic = IsPublic,
+                Intro = Intro,
                 CreatedAt = CreatedAt,
                 StartedAt = StartedAt,
                 LastMoveAt = LastMoveAt,
@@ -79,6 +81,7 @@ namespace BoardGames.HostServices
                 CreatedAt = game.CreatedAt;
             }
             IsPublic = game.IsPublic;
+            Intro = game.Intro;
             StartedAt = game.StartedAt;
             LastMoveAt = game.StartedAt;
             EndedAt = game.EndedAt;

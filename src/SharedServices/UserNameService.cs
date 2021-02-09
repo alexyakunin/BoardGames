@@ -27,18 +27,16 @@ namespace BoardGames.ClientServices
         {
             string name;
             for (var i = startIndex; i < text.Length; i++) {
-                var c = text[startIndex];
+                var c = text[i];
                 if (i == startIndex) {
                     if (char.IsLetter(c))
                         continue;
                     return "";
                 }
-                else {
-                    if (char.IsLetterOrDigit(c) || c == '_' || c == '-')
-                        continue;
-                    name = text.Substring(startIndex, i - startIndex);
-                    return ValidateName(name) == null ? name : "";
-                }
+                if (char.IsLetterOrDigit(c) || c == '_' || c == '-')
+                    continue;
+                name = text.Substring(startIndex, i - startIndex);
+                return ValidateName(name) == null ? name : "";
             }
             name = text.Substring(startIndex);
             return ValidateName(name) == null ? name : "";

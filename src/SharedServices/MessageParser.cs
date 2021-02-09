@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Abstractions;
@@ -113,15 +112,16 @@ namespace BoardGames.ClientServices
                 if (StartsWith("@")) {
                     var name = UserNameService.ParseName(text, startIndex + 1);
                     if (string.IsNullOrEmpty(name)) {
-                        AddPlainText(directiveStartIndex - startIndex);
+                        AddPlainText(1);
                         continue;
                     }
                     var user = await GameUserService.FindByNameAsync(name, cancellationToken);
                     if (user == null) {
-                        AddPlainText(directiveStartIndex - startIndex);
+                        AddPlainText(name.Length + 1);
                         continue;
                     }
                     fragments.Add(new GameUserMention(user));
+                    startIndex += name.Length + 1;
                     continue;
                 }
             }
@@ -132,12 +132,10 @@ namespace BoardGames.ClientServices
                 if (fragment is PlainText pt && lastFragment is PlainText lpt) {
                     lastFragment = new PlainText(lpt.Text + pt.Text);
                     optimizedFragments.RemoveAt(optimizedFragments.Count - 1);
-                    optimizedFragments.Add(lpt);
                 }
-                else {
-                    optimizedFragments.Add(fragment);
+                else
                     lastFragment = fragment;
-                }
+                optimizedFragments.Add(lastFragment);
             }
 
             return new GameMessage() {
