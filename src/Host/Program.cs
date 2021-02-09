@@ -30,10 +30,11 @@ var host = Host.CreateDefaultBuilder()
 var dbContextFactory = host.Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
 await using var dbContext = dbContextFactory.CreateDbContext();
 var database = dbContext.Database;
-// await database.EnsureDeletedAsync();
-// await database.EnsureCreatedAsync();
-if (database.ProviderName.EndsWith("Sqlite"))
+if (database.ProviderName.EndsWith("Sqlite")) {
     await database.EnsureDeletedAsync();
-await database.MigrateAsync();
+    await database.EnsureCreatedAsync();
+} else {
+    await database.MigrateAsync();
+}
 
 await host.RunAsync();
