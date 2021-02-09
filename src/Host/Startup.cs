@@ -14,7 +14,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.OpenApi.Models;
-using BoardGames.Services;
+using BoardGames.HostServices;
 using Stl.DependencyInjection;
 using Stl.Fusion;
 using Stl.Fusion.Blazor;
@@ -23,10 +23,15 @@ using Stl.Fusion.Client;
 using Stl.Fusion.Server;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
+using BoardGames.Abstractions;
+using BoardGames.ClientServices;
 using BoardGames.Migrations;
+using BoardGames.UI;
 using Microsoft.AspNetCore.Authentication.MicrosoftAccount;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
+using Stl.Extensibility;
 using Stl.Fusion.EntityFramework;
 using Stl.Fusion.EntityFramework.Authentication;
 using Stl.Fusion.Operations.Internal;
@@ -120,12 +125,11 @@ namespace BoardGames.Host
                     options.DefaultScheme = MicrosoftAccountDefaults.AuthenticationScheme;
                 });
 
-            // Registering shared services from the client
-            UI.Program.ConfigureSharedServices(services);
-            services.UseAttributeScanner()
-                .AddServicesFrom(typeof(GameService).Assembly)
-                .AddServicesFrom(Assembly.GetExecutingAssembly());
+            // Data protection
+            services.AddScoped(c => c.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
+            services.AddDataProtection().PersistKeysToDbContext<AppDbContext>();
 
+            // Authentication
             services.AddAuthentication(options => {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             }).AddCookie(options => {
@@ -165,6 +169,18 @@ namespace BoardGames.Host
                     Title = "BoardGames API", Version = "v1"
                 });
             });
+
+            // Using modules to register ~ everything else
+            services.UseModules()
+                .ConfigureModuleServices(s => {
+                    s.AddSingleton(ServiceScope.ServerSideOnly);
+                    s.AddSingleton(Log);
+                    s.AddSingleton(HostSettings);
+                })
+                .Add<HostServicesModule>()
+                .Add<ClientServicesModule>()
+                .Add<UIServicesModule>()
+                .Use();
         }
 
         public void Configure(IApplicationBuilder app, ILogger<Startup> log)

@@ -48,7 +48,7 @@
                             <Badge Color="@GetStageColor(game.Stage)">@game.Stage</Badge>
                             @if (!string.IsNullOrEmpty(game.StateMessage)) {
                                 <span>, </span>
-                                <GameMessage Message="@game.StateMessage" Players="@game.Players" Users="@state.Users"/>
+                                <GameMessageSpan Text="@game.StateMessage" />
                             }
                         </TableRowCell>
                         <TableRowCell>

@@ -61,10 +61,10 @@ namespace BoardGames.Abstractions
         public GamePlayer() : this(0) { }
     }
 
-    public record GameUser(long Id, string Name)
+    public record GameUser(long Id, string Name = "(unknown)")
     {
         public static GameUser None { get; } = new();
 
-        public GameUser() : this(0, "n/a") { }
+        public GameUser() : this(0, "(none)") { }
     }
 }

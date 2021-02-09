@@ -1,14 +1,14 @@
 using System;
 using System.Threading.Tasks;
+using BoardGames.Abstractions;
 using Pluralize.NET;
 using Stl.Async;
 using Stl.Fusion;
 
-namespace BoardGames.UI.Services
+namespace BoardGames.ClientServices
 {
-    // This service is local both on the server and on the client
-    [ComputeService]
-    public class MomentsAgoService
+    [ComputeService(typeof(IMomentsAgoService))]
+    public class MomentsAgoService : IMomentsAgoService
     {
         private readonly IPluralize _pluralize;
 
@@ -33,7 +33,7 @@ namespace BoardGames.UI.Services
             return Task.FromResult(result);
         }
 
-        public static (TimeSpan Unit, string UnitName) GetMomentsAgoUnit(TimeSpan delta)
+        private static (TimeSpan Unit, string UnitName) GetMomentsAgoUnit(TimeSpan delta)
         {
             if (delta.TotalSeconds < 60)
                 return (TimeSpan.FromSeconds(1), "second");

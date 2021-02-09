@@ -31,11 +31,12 @@ namespace BoardGames.Abstractions.Games
 
         public override Game Start(Game game)
         {
-            var firstPlayerIndex = CoarseStopwatch.RandomInt32 % 2;
+            var firstPlayerIndex = CoarseStopwatch.RandomInt32 & 1;
             var state = new GomokuState(CharBoard.Empty(BoardSize), 0, firstPlayerIndex);
+            var player = game.Players[state.PlayerIndex];
             return game with {
                 StateJson = SerializeState(state),
-                StateMessage = GameMessages.MoveTurn(state.PlayerIndex),
+                StateMessage = StandardMessages.MoveTurn(new GameUser(player.UserId)),
             };
         }
 
@@ -49,21 +50,23 @@ namespace BoardGames.Abstractions.Games
             var board = state.Board;
             if (board[move.Row, move.Column] != ' ')
                 throw new ApplicationException("The cell is already occupied.");
+            var player = game.Players[state.PlayerIndex];
 
             var nextBoard = board.Set(move.Row, move.Column, GetPlayerMarker(move.PlayerIndex));
             var nextState = state with {
                 Board = nextBoard,
                 MoveIndex = state.MoveIndex + 1,
             };
+            var nextPlayer = game.Players[nextState.PlayerIndex];
             var nextGame = game with { StateJson = SerializeState(nextState) };
             if (CheckGameEnded(nextBoard, move))
-                nextGame = IncrementPlayerScore(nextGame, move.PlayerIndex, 1) with {
-                    StateMessage = GameMessages.Win(move.PlayerIndex),
+                nextGame = IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
+                    StateMessage = StandardMessages.Win(new GameUser(player.UserId)),
                     Stage = GameStage.Ended,
                 };
             else
                 nextGame = nextGame with {
-                    StateMessage = GameMessages.MoveTurn(nextState.PlayerIndex),
+                    StateMessage = StandardMessages.MoveTurn(new GameUser(nextPlayer.UserId)),
                 };
             return nextGame;
         }

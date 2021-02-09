@@ -1,42 +1,39 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Reflection;
 using System.Threading.Tasks;
-using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Pluralize.NET;
 using BoardGames.Abstractions;
-using BoardGames.Abstractions.Games;
-using Stl.Fusion;
-using Stl.Fusion.Client;
+using BoardGames.ClientServices;
 using Stl.OS;
-using Stl.DependencyInjection;
 using Stl.Extensibility;
-using Stl.Fusion.Authentication;
-using Stl.Fusion.Blazor;
 
 namespace BoardGames.UI
 {
     public class Program
     {
-        public const string ClientSideScope = nameof(ClientSideScope);
-
         public static Task Main(string[] args)
         {
             if (OSInfo.Kind != OSKind.WebAssembly)
                 throw new ApplicationException("This app runs only in browser.");
 
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            ConfigureServices(builder.Services, builder);
-            builder.RootComponents.Add<App>("#app");
-            var host = builder.Build();
+            var hostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
+
+            // Using modules to register ~ everything
+            hostBuilder.Services.UseModules()
+                .ConfigureModuleServices(s => {
+                    s.AddSingleton(ServiceScope.ClientSideOnly);
+                    s.AddSingleton(hostBuilder);
+                })
+                .Add<ClientServicesModule>()
+                .Add<UIServicesModule>()
+                .Use();
+
+            hostBuilder.RootComponents.Add<App>("#app");
+            var host = hostBuilder.Build();
 
             host.Services.UseBootstrapProviders().UseFontAwesomeIcons(); // Blazorise
             var runTask = host.RunAsync();
@@ -47,69 +44,6 @@ namespace BoardGames.UI
                     await hostedService.StartAsync(default);
             });
             return runTask;
-        }
-
-        public static void ConfigureServices(IServiceCollection services, WebAssemblyHostBuilder builder)
-        {
-            builder.Logging.SetMinimumLevel(LogLevel.Warning);
-
-            var baseUri = new Uri(builder.HostEnvironment.BaseAddress);
-            var apiBaseUri = new Uri($"{baseUri}api/");
-
-            services.AddFusion(fusion => {
-                fusion.AddRestEaseClient(
-                    (c, o) => {
-                        o.BaseUri = baseUri;
-                        o.MessageLogLevel = LogLevel.Information;
-                    }).ConfigureHttpClientFactory(
-                    (c, name, o) => {
-                        var isFusionClient = (name ?? "").StartsWith("Stl.Fusion");
-                        var clientBaseUri = isFusionClient ? baseUri : apiBaseUri;
-                        o.HttpClientActions.Add(client => client.BaseAddress = clientBaseUri);
-                    });
-                fusion.AddAuthentication(fusionAuth => {
-                    fusionAuth.AddRestEaseClient();
-                    fusionAuth.AddBlazor();
-                });
-            });
-
-            ConfigureSharedServices(services);
-            services.UseAttributeScanner(ClientSideScope).AddServicesFrom(Assembly.GetExecutingAssembly());
-        }
-
-        public static void ConfigureSharedServices(IServiceCollection services)
-        {
-            // Game engines
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IGameEngine, GomokuEngine>());
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IGameEngine, DiceEngine>());
-            services.AddSingleton(c =>
-                c.GetRequiredService<IEnumerable<IGameEngine>>().ToImmutableDictionary(e => e.Id));
-
-            // UI services: Blazorise, Pluralizer, etc.
-            services.AddSingleton<IPluralize, Pluralizer>();
-            services.AddBlazorise(options => {
-                    options.DelayTextOnKeyPress = true;
-                    options.DelayTextOnKeyPressInterval = 300;
-                })
-                .AddBootstrapProviders()
-                .AddFontAwesomeIcons();
-
-            // Fusion
-            services.RemoveAll<UpdateDelayer.Options>();
-            services.AddSingleton(c => new UpdateDelayer.Options() {
-                Delay = TimeSpan.FromSeconds(0.5),
-            });
-            services.RemoveAll<PresenceService.Options>();
-            services.AddSingleton(c => new PresenceService.Options() {
-                UpdatePeriod = TimeSpan.FromMinutes(1),
-            });
-
-            // Other UI services
-            services.AddSingleton<IMatchingTypeFinder>(new MatchingTypeFinder(typeof(Program).Assembly));
-
-            // This method registers services marked with any of ServiceAttributeBase descendants, including:
-            // [Service], [ComputeService], [RestEaseReplicaService], [LiveStateUpdater]
-            services.UseAttributeScanner().AddServicesFrom(Assembly.GetExecutingAssembly());
         }
     }
 }

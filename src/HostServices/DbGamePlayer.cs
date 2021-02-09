@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using BoardGames.Abstractions;
 
-namespace BoardGames.Services
+namespace BoardGames.HostServices
 {
     [Index(nameof(EngineId), nameof(Score))]
     public class DbGamePlayer

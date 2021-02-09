@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using BoardGames.Abstractions;
 using Stl.Time;
 
-namespace BoardGames.Services
+namespace BoardGames.HostServices
 {
     [Table("Games")]
     [Index(nameof(Stage), nameof(IsPublic), nameof(CreatedAt))]
