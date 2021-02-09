@@ -70,6 +70,8 @@ namespace BoardGames.Host
             HostSettings = tmpServices.GetRequiredService<HostSettings>();
 
             // DbContext & related services
+            
+            HostSettings.UseSqlite = true;
             var appTempDir = PathEx.GetApplicationTempDirectory("", true);
             var sqliteDbPath = appTempDir & "App_v0_1.db";
             services.AddDbContextFactory<AppDbContext>(builder => {

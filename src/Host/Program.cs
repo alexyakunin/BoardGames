@@ -32,8 +32,12 @@ await using var dbContext = dbContextFactory.CreateDbContext();
 var database = dbContext.Database;
 // await database.EnsureDeletedAsync();
 // await database.EnsureCreatedAsync();
-if (database.ProviderName.EndsWith("Sqlite"))
+
+if (database.ProviderName.EndsWith("Sqlite")) {
     await database.EnsureDeletedAsync();
+    await database.EnsureCreatedAsync();
+}
+
 await database.MigrateAsync();
 
 await host.RunAsync();

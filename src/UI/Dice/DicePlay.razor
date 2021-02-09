@@ -1,0 +1,76 @@
+@attribute [MatchFor(typeof(DiceEngine), ComponentScopes.GamePlay)]
+@using Stl.Time
+@inherits GamePlayBase
+
+@{
+    var gameEngine = (DiceEngine) GameEngine;
+    var gameState = gameEngine.DeserializeState(Game.StateJson);
+    var board = gameState.Board;
+}
+
+<WhenCommandError Exception="CommandRunner.Error"/>
+
+@if (Game.Stage != GameStage.Ended) {
+    <Paragraph>
+        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users" />
+        <hr>
+        
+        <Button Color="@GetDiceColor(gameState.PlayerIndex)"
+                Style="align-content: center; border-radius: 3px;"
+                disabled="@DisableDiceButton(gameState.PlayerIndex)"
+                @onclick="_ => GetRandomDigit()">
+            Drop Dice
+        </Button>
+        <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
+
+    </Paragraph>
+}
+
+<Row><Column ColumnSize="ColumnSize.Is6">
+    <table><tbody>
+        @for (var r = 0; r < DiceEngine.BoardSize; r++) {
+            var row = r;
+            <tr @key=@row>
+                @for (var c = 0; c < DiceEngine.BoardSize; c++) {
+                    var col = c;
+                    var cell = board[row, col];
+                    <td @key=@((row, col))>
+                        <Button
+                            Color="@GetButtonColor(cell)"
+                            Style="margin: 1px; padding: 0px; min-width: 50px; min-height: 50px;"
+                            @onclick="_ => MoveAsync(row, col)"
+                        >@cell.ToString()</Button>
+                    </td>
+                }
+            </tr>
+        }
+        </tbody></table>
+</Column>
+</Row>
+
+@code {
+    private int diceValue;
+    
+    private Task MoveAsync(int r, int c)
+    {
+        var move = new DiceMove(MyPlayerIndex, r, c);
+        var command = new Game.MoveCommand(Session, Game.Id, move);
+        return CommandRunner.CallAsync(command);
+    }
+
+    private Color GetButtonColor(char c)
+        => c == 'X' ? Color.Dark : Color.Light;
+
+    private Color GetDiceColor(int playerIndex)
+        => playerIndex == MyPlayerIndex ? Color.Success : Color.Danger;
+
+    private bool DisableDiceButton(int playerIndex)
+        => playerIndex != MyPlayerIndex;
+
+    private void GetRandomDigit()
+    {
+        var rnd = new Random();
+        diceValue = rnd.Next(1, 7);
+    }
+
+}

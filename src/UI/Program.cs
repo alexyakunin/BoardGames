@@ -81,6 +81,7 @@ namespace BoardGames.UI
         {
             // Game engines
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IGameEngine, GomokuEngine>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IGameEngine, DiceEngine>());
             services.AddSingleton(c =>
                 c.GetRequiredService<IEnumerable<IGameEngine>>().ToImmutableDictionary(e => e.Id));
 
