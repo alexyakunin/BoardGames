@@ -2,8 +2,8 @@ using System;
 using System.Threading.Tasks;
 using BoardGames.Abstractions;
 using Pluralize.NET;
-using Stl.Async;
 using Stl.Fusion;
+using Stl.Time;
 
 namespace BoardGames.ClientServices
 {
@@ -17,6 +17,7 @@ namespace BoardGames.ClientServices
         [ComputeMethod]
         public virtual Task<string> GetMomentsAgoAsync(DateTime time)
         {
+            // TODO: Make this method stop leaking some memory due to timers that don't die unless timeout
             var delta = DateTime.UtcNow - time.ToUniversalTime();
             if (delta < TimeSpan.Zero)
                 delta = TimeSpan.Zero;
@@ -27,9 +28,8 @@ namespace BoardGames.ClientServices
 
             // Invalidate the result when it's supposed to change
             var delay = (unitCount + 1) * unit - delta;
-            var computed = Computed.GetCurrent();
-            Task.Delay(delay, default).ContinueWith(_ => computed!.Invalidate()).Ignore();
-
+            delay = TimeSpanEx.Min(delay, TimeSpan.FromMinutes(10)); // A sort of mem leak prevention
+            Computed.GetCurrent()!.Invalidate(delay, false);
             return Task.FromResult(result);
         }
 

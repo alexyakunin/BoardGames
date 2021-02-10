@@ -107,7 +107,7 @@
 
     protected string GetStageName(GameStage stage)
         => stage switch {
-            Abstractions.GameStage.New => "newly created",
+            Abstractions.GameStage.New => "new",
             Abstractions.GameStage.Playing => "ongoing",
             Abstractions.GameStage.Ended => "finished",
             _ => throw new ArgumentOutOfRangeException(nameof(stage))
