@@ -18,7 +18,7 @@ different user accounts, and:
   even in chat mentions!
   
 The sample currently implements:
-- One game (Gomoku) for now, though I'll add a couple more 
+- One game (Gomoku) - for now. I plan to add a couple more 
   a bit later - there is a common base API allowing to
   add new games with ease
 - Game lobby, where you can track the state of games you
