@@ -2,15 +2,16 @@
 
 Live version of this app: https://boardgames.alexyakunin.com/
 
-"Board Games" is the new [Fusion] sample showing a fully functional 
-website for real-time multi-player board (or board-like) games.
-The sample implements a number of features that are relatively
-hard to implement w/o a technology like [Fusion].
+"Board Games" is the new [Fusion] sample showing fully functional 
+web app allowing you to play real-time multi-player board 
+(or board-like) games.
 
-Real-time state sync works literally everywhere. Try opening 
-the sample in two different browsers, log in using two different 
-user accounts, and:
-- Try creating and playing a game
+The sample implements a number of features that are relatively
+hard to implement w/o [Fusion]. In particular, you might notice
+that real-time state sync works literally everywhere there. 
+Try opening the sample in two different browsers, sign in using 
+different user accounts, and:
+- Try to create and play a game in both windows
 - Check out what happens with game lists when you're
   creating a game, making moves, or posting a chat message
 - Try renaming your user & see its name changes everywhere - 
