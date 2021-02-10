@@ -25,8 +25,8 @@ The sample currently implements:
   participate in, browse open games created by other users 
   and join them
 - Game chat, which supports mentions. In reality, there is
-  a message parser and modular renderer, that currently 
-  supports user and game mentions.
+  an extendable message parser and modular renderer, that 
+  currently supports user and game mentions.
 - User online/offline status tracking. Notice that every 
   user badge displays it.
 - User profile page, where you can edit your user name, add 
