@@ -8,7 +8,7 @@ web app allowing you to play real-time multi-player board
 
 The sample implements a number of features that are 
 hard to implement w/o [Fusion]. In particular, you might notice
-that real-time state sync works literally everywhere there. 
+that real-time state sync works literally everywhere in it. 
 Try opening the sample in two different browsers, sign in using 
 different user accounts, and:
 - Try to create and play a game in both windows
