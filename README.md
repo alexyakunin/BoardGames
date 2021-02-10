@@ -1,11 +1,55 @@
 # BoardGames
 
-Check out live version of this app hosted on Google Cloud (Cloud Run + Cloud PostgreSql):
-- https://boardgames.alexyakunin.com/
+Live version: https://boardgames.alexyakunin.com/
 
-"Board Games" is a new sample showing how to implement a real-time board game service on [Fusion]:
-- https://github.com/servicetitan/Stl.Fusion
-- https://github.com/servicetitan/Stl.Fusion.Samples
+"Board Games" is the new [Fusion] sample showing a fully functional 
+website for real-time multi-player board (or board-like) games.
+The sample implements a number of features that are relatively
+hard to implement w/o a technology like [Fusion].
 
+Real-time state sync works literally everywhere. Try opening 
+the sample in two different browsers, log in using two different 
+user accounts, and:
+- Try creating and playing a game
+- Check out what happens with game lists when you're
+  creating a game, making moves, or posting a chat message
+- Try renaming your user & see its name changes everywhere - 
+  even in chat mentions!
+  
+The sample currently implements:
+- One game (Gomoku) for now, though I'll add a couple more 
+  a bit later - there is a common base API allowing to
+  add new games with ease
+- Game lobby, where you can track the state of games you
+  participate in, browse open games created by other users 
+  and join them
+- Game chat, which supports mentions. In reality, there is
+  a message parser and modular renderer, that currently 
+  supports user and game mentions.
+- User online/offline status tracking. Notice that every 
+  user badge displays it.
+- User profile page, where you can edit your user name, add 
+  MS/GitHub accounts, see all browser sessions, "kick" some
+  of them or sign out from all of them.
+
+Finally, the sample supports both both Blazor Server and 
+Blazor WebAssembly modes.
+
+The [live version] of this app is hosted on Google Cloud:
+- Cloud Run runs its Docker image in 1-core/512MB RAM container
+- Cloud PostgreSql stores the data; it also runs on
+  the cheapest 1 core/3.75GB RAM host.
+
+**The most interesting part? Everything you see there
+was built in just 9 days!** 
+[The very first commit](https://github.com/servicetitan/Stl.Fusion.Samples/commit/546ae7597bc7fa3a0b3c7f3b84e3a463bc3fd28f)
+cloning Fusion's Blazorise template was made on Feb 1, 
+and I wrote the README describing what's already done
+on Feb 10.
+
+Check out [Fusion] and its 
+[other samples](https://github.com/servicetitan/Stl.Fusion.Samples)
+if you want to learn more!
 
 [Fusion]: https://github.com/servicetitan/Stl.Fusion
+[Live version]: https://boardgames.alexyakunin.com/
