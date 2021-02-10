@@ -44,9 +44,9 @@ namespace BoardGames.Abstractions
             => Text.Replace("@", "@@");
     }
 
-    public record GameUserMention(GameUser User) : MessageFragment
+    public record UserMention(AppUser User) : MessageFragment
     {
-        public GameUserMention() : this(GameUser.None) { }
+        public UserMention() : this(AppUser.None) { }
         public override string ToString() => Format();
         public override string Format(bool editable = false)
             => editable ? "@" + User.Name : $"@user[{User.Id}]";

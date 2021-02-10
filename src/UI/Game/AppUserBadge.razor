@@ -1,11 +1,11 @@
 @inherits LiveComponentBase<bool>
-@inject IGameUserService GameUserService
+@inject IAppUserService AppUserService
 
 @{
     var isOnline = State.LastValue;
 }
 
-<Badge Color="Color.Primary" Style="@(isOnline ? "" : "opacity: 0.5;")" Class="@CssClass">
+<Badge Color="@Color" Class="@CssClass" Style="@(isOnline ? "" : "opacity: 0.5;")">
     <Blazorise.Icon Name="@(isOnline ? FontAwesomeIcons.User : FontAwesomeIcons.UserClock)" />
     @User.Name
 </Badge>
@@ -16,12 +16,14 @@
     [Parameter]
     public string CssClass { get; set; } = "";
     [Parameter]
-    public GameUser User { get; set; } = GameUser.None;
+    public Color Color { get; set; } = Color.Primary;
+    [Parameter]
+    public AppUser User { get; set; } = AppUser.None;
 
     protected override async Task<bool> ComputeStateAsync(CancellationToken cancellationToken)
     {
         if (User.Id <= 0)
             return false;
-        return await GameUserService.IsOnlineAsync(User.Id, cancellationToken);
+        return await AppUserService.IsOnlineAsync(User.Id, cancellationToken);
     }
 }

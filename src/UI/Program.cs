@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BoardGames.Abstractions;
 using BoardGames.ClientServices;
+using Microsoft.Extensions.Logging;
 using Stl.OS;
 using Stl.Extensibility;
 
@@ -21,6 +22,7 @@ namespace BoardGames.UI
                 throw new ApplicationException("This app runs only in browser.");
 
             var hostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
+            hostBuilder.Logging.SetMinimumLevel(LogLevel.Warning);
 
             // Using modules to register ~ everything
             hostBuilder.Services.UseModules()

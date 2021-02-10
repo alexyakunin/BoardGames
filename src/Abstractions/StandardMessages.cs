@@ -2,20 +2,20 @@ namespace BoardGames.Abstractions
 {
     public static class StandardMessages
     {
-        public static string Win(GameUser winner)
+        public static string Win(AppUser winner)
             => new GameMessage(
-                new GameUserMention(winner),
+                new UserMention(winner),
                 new PlainText(" won!")
             ).Format();
-        public static string WinWithScore(GameUser winner, Game game, long score)
+        public static string WinWithScore(AppUser winner, Game game, long score)
             => new GameMessage(
-                new GameUserMention(winner),
+                new UserMention(winner),
                 new PlainText(" won with "),
                 new GameScoreMention(game, score)
             ).Format();
-        public static string MoveTurn(GameUser player)
+        public static string MoveTurn(AppUser player)
             => new GameMessage
-                (new GameUserMention(player),
+                (new UserMention(player),
                 new PlainText(", your turn!")
             ).Format();
     }

@@ -4,13 +4,13 @@ using Stl.Fusion;
 
 namespace BoardGames.Abstractions
 {
-    public interface IGameUserService
+    public interface IAppUserService
     {
         // Queries
         [ComputeMethod(KeepAliveTime = 10)]
-        Task<GameUser?> FindAsync(long id, CancellationToken cancellationToken = default);
+        Task<AppUser?> FindAsync(long id, CancellationToken cancellationToken = default);
         [ComputeMethod(KeepAliveTime = 10)]
-        Task<GameUser?> FindByNameAsync(string name, CancellationToken cancellationToken = default);
+        Task<AppUser?> FindByNameAsync(string name, CancellationToken cancellationToken = default);
         [ComputeMethod(KeepAliveTime = 10)]
         Task<bool> IsOnlineAsync(long id, CancellationToken cancellationToken = default);
     }

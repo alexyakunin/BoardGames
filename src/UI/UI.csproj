@@ -21,4 +21,8 @@
   <ItemGroup>
     <ProjectReference Include="..\SharedServices\SharedServices.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Shared\Chat\ChatView.razor" />
+  </ItemGroup>
 </Project>

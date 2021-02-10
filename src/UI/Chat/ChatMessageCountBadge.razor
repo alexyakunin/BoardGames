@@ -1,0 +1,26 @@
+@inherits LiveComponentBase<long>
+@inject IChatService Chats
+
+@{
+    var state = State.LastValue;
+    var error = State.Error;
+}
+@if (state > 0) {
+    <Badge Color="@Color" Class="@CssClass">
+        <Blazorise.Icon Name="FontAwesomeIcons.Comments" /> @state
+    </Badge>
+}
+
+@code {
+    [Parameter]
+    public string CssClass { get; set; } = "";
+    [Parameter]
+    public Color Color { get; set; } = Color.Primary;
+    [Parameter]
+    public string ChatId { get; set; } = "";
+    [Parameter]
+    public TimeSpan? Period { get; set; }
+
+    protected override async Task<long> ComputeStateAsync(CancellationToken cancellationToken)
+        => await Chats.GetMessageCountAsync(ChatId, Period, cancellationToken);
+}

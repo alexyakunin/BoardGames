@@ -3,7 +3,7 @@
 @using System.Security
 @inherits LiveComponentBase<OwnGameList.Model, int?>
 @inject IGameService Games
-@inject IGameUserService GameUsers
+@inject IAppUserService AppUsers
 @inject ImmutableDictionary<string, IGameEngine> GameEngines;
 @inject Session Session
 @inject NavigationManager Navigator
@@ -25,13 +25,14 @@
                 }
                 <TableHeaderCell Style="width: 20%">Creator and players</TableHeaderCell>
                 <TableHeaderCell Style="width: auto">State</TableHeaderCell>
+                <TableHeaderCell Style="width: 1%">Chat</TableHeaderCell>
                 <TableHeaderCell Style="width: 20%">Last action</TableHeaderCell>
             </TableHeader>
             <TableBody>
                 @foreach(var game in state.Games) {
                     var gameUrl = LinkBuilder.Game(game.EngineId, game.Id);
                     var message = string.IsNullOrEmpty(game.StateMessage) ? game.Intro : game.StateMessage;
-                    <TableRow Clicked="_ => Navigator.NavigateTo(gameUrl)">
+                    <TableRow @key="@game.Id" Clicked="_ => Navigator.NavigateTo(gameUrl)">
                         <TableRowCell>
                             <Button Size="Size.Small" Color="Color.Primary" Type="@ButtonType.Link" To="@gameUrl">
                                 <Blazorise.Icon Name="@FontAwesomeIcons.Gamepad" />
@@ -43,7 +44,7 @@
                             </TableHeaderCell>
                         }
                         <TableRowCell>
-                            <GameUsersBadge Users="@game.Players.Select(p => state.GetUser(p.UserId))"/>
+                            <AppUsersBadge Users="@game.Players.Select(p => state.GetUser(p.UserId))"/>
                         </TableRowCell>
                         <TableRowCell>
                             <Badge Color="@GetStageColor(game.Stage)">@game.Stage</Badge>
@@ -51,6 +52,9 @@
                                 <span> &ndash; </span>
                                 <GameMessageSpan Text="@message" />
                             }
+                        </TableRowCell>
+                        <TableRowCell>
+                            <ChatMessageCountBadge ChatId="@Chat.GetGameChatId(game.Id)" />
                         </TableRowCell>
                         <TableRowCell>
                             @if (game.LastMoveAt.HasValue) {
@@ -71,9 +75,9 @@
 @code {
     public record Model {
         public ImmutableList<Game> Games { get; init; } = ImmutableList<Game>.Empty;
-        public ImmutableDictionary<long, GameUser> Users { get; init; } = ImmutableDictionary<long, GameUser>.Empty;
+        public ImmutableDictionary<long, AppUser> Users { get; init; } = ImmutableDictionary<long, AppUser>.Empty;
 
-        public GameUser GetUser(long userId) => Users.GetValueOrDefault(userId) ?? GameUser.None;
+        public AppUser GetUser(long userId) => Users.GetValueOrDefault(userId) ?? AppUser.None;
     }
 
     [Parameter]
@@ -119,7 +123,7 @@
         try {
             var games = await Games.ListOwnAsync(GameEngineId, GameStage, count, Session, cancellationToken);
             var userIds = games.SelectMany(g => g.Players.Select(p => p.UserId)).ToHashSet();
-            var users = await userIds.ParallelSelectToListAsync((id, ct) => GameUsers.FindAsync(id, ct), cancellationToken);
+            var users = await userIds.ParallelSelectToListAsync((id, ct) => AppUsers.FindAsync(id, ct), cancellationToken);
             return new Model() {
                 Games = games,
                 Users = users.Where(u => u != null).ToImmutableDictionary(u => u!.Id)!,
