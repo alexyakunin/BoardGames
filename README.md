@@ -11,7 +11,7 @@ hard to implement without Fusion. In particular, you might notice
 that real-time state sync works literally everywhere in it. 
 Try opening the sample in two different browsers, sign in using 
 different user accounts, and:
-- Try to create and play a game in both windows
+- Create and play a game in both windows
 - Check out what happens with game lists when you're
   creating a game, making moves, or posting a chat message
 - Try renaming your user & see its name changes everywhere - 
