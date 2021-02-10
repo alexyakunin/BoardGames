@@ -6,7 +6,7 @@ Live version of this app: https://boardgames.alexyakunin.com/
 web app allowing you to play real-time multi-player board 
 (or board-like) games.
 
-The sample implements a number of features that are relatively
+The sample implements a number of features that are 
 hard to implement w/o [Fusion]. In particular, you might notice
 that real-time state sync works literally everywhere there. 
 Try opening the sample in two different browsers, sign in using 
