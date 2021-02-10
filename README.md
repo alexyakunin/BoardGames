@@ -1,6 +1,6 @@
 # BoardGames
 
-Live version: https://boardgames.alexyakunin.com/
+Live version of this app: https://boardgames.alexyakunin.com/
 
 "Board Games" is the new [Fusion] sample showing a fully functional 
 website for real-time multi-player board (or board-like) games.
