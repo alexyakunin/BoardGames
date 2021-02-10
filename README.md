@@ -40,12 +40,12 @@ The [live version] of this app is hosted on Google Cloud:
 - Cloud PostgreSql stores the data; it also runs on
   the cheapest 1 core/3.75GB RAM host.
 
-**The most interesting part? Everything you see there
-was built in just 9 days!** 
+**The most interesting part? Everything you see here
+was built by a single person in just 9 days!**
 [The very first commit](https://github.com/servicetitan/Stl.Fusion.Samples/commit/546ae7597bc7fa3a0b3c7f3b84e3a463bc3fd28f)
 cloning Fusion's Blazorise template was made on Feb 1, 
 and I wrote the README describing what's already done
-on Feb 10.
+on Feb 10. 
 
 Check out [Fusion] and its 
 [other samples](https://github.com/servicetitan/Stl.Fusion.Samples)
