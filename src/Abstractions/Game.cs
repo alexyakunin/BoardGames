@@ -2,21 +2,10 @@ using System;
 using System.Collections.Immutable;
 using System.Reactive;
 using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
 using Stl.Fusion.Authentication;
-using Stl.Serialization;
 
 namespace BoardGames.Abstractions
 {
-    // API-level entities
-
-    public enum GameStage
-    {
-        New = 0,
-        Playing = 1,
-        Ended = 0x10,
-    }
-
     public record Game
     {
         public interface IGameCommand : ISessionCommand { }
@@ -38,7 +27,7 @@ namespace BoardGames.Abstractions
             string Id,
             bool? IsPublic = null,
             string? Intro = null
-            ) : IGameCommand<Unit> {
+        ) : IGameCommand<Unit> {
             public EditCommand() : this(Session.Null, "") { }
         }
 
@@ -59,17 +48,5 @@ namespace BoardGames.Abstractions
 
         public virtual bool Equals(Game? other) => ReferenceEquals(this, other);
         public override int GetHashCode() => RuntimeHelpers.GetHashCode(this);
-    }
-
-    public record GamePlayer(long UserId, long Score = 0)
-    {
-        public GamePlayer() : this(0) { }
-    }
-
-    public record GameUser(long Id, string Name = "(unknown)")
-    {
-        public static GameUser None { get; } = new();
-
-        public GameUser() : this(0, "(none)") { }
     }
 }
