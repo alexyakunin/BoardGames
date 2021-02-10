@@ -52,5 +52,8 @@ Check out [Fusion] and its
 [other samples](https://github.com/servicetitan/Stl.Fusion.Samples)
 if you want to learn more!
 
+P.S. Pretty sure there are some bugs - if you'll find one, 
+please open the issue!
+
 [Fusion]: https://github.com/servicetitan/Stl.Fusion
 [Live version]: https://boardgames.alexyakunin.com/
