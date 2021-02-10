@@ -17,8 +17,8 @@
         
         <Button Color="@GetDiceColor(gameState.PlayerIndex)"
                 Style="align-content: center; border-radius: 3px;"
-                disabled="@DisableDiceButton(gameState.PlayerIndex)"
-                @onclick="_ => GetRandomDigit()">
+                disabled="@(gameState.PlayerIndex != MyPlayerIndex)"
+                @onclick="_ => MoveAsync()">
             Drop Dice
         </Button>
         <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
@@ -35,11 +35,9 @@
                     var col = c;
                     var cell = board[row, col];
                     <td @key=@((row, col))>
-                        <Button
-                            Color="@GetButtonColor(cell)"
-                            Style="margin: 1px; padding: 0px; min-width: 50px; min-height: 50px;"
-                            @onclick="_ => MoveAsync(row, col)"
-                        >@cell.ToString()</Button>
+                        <Button disabled
+                                    Color="Color.Light"
+                                    Style="margin: 1px; padding: 0px; min-width: 50px; min-height: 50px;">@cell.ToString()</Button>
                     </td>
                 }
             </tr>
@@ -50,27 +48,24 @@
 
 @code {
     private int diceValue;
+    private int playerScore;
     
-    private Task MoveAsync(int r, int c)
+    private Task MoveAsync()
     {
-        var move = new DiceMove(MyPlayerIndex, r, c);
+        diceValue = GetRandomDigit();
+        playerScore += diceValue;
+        var move = new DiceMove(MyPlayerIndex, playerScore - 1);
         var command = new Game.MoveCommand(Session, Game.Id, move);
         return CommandRunner.CallAsync(command);
     }
 
-    private Color GetButtonColor(char c)
-        => c == 'X' ? Color.Dark : Color.Light;
-
     private Color GetDiceColor(int playerIndex)
         => playerIndex == MyPlayerIndex ? Color.Success : Color.Danger;
 
-    private bool DisableDiceButton(int playerIndex)
-        => playerIndex != MyPlayerIndex;
-
-    private void GetRandomDigit()
+    private int GetRandomDigit()
     {
         var rnd = new Random();
-        diceValue = rnd.Next(1, 7);
+        return rnd.Next(1, 7);
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Linq;
 using Stl.Time;
 using Stl.Time.Internal;
@@ -13,11 +14,12 @@ namespace BoardGames.Abstractions.Games
         public DiceState() : this((CharBoard) null!) { }
     }
 
-    public record DiceMove(int PlayerIndex, int Row, int Column, Moment Time = default) : GameMove(Time)
+    public record DiceMove(int PlayerIndex, int PlayerScore, Moment Time = default) : GameMove(Time)
     {
-        public DiceMove() : this(0, 0, 0) { }
+        public DiceMove() : this(0, 0) {}
     }
 
+    // public class DiceEngine : GameEngine<DiceState, DiceMove>
     public class DiceEngine : GameEngine<DiceState, DiceMove>
     {
         public static int BoardSize { get; } = 8;
@@ -30,7 +32,7 @@ namespace BoardGames.Abstractions.Games
 
         public override Game Start(Game game)
         {
-            var firstPlayerIndex = CoarseStopwatch.RandomInt32 % 2;
+            var firstPlayerIndex = CoarseStopwatch.RandomInt32 & 1;
             var state = new DiceState(CharBoard.Empty(BoardSize), 0, firstPlayerIndex);
             var player = game.Players[state.PlayerIndex];
             return game with {
@@ -38,7 +40,7 @@ namespace BoardGames.Abstractions.Games
                 StateMessage = StandardMessages.MoveTurn(new GameUser(player.UserId)),
             };
         }
-
+        
         public override Game Move(Game game, DiceMove move)
         {
             if (game.Stage == GameStage.Ended)
@@ -47,52 +49,51 @@ namespace BoardGames.Abstractions.Games
             if (move.PlayerIndex != state.PlayerIndex)
                 throw new ApplicationException("It's another player's turn.");
             var board = state.Board;
-            if (board[move.Row, move.Column] != ' ')
-                throw new ApplicationException("The cell is already occupied.");
             var player = game.Players[state.PlayerIndex];
+            var playerScore = move.PlayerScore;
+            board = RemovePreviousMoves(board, move.PlayerIndex);
+            if (playerScore >= BoardSize * BoardSize) {
+                var newState = state with {Board = board, MoveIndex = state.MoveIndex + 1};
+                var newGame = game with {StateJson = SerializeState(newState)};
+                newGame = IncrementPlayerScore(newGame, move.PlayerIndex, 1) with {
+                    StateMessage = StandardMessages.Win(new GameUser(player.UserId)),
+                    Stage = GameStage.Ended,
+                };
+                return newGame;
+            }
+            
+            var rowAndCol = GetRowAndColValues(playerScore);
 
-            var nextBoard = board.Set(move.Row, move.Column, GetPlayerMarker(move.PlayerIndex));
+            var nextBoard = board.Set(rowAndCol.Item1, rowAndCol.Item2, GetPlayerMarker(move.PlayerIndex));
             var nextState = state with {
                 Board = nextBoard,
                 MoveIndex = state.MoveIndex + 1,
             };
             var nextPlayer = game.Players[nextState.PlayerIndex];
             var nextGame = game with {StateJson = SerializeState(nextState)};
-            if (CheckGameEnded(nextBoard, move))
-                nextGame = IncrementPlayerScore(nextGame, move.PlayerIndex, 1) with {
-                    StateMessage = StandardMessages.Win(new GameUser(player.UserId)),
-                    Stage = GameStage.Ended,
-                };
-            else {
-                nextGame = nextGame with {
-                    StateMessage = StandardMessages.MoveTurn(new GameUser(nextPlayer.UserId)),
-                };
-            }
+            nextGame = nextGame with {
+                StateMessage = StandardMessages.MoveTurn(new GameUser(nextPlayer.UserId)),
+            };
             return nextGame;
+        }
+
+        private CharBoard RemovePreviousMoves(CharBoard board, int playerIndex)
+        {
+            var playerSign = GetPlayerMarker(playerIndex);
+            var cells = board.Cells;
+            var newCells = cells.Replace(playerSign, ' ');
+            return new CharBoard(BoardSize, newCells);
+        }
+
+        private (int, int) GetRowAndColValues(long value)
+        {
+            var row = value / BoardSize;
+            var col = value % BoardSize;
+            return ((int)row, (int)col);
         }
 
         public char GetPlayerMarker(int playerIndex)
             => playerIndex == 0 ? 'X' : 'O';
-
-        private bool CheckGameEnded(CharBoard board, DiceMove lastMove)
-        {
-            var marker = GetPlayerMarker(lastMove.PlayerIndex);
-
-            int Count(int dr, int dc)
-                => Enumerable.Range(0, 3)
-                    .Select(i => board[lastMove.Row + dr * i, lastMove.Column + dc * i])
-                    .TakeWhile(c => c == marker)
-                    .Take(3)
-                    .Count();
-
-            int SymmetricCount(int dr, int dc)
-                => Count(dr, dc) + Count(-dr, -dc) - 1;
-
-            bool IsGameEnded(int dr, int dc) =>
-                SymmetricCount(dr, dc) >= 3;
-
-            return IsGameEnded(0, 1) || IsGameEnded(1, 0) || IsGameEnded(1, 1) || IsGameEnded(-1, 1);
-        }
     }
     
 }
