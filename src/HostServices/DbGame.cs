@@ -72,31 +72,31 @@ namespace BoardGames.HostServices
                 Players = Players.OrderBy(p => p.Index).Select(p => p.ToModel()).ToImmutableList(),
             };
 
-        public void UpdateFrom(Game game)
+        public void UpdateFrom(Game source)
         {
             if (string.IsNullOrEmpty(Id)) {
-                Id = game.Id;
-                EngineId = game.EngineId;
-                UserId = game.UserId;
-                CreatedAt = game.CreatedAt;
+                Id = source.Id;
+                EngineId = source.EngineId;
+                UserId = source.UserId;
+                CreatedAt = source.CreatedAt;
             }
-            IsPublic = game.IsPublic;
-            Intro = game.Intro;
-            StartedAt = game.StartedAt;
-            LastMoveAt = game.StartedAt;
-            EndedAt = game.EndedAt;
-            MaxScore = game.MaxScore;
-            Stage = game.Stage;
-            StateMessage = game.StateMessage;
-            StateJson = game.StateJson;
+            IsPublic = source.IsPublic;
+            Intro = source.Intro;
+            StartedAt = source.StartedAt;
+            LastMoveAt = source.StartedAt;
+            EndedAt = source.EndedAt;
+            MaxScore = source.MaxScore;
+            Stage = source.Stage;
+            StateMessage = source.StateMessage;
+            StateJson = source.StateJson;
 
-            var players = game.Players.ToDictionary(p => p.UserId);
+            var players = source.Players.ToDictionary(p => p.UserId);
             var dbPlayers = Players.Where(p => players.ContainsKey(p.UserId)).ToDictionary(p => p.UserId);
             Players = new List<DbGamePlayer>();
             var playerIndex = 0;
-            foreach (var player in game.Players) {
+            foreach (var player in source.Players) {
                 var dbPlayer = dbPlayers.GetValueOrDefault(player.UserId) ?? new DbGamePlayer();
-                dbPlayer.UpdateFrom(player, game, playerIndex);
+                dbPlayer.UpdateFrom(player, source, playerIndex);
                 Players.Add(dbPlayer);
                 playerIndex++;
             }
