@@ -55,12 +55,7 @@ namespace BoardGames.UI
             }
 
             // UI services: Blazorise, Pluralizer, etc.
-            Services.AddBlazorise(options => {
-                    options.DelayTextOnKeyPress = true;
-                    options.DelayTextOnKeyPressInterval = 300;
-                })
-                .AddBootstrapProviders()
-                .AddFontAwesomeIcons();
+            Services.AddBlazorise().AddBootstrapProviders().AddFontAwesomeIcons();
 
             // UI-related Fusion services
             Services.RemoveAll<UpdateDelayer.Options>();
