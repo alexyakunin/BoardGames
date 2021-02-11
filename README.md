@@ -32,6 +32,8 @@ The sample currently implements:
 - User profile page, where you can edit your user name, add 
   MS/GitHub accounts, see all browser sessions, "kick" some
   of them or sign out from all of them.
+- Web API - it's used when the sample works in Blazor 
+  WASM mode, so whatever UI can do is available there too.
 
 Finally, the sample supports both both Blazor Server and 
 Blazor WebAssembly modes.
