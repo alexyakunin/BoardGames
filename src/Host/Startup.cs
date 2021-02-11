@@ -175,8 +175,9 @@ namespace BoardGames.Host
                     s.AddSingleton(Log);
                     s.AddSingleton(HostSettings);
                 })
-                .Add<HostServicesModule>()
+                .Add<AbstractionsModule>()
                 .Add<ClientServicesModule>()
+                .Add<HostServicesModule>()
                 .Add<UIServicesModule>()
                 .Use();
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Stl.DependencyInjection;
 using Stl.Time;
 using Stl.Time.Internal;
 
@@ -18,6 +19,7 @@ namespace BoardGames.Abstractions.Games
         public GomokuMove() : this(0, 0, 0) { }
     }
 
+    [Service, ServiceAlias(typeof(IGameEngine), IsEnumerable = true)]
     public class GomokuEngine : GameEngine<GomokuState, GomokuMove>
     {
         public static int BoardSize { get; } = 19;

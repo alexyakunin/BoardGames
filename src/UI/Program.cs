@@ -30,6 +30,7 @@ namespace BoardGames.UI
                     s.AddSingleton(ServiceScope.ClientSideOnly);
                     s.AddSingleton(hostBuilder);
                 })
+                .Add<AbstractionsModule>()
                 .Add<ClientServicesModule>()
                 .Add<UIServicesModule>()
                 .Use();
