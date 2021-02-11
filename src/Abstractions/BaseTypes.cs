@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
@@ -129,6 +130,60 @@ namespace BoardGames.Abstractions
             var cellIndex = GetCellIndex(r, c);
             var newCells = Cells.Substring(0, cellIndex) + value + Cells.Substring(cellIndex + 1);
             return new CharBoard(Size, newCells);
+        }
+    }
+    
+    public record DiceBoard
+    {
+        private static readonly ConcurrentDictionary<int, DiceBoard> EmptyCache = new();
+        public static DiceBoard Empty(int size) => EmptyCache.GetOrAdd(size, size1 => new DiceBoard(size1));
+
+        public int Size { get; }
+        public Dictionary<int, string[]> Cells { get; }
+
+        public string[] this[int r, int c] {
+            get {
+                var cellIndex = GetCellIndex(r, c);
+                if (cellIndex < 0 || cellIndex >= Cells.Count)
+                    return new string[] {"lightblue", "lightblue", "lightblue", "lightblue"};
+                return Cells[cellIndex];
+            }
+        }
+
+        public DiceBoard(int size)
+        {
+            var defaultValue = "lightblue";
+            if (size < 1)
+                throw new ArgumentOutOfRangeException(nameof(size));
+            Size = size;
+            Cells = new Dictionary<int, string[]>();
+            for (int i = 0; i < size * size; i++) {
+                Cells[i] = new string[] {defaultValue, defaultValue, defaultValue, defaultValue};
+            }
+        }
+
+        [JsonConstructor]
+        public DiceBoard(int size, Dictionary<int, string[]> cells)
+        {
+            if (size < 1)
+                throw new ArgumentOutOfRangeException(nameof(size));
+            if (size * size != cells.Count)
+                throw new ArgumentOutOfRangeException(nameof(size));
+            Size = size;
+            Cells = cells;
+        }
+
+        public int GetCellIndex(int r, int c) => r * Size + c;
+
+        public DiceBoard Set(int r, int c, int playerIndex, string value)
+        {
+            if (r < 0 || r >= Size)
+                throw new ArgumentOutOfRangeException(nameof(r));
+            if (c < 0 || c >= Size)
+                throw new ArgumentOutOfRangeException(nameof(c));
+            var cellIndex = GetCellIndex(r, c);
+            Cells[cellIndex][playerIndex] = value;
+            return new DiceBoard(Size, Cells);
         }
     }
 }

@@ -35,9 +35,36 @@
                     var col = c;
                     var cell = board[row, col];
                     <td @key=@((row, col))>
-                        <Button disabled
-                                    Color="Color.Light"
-                                    Style="margin: 1px; padding: 0px; min-width: 50px; min-height: 50px;">@cell.ToString()</Button>
+                        
+                        <table style="margin: 1px; min-width: 50px; min-height: 50px; background: lightblue;">
+                            <tbody>
+                            <tr>
+                                <td align="center">
+                                    <div align="center">
+                                        <i class="fas fa-circle" style="color: @cell[0];"></i>
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div align="center">
+                                        <i class="fas fa-circle" style="color: @cell[1];"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center">
+                                    <div align="center">
+                                        <i class="fas fa-circle" style="color: @cell[2];"></i>
+                                    </div>
+                                </td>
+                                <td align="center">
+                                    <div align="center">
+                                        <i class="fas fa-circle" style="color: @cell[3];"></i>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            </tbody>
+                        </table>
                     </td>
                 }
             </tr>
@@ -48,13 +75,11 @@
 
 @code {
     private int diceValue;
-    private int playerScore;
     
     private Task MoveAsync()
     {
         diceValue = GetRandomDigit();
-        playerScore += diceValue;
-        var move = new DiceMove(MyPlayerIndex, playerScore - 1);
+        var move = new DiceMove(MyPlayerIndex, diceValue);
         var command = new Game.MoveCommand(Session, Game.Id, move);
         return CommandRunner.CallAsync(command);
     }
