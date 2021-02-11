@@ -1,0 +1,8 @@
+@attribute [MatchFor(typeof(UserMention), ComponentScopes.GameMessage)]
+
+<AppUserBadge User="Fragment.User" CssClass="c-game-user"/>
+
+@code {
+    [Parameter]
+    public UserMention Fragment { get; set; } = null!;
+}

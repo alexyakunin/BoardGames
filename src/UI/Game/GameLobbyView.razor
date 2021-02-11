@@ -1,0 +1,70 @@
+@inherits GamePlayBase
+@inject IMessageParser MessageParser
+
+<Paragraph>
+    Players (min. @GameEngine.MinPlayerCount, max. @GameEngine.MaxPlayerCount):
+    <AppUsersBadge Users="@OrderedUsers" />
+</Paragraph>
+
+<WhenCommandError Exception="@CommandRunner.Error"/>
+
+<Row Margin="Margin.Is3.OnY"><Column ColumnSize="ColumnSize.Is8">
+    @if (IsOwner) {
+        <Form @onsubmit="_ => SetDescriptionAsync()">
+            <Addons>
+                <Addon AddonType="AddonType.Start">
+                    <AddonLabel>Intro:</AddonLabel>
+                </Addon>
+                <TextEdit @bind-Text="@Intro.Current" />
+                <Addon AddonType="AddonType.End">
+                    <Button Type="@ButtonType.Submit" Color="Color.Primary">Change</Button>
+                </Addon>
+            </Addons>
+        </Form>
+    } else {
+        <b>Intro:</b> <GameMessageSpan Text="@Game.Intro"/>
+    }
+</Column></Row>
+<Row Margin="Margin.Is3.OnY"><Column>
+    <Switch TValue="bool" Checked="@Game.IsPublic" Disabled="@(!IsOwner)"
+            CheckedChanged="_ => ChangeIsPublicAsync()">
+        Anyone can join
+    </Switch>
+</Column></Row>
+
+<Paragraph>
+    @if (IsOwner) {
+        <Button Color="Color.Primary" @onclick="_ => StartAsync()">Start the game</Button>
+    } else if (!IsParticipant) {
+        <Button Color="Color.Primary" @onclick="_ => JoinAsync()">Join the game</Button>
+    } else {
+        <Button Color="Color.Warning" @onclick="_ => LeaveAsync()">Leave this game</Button>
+    }
+</Paragraph>
+
+@code {
+    private Editor<string> Intro { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await base.OnParametersSetAsync();
+        using var _ = Computed.SuspendDependencyCapture(); // Otherwise the next call may try to reg. as a dependency!
+        var parsedIntro = await MessageParser.ParseAsync(Game.Intro);
+        Intro.Original = parsedIntro.Format(true);
+    }
+
+    private Task StartAsync()
+        => CommandRunner.CallAsync(new Game.StartCommand(Session, Game.Id));
+
+    private Task JoinAsync()
+        => CommandRunner.CallAsync(new Game.JoinCommand(Session, Game.Id));
+
+    private Task LeaveAsync()
+        => CommandRunner.CallAsync(new Game.JoinCommand(Session, Game.Id, false));
+
+    private Task ChangeIsPublicAsync()
+        => CommandRunner.CallAsync(new Game.EditCommand(Session, Game.Id, !Game.IsPublic));
+
+    private Task SetDescriptionAsync()
+        => CommandRunner.CallAsync(new Game.EditCommand(Session, Game.Id, Intro: Intro.Current));
+}

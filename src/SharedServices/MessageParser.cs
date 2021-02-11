@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using BoardGames.Abstractions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Stl.Fusion;
 
 namespace BoardGames.ClientServices
@@ -12,21 +13,24 @@ namespace BoardGames.ClientServices
     [ComputeService(typeof(IMessageParser))]
     public class MessageParser : IMessageParser
     {
-        protected IGameService GameService { get; }
-        protected IGameUserService GameUserService { get; }
+        protected IGameService Games { get; }
+        protected IAppUserService AppUsers { get; }
         protected IUserNameService UserNameService { get; }
+        protected ILogger Log { get; }
 
         public MessageParser(
-            IGameService gameService,
-            IGameUserService gameUserService,
-            IUserNameService userNameService)
+            IGameService games,
+            IAppUserService appUsers,
+            IUserNameService userNameService,
+            ILogger<MessageParser>? log = null)
         {
-            GameService = gameService;
-            GameUserService = gameUserService;
+            Games = games;
+            AppUsers = appUsers;
             UserNameService = userNameService;
+            Log = log ?? NullLogger<MessageParser>.Instance;
         }
 
-        public virtual async ValueTask<GameMessage> ParseAsync(string text, CancellationToken cancellationToken = default)
+        public virtual async Task<GameMessage> ParseAsync(string text, CancellationToken cancellationToken = default)
         {
             List<MessageFragment> fragments = new();
             var startIndex = 0;
@@ -79,12 +83,12 @@ namespace BoardGames.ClientServices
                         AddPlainText(directiveStartIndex - startIndex);
                         continue;
                     }
-                    var user = await GameUserService.FindAsync(userId, cancellationToken);
+                    var user = await AppUsers.FindAsync(userId, cancellationToken);
                     if (user == null) {
                         AddPlainText(directiveStartIndex - startIndex);
                         continue;
                     }
-                    fragments.Add(new GameUserMention(user));
+                    fragments.Add(new UserMention(user));
                     continue;
                 }
                 if (TryParseDirective("@score", out var scoreText)) {
@@ -102,7 +106,7 @@ namespace BoardGames.ClientServices
                         AddPlainText(directiveStartIndex - startIndex);
                         continue;
                     }
-                    var game = await GameService.FindAsync(gameId, cancellationToken);
+                    var game = await Games.FindAsync(gameId, cancellationToken);
                     if (game == null) {
                         AddPlainText(directiveStartIndex - startIndex);
                         continue;
@@ -113,15 +117,16 @@ namespace BoardGames.ClientServices
                 if (StartsWith("@")) {
                     var name = UserNameService.ParseName(text, startIndex + 1);
                     if (string.IsNullOrEmpty(name)) {
-                        AddPlainText(directiveStartIndex - startIndex);
+                        AddPlainText(1);
                         continue;
                     }
-                    var user = await GameUserService.FindByNameAsync(name, cancellationToken);
+                    var user = await AppUsers.FindByNameAsync(name, cancellationToken);
                     if (user == null) {
-                        AddPlainText(directiveStartIndex - startIndex);
+                        AddPlainText(name.Length + 1);
                         continue;
                     }
-                    fragments.Add(new GameUserMention(user));
+                    fragments.Add(new UserMention(user));
+                    startIndex += name.Length + 1;
                     continue;
                 }
             }
@@ -132,12 +137,10 @@ namespace BoardGames.ClientServices
                 if (fragment is PlainText pt && lastFragment is PlainText lpt) {
                     lastFragment = new PlainText(lpt.Text + pt.Text);
                     optimizedFragments.RemoveAt(optimizedFragments.Count - 1);
-                    optimizedFragments.Add(lpt);
                 }
-                else {
-                    optimizedFragments.Add(fragment);
+                else
                     lastFragment = fragment;
-                }
+                optimizedFragments.Add(lastFragment);
             }
 
             return new GameMessage() {

@@ -12,9 +12,9 @@
 
     // Helper properties
     protected Game Game { get; set; } = null!;
-    protected ImmutableDictionary<long, GameUser> Users { get; set; } = ImmutableDictionary<long, GameUser>.Empty;
-    protected ImmutableList<GameUser> OrderedUsers { get; set; } = ImmutableList<GameUser>.Empty;
-    protected GameUser Me { get; set; } = GameUser.None;
+    protected ImmutableDictionary<long, AppUser> Users { get; set; } = ImmutableDictionary<long, AppUser>.Empty;
+    protected ImmutableList<AppUser> OrderedUsers { get; set; } = ImmutableList<AppUser>.Empty;
+    protected AppUser Me { get; set; } = AppUser.None;
     protected bool IsOwner => Me.Id == Game.UserId;
     protected bool IsParticipant => !IsOwner && Users.ContainsKey(Me.Id);
     protected int MyPlayerIndex => OrderedUsers.IndexOf(Me);

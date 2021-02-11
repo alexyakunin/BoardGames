@@ -1,11 +1,11 @@
 @foreach(var (user, index) in Users.Select((user, index) => (user, index))) {
     <span>@GetDelimiter(index)</span>
-    <GameUserBadge User="@user" />
+    <AppUserBadge User="@user" />
 }
 
 @code {
     [Parameter]
-    public IEnumerable<GameUser> Users { get; set; } = Enumerable.Empty<GameUser>();
+    public IEnumerable<AppUser> Users { get; set; } = Enumerable.Empty<AppUser>();
     [Parameter]
     public bool HighlightCreator { get; set; } = true;
 

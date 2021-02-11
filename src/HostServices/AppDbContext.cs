@@ -9,6 +9,7 @@ namespace BoardGames.HostServices
     {
         public DbSet<DbGame> Games { get; protected set; } = null!;
         public DbSet<DbGamePlayer> GamePlayers { get; protected set; } = null!;
+        public DbSet<DbChatMessage> ChatMessages { get; protected set; } = null!;
 
         // Stl.Fusion.EntityFramework tables
         public DbSet<DbOperation> Operations { get; protected set; } = null!;

@@ -3,63 +3,23 @@ using System;
 using BoardGames.HostServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BoardGames.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210209131314_Game.Intro")]
+    partial class GameIntro
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .UseIdentityByDefaultColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.3")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-            modelBuilder.Entity("BoardGames.HostServices.DbChatMessage", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ChatId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime>("EditedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("IsRemoved")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChatId", "CreatedAt");
-
-                    b.HasIndex("ChatId", "Id", "CreatedAt");
-
-                    b.HasIndex("UserId", "ChatId", "CreatedAt");
-
-                    b.HasIndex("UserId", "CreatedAt", "ChatId");
-
-                    b.HasIndex("UserId", "ChatId", "Id", "CreatedAt");
-
-                    b.HasIndex("UserId", "Id", "CreatedAt", "ChatId");
-
-                    b.ToTable("ChatMessages");
-                });
+                .HasAnnotation("ProductVersion", "5.0.2");
 
             modelBuilder.Entity("BoardGames.HostServices.DbGame", b =>
                 {
@@ -152,7 +112,7 @@ namespace BoardGames.Migrations.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("FriendlyName")
                         .HasColumnType("text");
@@ -216,7 +176,7 @@ namespace BoardGames.Migrations.Migrations
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<string>("ClaimsJson")
                         .IsRequired()

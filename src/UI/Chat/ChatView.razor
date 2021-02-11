@@ -1,0 +1,67 @@
+@inherits LiveComponentBase<ChatPage>
+@inject IChatService Chats
+@inject CommandRunner CommandRunner
+@inject Session Session
+
+@{
+    var state = State.LastValue;
+    var error = State.Error;
+}
+
+<WhenUpdateError Exception="@error" />
+
+<Table Narrow="true" Striped="false">
+    <TableHeader>
+        <TableHeaderCell Style="width: auto">Message</TableHeaderCell>
+    </TableHeader>
+    <TableBody>
+        @foreach(var message in state.Messages.Reverse()) {
+            <TableRow @key="@message.Id">
+                <TableRowCell>
+                    <AppUserBadge Color="@Color.Warning" User="state.Users[message.UserId]"/>:
+                    <GameMessageSpan Text="@message.Text"/>
+                </TableRowCell>
+            </TableRow>
+        }
+    </TableBody>
+</Table>
+
+<WhenCommandError Exception="@CommandRunner.Error" />
+
+<Form @onsubmit="_ => PostAsync()" >
+    <Addons>
+        <TextEdit @bind-Text="@Message.Current"/>
+        <Addon AddonType="AddonType.End">
+            <Button Type="@ButtonType.Submit" Color="Color.Primary">
+                <Blazorise.Icon Name="@FontAwesomeIcons.PaperPlane"/>
+            </Button>
+        </Addon>
+    </Addons>
+</Form>
+
+@code {
+    private Editor<string> Message { get; set; } = new();
+
+    [Parameter]
+    public string ChatId { get; set; } = "";
+    [Parameter]
+    public int Limit { get; set; } = 30;
+
+    protected override void OnParametersSet()
+    {
+        State.Invalidate();
+        CommandRunner.Component = this;
+    }
+
+    protected override async Task<ChatPage> ComputeStateAsync(CancellationToken cancellationToken)
+        => await Chats.GetTailAsync(Session, ChatId, Limit, cancellationToken);
+
+    private Task PostAsync()
+    {
+        var text = Message.Current;
+        if (string.IsNullOrEmpty(text))
+            return Task.CompletedTask;
+        Message.Current = "";
+        return CommandRunner.CallAsync(new Chat.PostCommand(Session, ChatId, text));
+    }
+}

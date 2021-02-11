@@ -26,7 +26,6 @@ namespace BoardGames.ClientServices
 
             // Other UI services
             Services.AddSingleton<IPluralize, Pluralizer>();
-
             base.Use();
         }
     }

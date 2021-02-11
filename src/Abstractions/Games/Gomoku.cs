@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Stl.DependencyInjection;
 using Stl.Time;
 using Stl.Time.Internal;
 
@@ -18,6 +19,7 @@ namespace BoardGames.Abstractions.Games
         public GomokuMove() : this(0, 0, 0) { }
     }
 
+    [Service, ServiceAlias(typeof(IGameEngine), IsEnumerable = true)]
     public class GomokuEngine : GameEngine<GomokuState, GomokuMove>
     {
         public static int BoardSize { get; } = 19;
@@ -36,7 +38,7 @@ namespace BoardGames.Abstractions.Games
             var player = game.Players[state.PlayerIndex];
             return game with {
                 StateJson = SerializeState(state),
-                StateMessage = StandardMessages.MoveTurn(new GameUser(player.UserId)),
+                StateMessage = StandardMessages.MoveTurn(new AppUser(player.UserId)),
             };
         }
 
@@ -61,12 +63,12 @@ namespace BoardGames.Abstractions.Games
             var nextGame = game with { StateJson = SerializeState(nextState) };
             if (CheckGameEnded(nextBoard, move))
                 nextGame = IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
-                    StateMessage = StandardMessages.Win(new GameUser(player.UserId)),
+                    StateMessage = StandardMessages.Win(new AppUser(player.UserId)),
                     Stage = GameStage.Ended,
                 };
             else
                 nextGame = nextGame with {
-                    StateMessage = StandardMessages.MoveTurn(new GameUser(nextPlayer.UserId)),
+                    StateMessage = StandardMessages.MoveTurn(new AppUser(nextPlayer.UserId)),
                 };
             return nextGame;
         }

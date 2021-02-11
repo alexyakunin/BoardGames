@@ -15,13 +15,13 @@ namespace BoardGames.HostServices
         public GamePlayer ToModel()
             => new(UserId, Score);
 
-        public void UpdateFrom(GamePlayer player, Game game, int index)
+        public void UpdateFrom(GamePlayer model, Game game, int index)
         {
             EngineId = game.EngineId;
             GameId = game.Id;
-            UserId = player.UserId;
+            UserId = model.UserId;
             Index = index;
-            Score = player.Score;
+            Score = model.Score;
         }
     }
 }

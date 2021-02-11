@@ -25,6 +25,7 @@ namespace BoardGames.HostServices
         public string EngineId { get; set; } = "";
         public long UserId { get; set; }
         public bool IsPublic { get; set; }
+        public string Intro { get; set; } = "";
 
         public List<DbGamePlayer> Players { get; set; } = new();
 
@@ -59,6 +60,7 @@ namespace BoardGames.HostServices
                 EngineId = EngineId,
                 UserId = UserId,
                 IsPublic = IsPublic,
+                Intro = Intro,
                 CreatedAt = CreatedAt,
                 StartedAt = StartedAt,
                 LastMoveAt = LastMoveAt,
@@ -70,30 +72,31 @@ namespace BoardGames.HostServices
                 Players = Players.OrderBy(p => p.Index).Select(p => p.ToModel()).ToImmutableList(),
             };
 
-        public void UpdateFrom(Game game)
+        public void UpdateFrom(Game model)
         {
             if (string.IsNullOrEmpty(Id)) {
-                Id = game.Id;
-                EngineId = game.EngineId;
-                UserId = game.UserId;
-                CreatedAt = game.CreatedAt;
+                Id = model.Id;
+                EngineId = model.EngineId;
+                UserId = model.UserId;
+                CreatedAt = model.CreatedAt;
             }
-            IsPublic = game.IsPublic;
-            StartedAt = game.StartedAt;
-            LastMoveAt = game.StartedAt;
-            EndedAt = game.EndedAt;
-            MaxScore = game.MaxScore;
-            Stage = game.Stage;
-            StateMessage = game.StateMessage;
-            StateJson = game.StateJson;
+            IsPublic = model.IsPublic;
+            Intro = model.Intro;
+            StartedAt = model.StartedAt;
+            LastMoveAt = model.StartedAt;
+            EndedAt = model.EndedAt;
+            MaxScore = model.MaxScore;
+            Stage = model.Stage;
+            StateMessage = model.StateMessage;
+            StateJson = model.StateJson;
 
-            var players = game.Players.ToDictionary(p => p.UserId);
+            var players = model.Players.ToDictionary(p => p.UserId);
             var dbPlayers = Players.Where(p => players.ContainsKey(p.UserId)).ToDictionary(p => p.UserId);
             Players = new List<DbGamePlayer>();
             var playerIndex = 0;
-            foreach (var player in game.Players) {
+            foreach (var player in model.Players) {
                 var dbPlayer = dbPlayers.GetValueOrDefault(player.UserId) ?? new DbGamePlayer();
-                dbPlayer.UpdateFrom(player, game, playerIndex);
+                dbPlayer.UpdateFrom(player, model, playerIndex);
                 Players.Add(dbPlayer);
                 playerIndex++;
             }

@@ -19,34 +19,34 @@ using Stl.Text;
 
 namespace BoardGames.HostServices
 {
-    [ComputeService, ServiceAlias(typeof(IGameUserService))]
-    public class GameUserService : DbServiceBase<AppDbContext>, IGameUserService
+    [ComputeService, ServiceAlias(typeof(IAppUserService))]
+    public class AppUserService : DbServiceBase<AppDbContext>, IAppUserService
     {
         protected IServerSideAuthService AuthService { get; }
         protected IUserNameService UserNameService { get; }
         protected IDbUserRepo<AppDbContext> DbUsers { get; }
 
-        public GameUserService(IServiceProvider services) : base(services)
+        public AppUserService(IServiceProvider services) : base(services)
         {
             AuthService = services.GetRequiredService<IServerSideAuthService>();
             UserNameService = services.GetRequiredService<IUserNameService>();
             DbUsers = services.GetRequiredService<IDbUserRepo<AppDbContext>>();
         }
 
-        public virtual async Task<GameUser?> FindAsync(long id, CancellationToken cancellationToken = default)
+        public virtual async Task<AppUser?> FindAsync(long id, CancellationToken cancellationToken = default)
         {
             var user = await AuthService.TryGetUserAsync(id.ToString(), cancellationToken);
-            return user == null ? null : new GameUser() { Id = id, Name = user.Name };
+            return user == null ? null : new AppUser() { Id = id, Name = user.Name };
         }
 
-        public virtual async Task<GameUser?> FindByNameAsync(string name, CancellationToken cancellationToken = default)
+        public virtual async Task<AppUser?> FindByNameAsync(string name, CancellationToken cancellationToken = default)
         {
             await using var dbContext = CreateDbContext();
             var user = await dbContext.Users.AsQueryable()
                 .Where(u => u.Name == name)
                 .OrderBy(u => u.Id)
                 .FirstOrDefaultAsync(cancellationToken);
-            return user == null ? null : new GameUser() { Id = user.Id, Name = user.Name };
+            return user == null ? null : new AppUser() { Id = user.Id, Name = user.Name };
         }
 
         [ComputeMethod(AutoInvalidateTime = 61)]

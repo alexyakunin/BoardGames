@@ -22,15 +22,18 @@ namespace BoardGames.HostServices
     [ComputeService, ServiceAlias(typeof(IGameService))]
     public class GameService : DbServiceBase<AppDbContext>, IGameService
     {
+        private readonly Lazy<IMessageParser> _messageParserLazy;
         protected ImmutableDictionary<string, IGameEngine> GameEngines { get; }
         protected IAuthService AuthService { get; }
         protected DbEntityResolver<AppDbContext, string, DbGame> GameResolver { get; }
+        protected IMessageParser MessageParser => _messageParserLazy.Value;
 
         public GameService(IServiceProvider services) : base(services)
         {
             GameEngines = services.GetRequiredService<ImmutableDictionary<string, IGameEngine>>();
             AuthService = services.GetRequiredService<IAuthService>();
             GameResolver = services.GetRequiredService<DbEntityResolver<AppDbContext, string, DbGame>>();
+            _messageParserLazy = new Lazy<IMessageParser>(services.GetRequiredService<IMessageParser>);
         }
 
         // Commands
@@ -51,6 +54,7 @@ namespace BoardGames.HostServices
                 Id = Ulid.NewUlid().ToString(),
                 EngineId = engineId,
                 UserId = userId,
+                Intro = "",
                 CreatedAt = Clock.Now,
                 Stage = GameStage.New,
                 Players = ImmutableList<GamePlayer>.Empty.Add(new GamePlayer(userId))
@@ -172,15 +176,21 @@ namespace BoardGames.HostServices
 
         public virtual async Task EditAsync(Game.EditCommand command, CancellationToken cancellationToken = default)
         {
-            var (session, id, isPublic) = command;
+            var session = command.Session;
             var context = CommandContext.GetCurrent();
 
             var user = await AuthService.GetUserAsync(session, cancellationToken);
             user = user.MustBeAuthenticated();
+            var parsedIntro = command.Intro == null
+                ? null
+                : await MessageParser.ParseAsync(command.Intro, cancellationToken);
 
             await using var dbContext = await CreateCommandDbContextAsync(cancellationToken);
-            var dbGame = await GetDbGame(dbContext, id, cancellationToken);
-            dbGame.IsPublic = isPublic;
+            var dbGame = await GetDbGame(dbContext, command.Id, cancellationToken);
+            if (command.IsPublic.HasValue)
+                dbGame.IsPublic = command.IsPublic.Value;
+            if (parsedIntro != null)
+                dbGame.Intro = parsedIntro.Format();
             var game = dbGame.ToModel();
             await dbContext.SaveChangesAsync(cancellationToken);
             context.Operation().Items.Set(game);
