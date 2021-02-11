@@ -28,7 +28,7 @@ namespace BoardGames.Abstractions.Games
         public override string Title => "Dice";
         public override string Icon => "fa-dice-five";
         public override int MinPlayerCount => 2;
-        public override int MaxPlayerCount => 2;
+        public override int MaxPlayerCount => 4;
         public override bool AutoStart => true;
 
         public override Game Start(Game game)
