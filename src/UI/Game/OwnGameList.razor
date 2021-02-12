@@ -91,13 +91,12 @@
 
     protected override void OnParametersSet()
     {
-        if (string.IsNullOrEmpty(Title)) {
-            Title = $"Your {(GameStage.HasValue ? GetStageName(GameStage.Value) : "")} games";
-            if (GameEngineId != null) {
-                var gameEngine = GameEngines[GameEngineId];
-                Title += $" of {gameEngine.Title}";
-            }
+        Title = "Your " + (GameStage.HasValue ? GetStageName(GameStage.Value) : "");
+        if (GameEngineId != null) {
+            var gameEngine = GameEngines[GameEngineId];
+            Title += $" {gameEngine.Title}";
         }
+        Title += " games";
         base.OnParametersSet();
     }
 
