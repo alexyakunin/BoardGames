@@ -75,7 +75,7 @@ zero implementation cost as well.
 in 9 days.** Proof: 
 [the very first commit](https://github.com/servicetitan/Stl.Fusion.Samples/commit/546ae7597bc7fa3a0b3c7f3b84e3a463bc3fd28f)
 cloning Fusion's Blazorise template was made on Feb 1, 
-and I wrote this README describing what's already done
+and [I wrote this README describing what's already done](https://github.com/alexyakunin/BoardGames/commit/b1042a74209050cb79fb4e248f84a03c2b600fbf)
 on Feb 10 (though at that point there was just one game). 
 
 ### Looks interesting, how do I learn more about Fusion?
