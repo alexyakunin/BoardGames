@@ -59,16 +59,16 @@ have otherwise too.
 > More precisely, you'd need at least this "everything else" to implement 
 a *non-real-time* version of the same sample that supports just 
 Blazor Server.
-
-WASM version would require way more - the approach used in this sample,
+>
+> WASM version would require way more - the approach used in this sample,
 where server-side services are replaced by their client-side caching
 replicas (so-called 
 ["Replica Services"](https://github.com/servicetitan/Stl.Fusion.Samples/blob/master/docs/tutorial/Part04.md)
 in Fusion terms) simply won't work without Fusion-style distributed
 version of "computed observable" that eliminates every RPC call known 
 to return the same result as the locally cached one. 
-
-In other words, if you use Fusion, Blazor WASM mode has virtually 
+>
+> In other words, if you use Fusion, Blazor WASM mode has virtually 
 zero implementation cost as well. 
 
 **And this is what allowed me build Board Games single-handedly
