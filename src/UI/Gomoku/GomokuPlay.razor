@@ -18,7 +18,7 @@
                     var col = c;
                     var cell = board[row, col];
                     <td @key=@((row, col)) class="p-0 m-0">
-                        <Button Color="Color.Light" style="padding: 0px; margin: 2px; min-width: 26px; min-height: 26px;"
+                        <Button Color="Color.Light" style="padding: 0px; margin: 2px; width: 1.5rem; height: 1.5rem;"
                                 @onclick="_ => MoveAsync(row, col)">
                             @GetIcon(cell)
                         </Button>

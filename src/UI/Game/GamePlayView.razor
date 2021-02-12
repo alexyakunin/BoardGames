@@ -1,7 +1,7 @@
 @inherits GamePlayBase
 
 @if (Game.RoundCount.HasValue && Game.Stage != GameStage.Ended) {
-    <Badge Color="Color.Dark" Float="Float.Right" Style="font-size: 16px">
+    <Badge Color="Color.Dark" Float="Float.Right" Style="font-size: 1.25rem">
         Round @(Game.RoundIndex + 1) / @Game.RoundCount.Value
     </Badge>
 }
