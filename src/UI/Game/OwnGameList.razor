@@ -95,7 +95,7 @@
             Title = $"Your {(GameStage.HasValue ? GetStageName(GameStage.Value) : "")} games";
             if (GameEngineId != null) {
                 var gameEngine = GameEngines[GameEngineId];
-                Title += $"of {gameEngine.Title}";
+                Title += $" of {gameEngine.Title}";
             }
         }
         base.OnParametersSet();
