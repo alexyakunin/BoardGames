@@ -1,3 +1,4 @@
+@using System.ComponentModel.DataAnnotations
 @inherits GamePlayBase
 @inject IMessageParser MessageParser
 
@@ -8,29 +9,55 @@
 
 <WhenCommandError Exception="@CommandRunner.Error"/>
 
-<Row Margin="Margin.Is3.OnY"><Column ColumnSize="ColumnSize.Is8">
+<Container Padding="Padding.Is0">
     @if (IsOwner) {
-        <Form @onsubmit="_ => SetDescriptionAsync()">
-            <Addons>
+        <Form @onsubmit="_ => EditAsync()" Margin="Margin.Is0">
+            <Addons Margin="Margin.Is3.OnY">
                 <Addon AddonType="AddonType.Start">
-                    <AddonLabel>Intro:</AddonLabel>
+                    <AddonLabel>
+                        <Blazorise.Icon Name="FontAwesomeIcons.Comment" />
+                    </AddonLabel>
                 </Addon>
-                <TextEdit @bind-Text="@Intro.Current" />
+                <TextEdit @bind-Text="@Intro.Value" Placeholder="Introduction or game title?"/>
                 <Addon AddonType="AddonType.End">
-                    <Button Type="@ButtonType.Submit" Color="Color.Primary">Change</Button>
+                    <Button Type="@ButtonType.Submit" Color="Color.Primary">
+                        <Blazorise.Icon Name="FontAwesomeIcons.Check"/>
+                    </Button>
                 </Addon>
             </Addons>
+            @if (Game.RoundCount.HasValue) {
+                <Addons Margin="Margin.Is3.OnY">
+                    <Addon AddonType="AddonType.Start">
+                        <AddonLabel>Rounds:</AddonLabel>
+                    </Addon>
+                    <TextEdit @bind-Text="@RoundCount.Value" />
+                    <Addon AddonType="AddonType.End">
+                        <Button Type="@ButtonType.Submit" Color="Color.Primary" Disabled="@(!RoundCount.IsValid)">
+                            <Blazorise.Icon Name="FontAwesomeIcons.Check"/>
+                        </Button>
+                    </Addon>
+                </Addons>
+            }
         </Form>
     } else {
-        <b>Intro:</b> <GameMessageSpan Text="@Game.Intro"/>
+        if (!string.IsNullOrEmpty(Game.Intro)) {
+            <Paragraph>
+                <b>Intro:</b> <GameMessageSpan Text="@Game.Intro"/>
+            </Paragraph>
+        }
+        if (Game.RoundCount.HasValue) {
+            <Paragraph>
+                <b>Rounds to play:</b> @Game.RoundCount
+            </Paragraph>
+        }
     }
-</Column></Row>
-<Row Margin="Margin.Is3.OnY"><Column>
-    <Switch TValue="bool" Checked="@Game.IsPublic" Disabled="@(!IsOwner)"
-            CheckedChanged="_ => ChangeIsPublicAsync()">
-        Anyone can join
-    </Switch>
-</Column></Row>
+    <Paragraph Margin="Margin.Is3.OnY">
+        <Switch TValue="bool" Checked="@Game.IsPublic" Disabled="@(!IsOwner)"
+                CheckedChanged="_ => ChangeIsPublicAsync()">
+            Anyone can join
+        </Switch>
+    </Paragraph>
+</Container>
 
 <Paragraph>
     @if (IsOwner) {
@@ -44,13 +71,19 @@
 
 @code {
     private Editor<string> Intro { get; set; } = new();
+    private Editor<string> RoundCount { get; set; } = new() {
+        Validator = e => e.OriginalValue == ""
+            ? ""
+            : int.TryParse(e.Value, out _) ? "" : "Round count must be an integer.",
+    };
 
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
         using var _ = Computed.SuspendDependencyCapture(); // Otherwise the next call may try to reg. as a dependency!
         var parsedIntro = await MessageParser.ParseAsync(Game.Intro);
-        Intro.Original = parsedIntro.Format(true);
+        Intro.OriginalValue = parsedIntro.Format(true);
+        RoundCount.OriginalValue = Game.RoundCount?.ToString() ?? "";
     }
 
     private Task StartAsync()
@@ -65,6 +98,16 @@
     private Task ChangeIsPublicAsync()
         => CommandRunner.CallAsync(new Game.EditCommand(Session, Game.Id, !Game.IsPublic));
 
-    private Task SetDescriptionAsync()
-        => CommandRunner.CallAsync(new Game.EditCommand(Session, Game.Id, Intro: Intro.Current));
+    private Task EditAsync()
+    {
+        if (!RoundCount.IsValid) {
+            CommandRunner.SetError(new ValidationException("Round count must be an integer."));
+            return Task.CompletedTask;
+        }
+        var roundCount = RoundCount.Value != "" ? (int?) int.Parse(RoundCount.Value) : null;
+        var command = new Game.EditCommand(Session, Game.Id,
+            Intro: Intro.Value,
+            RoundCount: roundCount);
+        return CommandRunner.CallAsync(command);
+    }
 }

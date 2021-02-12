@@ -1,0 +1,85 @@
+@attribute [MatchFor(typeof(RpsEngine), ComponentScopes.GamePlay)]
+@inherits GamePlayBase
+
+@{
+    var gameEngine = (RpsEngine) GameEngine;
+    var gameState = gameEngine.DeserializeState(Game.StateJson);
+    var votes = gameState.Votes;
+    var lastVotes = gameState.LastVotes;
+    var playerIndexes = Enumerable.Range(0, Game.Players.Count).ToList();
+    playerIndexes.RemoveAt(MyPlayerIndex);
+    playerIndexes.Insert(0, MyPlayerIndex);
+}
+
+<WhenCommandError Exception="CommandRunner.Error"/>
+
+<Heading Size="HeadingSize.Is4">Choose your destiny:</Heading>
+<Container Fluid="true">
+    @foreach(var vote in AllVotes) {
+        <Button Margin="Margin.Is3" Padding="Padding.Is3" Color="Color.Light" @onclick="_ => MoveAsync(vote)">
+            <Text Alignment="TextAlignment.Center">
+                <Blazorise.Icon Name="GetIconName(vote)" IconStyle="IconStyle.Regular" Style="font-size: 64px;"/><br/>
+                @vote.ToString()
+            </Text>
+
+        </Button>
+    }
+</Container>
+
+<Heading Size="HeadingSize.Is4">Choices</Heading>
+<Table Narrow="true" Striped="true">
+    <TableHeader>
+        <TableHeaderCell Style="width: auto">Player</TableHeaderCell>
+        <TableHeaderCell Style="width: 20%">Score</TableHeaderCell>
+        <TableHeaderCell Style="width: 20%">Last choice</TableHeaderCell>
+        <TableHeaderCell Style="width: 20%">Made choice?</TableHeaderCell>
+    </TableHeader>
+    <TableBody>
+        @foreach (var playerIndex in playerIndexes) {
+            var player = Game.Players[playerIndex];
+            var vote = votes[playerIndex];
+            var lastVote = lastVotes[playerIndex];
+            <TableRow @key="@playerIndex">
+                <TableRowCell>
+                    <AppUserBadge User="@Users[player.UserId]"/>
+                </TableRowCell>
+                <TableRowCell>
+                    <Badge Color="@(playerIndex == MyPlayerIndex ? Color.Primary : Color.Secondary)"
+                           Style="font-size: 16px">@player.Score</Badge>
+                </TableRowCell>
+                <TableRowCell>
+                    <Blazorise.Icon Name="GetIconName(lastVote)" IconStyle="IconStyle.Regular" Style="font-size: 24px" />
+                </TableRowCell>
+                <TableRowCell>
+                    <Blazorise.Icon Name="GetMaskedIconName(vote)" IconStyle="IconStyle.Regular" Style="font-size: 24px" />
+                </TableRowCell>
+            </TableRow>
+        }
+    </TableBody>
+</Table>
+
+
+@code {
+    private RpsVote[] AllVotes { get; } = { RpsVote.Rock, RpsVote.Paper, RpsVote.Scissors };
+
+    private Task MoveAsync(RpsVote vote)
+    {
+        var move = new RpsMove(vote);
+        var command = new Game.MoveCommand(Session, Game.Id, move);
+        return CommandRunner.CallAsync(command);
+    }
+
+    private object GetIconName(RpsVote vote)
+        => vote switch {
+            RpsVote.Rock => FontAwesomeIcons.HandRock,
+            RpsVote.Paper => FontAwesomeIcons.HandPaper,
+            RpsVote.Scissors => FontAwesomeIcons.HandScissors,
+            _ =>FontAwesomeIcons.Question,
+            };
+
+    private object GetMaskedIconName(RpsVote vote)
+        => vote switch {
+            RpsVote.None => FontAwesomeIcons.Square,
+            _ => FontAwesomeIcons.CheckSquare,
+        };
+}

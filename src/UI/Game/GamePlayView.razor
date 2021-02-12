@@ -1,5 +1,10 @@
 @inherits GamePlayBase
 
+@if (Game.RoundCount.HasValue && Game.Stage != GameStage.Ended) {
+    <Badge Color="Color.Dark" Float="Float.Right" Style="font-size: 16px">
+        Round @(Game.RoundIndex + 1) / @Game.RoundCount.Value
+    </Badge>
+}
 <Paragraph>
     Players: <AppUsersBadge Users="@OrderedUsers" />
 </Paragraph>
@@ -8,6 +13,10 @@
     <Note Title="Game ended!">
         <GameMessageSpan Text="@Game.StateMessage" />
     </Note>
+} else {
+    <Paragraph>
+        <GameMessageSpan Text="@Game.StateMessage" />
+    </Paragraph>
 }
 
 <MatchingComponentFor

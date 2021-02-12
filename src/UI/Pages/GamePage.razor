@@ -16,8 +16,8 @@
         <Text Margin="Margin.Is3.FromBottom">
             <Button Color="Color.Primary" @onclick="_ => CreateAsync()">Start a new game</Button>
         </Text>
-        <OwnGameList GameStage="GameStage.New"></OwnGameList>
-        <OwnGameList GameStage="GameStage.Playing"></OwnGameList>
+        <OwnGameList GameEngineId="@GameEngine.Id" GameStage="GameStage.New"></OwnGameList>
+        <OwnGameList GameEngineId="@GameEngine.Id" GameStage="GameStage.Playing"></OwnGameList>
     </Authorized>
     <NotAuthorized>
         <Text Margin="Margin.Is3.FromBottom">
@@ -26,14 +26,12 @@
     </NotAuthorized>
 </AuthorizeView>
 
-<GameList GameEngineId="@GameEngineId" GameStage="GameStage.New"/>
+<GameList GameEngineId="@GameEngine.Id" GameStage="GameStage.New"/>
 
 @code {
     [Parameter]
     public string GameEngineId { get; set; } = "";
-    [Parameter]
-    public string GameId { get; set; } = "";
-    private IGameEngine GameEngine => GameEngines[GameEngineId];
+    private IGameEngine GameEngine => GameEngines[GameEngineId.ToLower()];
 
     protected override void OnParametersSet()
         => CommandRunner.Component = this;

@@ -36,11 +36,13 @@ This comment resets the indent :) -->
         <Form @onsubmit="_ => ChangeUserNameAsync()" >
             <Addons>
                 <Addon AddonType="AddonType.Start">
-                    <AddonLabel>User name:</AddonLabel>
+                    <AddonLabel>Name:</AddonLabel>
                 </Addon>
-                <TextEdit @bind-Text="@UserName.Current" />
+                <TextEdit @bind-Text="@UserName.Value" />
                 <Addon AddonType="AddonType.End">
-                    <Button Type="@ButtonType.Submit" Color="Color.Primary">Change</Button>
+                    <Button Type="@ButtonType.Submit" Color="Color.Primary">
+                        <Blazorise.Icon Name="FontAwesomeIcons.Check"/>
+                    </Button>
                 </Addon>
             </Addons>
         </Form>
@@ -127,7 +129,10 @@ This comment resets the indent :) -->
     private Editor<string> UserName { get; set; } = new();
 
     protected override void OnParametersSet()
-        => CommandRunner.Component = this;
+    {
+        CommandRunner.Component = this;
+        base.OnParametersSet();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -159,7 +164,7 @@ This comment resets the indent :) -->
             };
             sessionModels.Add(sessionModel);
         }
-        UserName.Original = user.Name;
+        UserName.OriginalValue = user.Name;
         return new Model() {
             User = user,
             Sessions = sessionModels.ToImmutableList(),
@@ -168,7 +173,7 @@ This comment resets the indent :) -->
 
     private async Task ChangeUserNameAsync()
     {
-        var command = new EditUserCommand(Session, UserName.Current);
+        var command = new EditUserCommand(Session, UserName.Value);
         await CommandRunner.CallAsync(command);
     }
 }

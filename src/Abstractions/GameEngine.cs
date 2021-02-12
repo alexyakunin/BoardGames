@@ -13,6 +13,7 @@ namespace BoardGames.Abstractions
         int MaxPlayerCount { get; }
         bool AutoStart { get; }
 
+        Game Create(Game game);
         Game Start(Game game);
         Game Move(Game game, GameMove move);
     }
@@ -27,6 +28,7 @@ namespace BoardGames.Abstractions
         public abstract int MaxPlayerCount { get; }
         public abstract bool AutoStart { get; }
 
+        public virtual Game Create(Game game) => game;
         public abstract Game Start(Game game);
         Game IGameEngine.Move(Game game, GameMove move) => Move(game, (TGameMove) move);
         public abstract Game Move(Game game, TGameMove move);

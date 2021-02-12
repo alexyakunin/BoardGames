@@ -2,8 +2,9 @@ using Stl.Time;
 
 namespace BoardGames.Abstractions
 {
-    public abstract record GameMove(Moment Time)
+    public abstract record GameMove
     {
-        protected GameMove() : this(default(Moment)) { }
+        public int PlayerIndex { get; init; }
+        public Moment Time { get; init; }
     }
 }

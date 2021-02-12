@@ -25,6 +25,8 @@ namespace BoardGames.HostServices
         public string EngineId { get; set; } = "";
         public long UserId { get; set; }
         public bool IsPublic { get; set; }
+        public int? RoundCount { get; set; }
+        public int RoundIndex { get; set; }
         public string Intro { get; set; } = "";
 
         public List<DbGamePlayer> Players { get; set; } = new();
@@ -60,6 +62,8 @@ namespace BoardGames.HostServices
                 EngineId = EngineId,
                 UserId = UserId,
                 IsPublic = IsPublic,
+                RoundCount = RoundCount,
+                RoundIndex = RoundIndex,
                 Intro = Intro,
                 CreatedAt = CreatedAt,
                 StartedAt = StartedAt,
@@ -81,6 +85,8 @@ namespace BoardGames.HostServices
                 CreatedAt = model.CreatedAt;
             }
             IsPublic = model.IsPublic;
+            RoundCount = model.RoundCount;
+            RoundIndex = model.RoundIndex;
             Intro = model.Intro;
             StartedAt = model.StartedAt;
             LastMoveAt = model.StartedAt;

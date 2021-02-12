@@ -89,7 +89,7 @@
     [Parameter]
     public GameStage? GameStage { get; set; }
 
-    protected override Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
         if (string.IsNullOrEmpty(Title)) {
             Title = $"Your {(GameStage.HasValue ? GetStageName(GameStage.Value) : "")} games";
@@ -98,7 +98,7 @@
                 Title += $"of {gameEngine.Title}";
             }
         }
-        return Task.CompletedTask;
+        base.OnParametersSet();
     }
 
     protected Color GetStageColor(GameStage stage)

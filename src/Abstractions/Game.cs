@@ -26,6 +26,7 @@ namespace BoardGames.Abstractions
         public record EditCommand(Session Session,
             string Id,
             bool? IsPublic = null,
+            int? RoundCount = null,
             string? Intro = null
         ) : IGameCommand<Unit> {
             public EditCommand() : this(Session.Null, "") { }
@@ -35,6 +36,8 @@ namespace BoardGames.Abstractions
         public string EngineId { get; init; } = "";
         public long UserId { get; init; }
         public bool IsPublic { get; init; }
+        public int? RoundCount { get; init; }
+        public int RoundIndex { get; init; }
         public string Intro { get; init; } = "";
         public DateTime CreatedAt { get; init; }
         public DateTime? StartedAt { get; init; }

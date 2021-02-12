@@ -12,22 +12,11 @@
 </span>
 
 @code {
-    private string _lastRenderedText = "";
-
     [Parameter]
     public string CssClass { get; set; } = "";
     [Parameter]
     public string Text { get; set; } = "";
 
-    protected override void OnParametersSet()
-    {
-        if (_lastRenderedText != Text)
-            State.Invalidate();
-    }
-
     protected override async Task<GameMessage> ComputeStateAsync(CancellationToken cancellationToken)
-    {
-        _lastRenderedText = Text;
-        return await MessageParser.ParseAsync(Text, cancellationToken);
-    }
+        => await MessageParser.ParseAsync(Text, cancellationToken);
 }

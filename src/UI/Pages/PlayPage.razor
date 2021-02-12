@@ -22,11 +22,9 @@
             <div class="col-md-8">
                 @switch (State.Value.Game.Stage) {
                 case GameStage.New:
-                    <Row Margin="Margin.Is3.OnY">
-                        <Column ColumnSize="ColumnSize.Is6">
-                            <CopyUrlField Url="@Navigator.Uri"><b>Game URL:</b></CopyUrlField>
-                        </Column>
-                    </Row>
+                    <Paragraph Margin="Margin.Is3.OnY">
+                        <CopyUrlField Url="@Navigator.Uri"><b>Game URL:</b></CopyUrlField>
+                    </Paragraph>
 
                     <GameLobbyView Model="@state" GameEngine="@GameEngine" />
                     break;

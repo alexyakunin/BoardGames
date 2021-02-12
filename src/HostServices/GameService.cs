@@ -59,6 +59,7 @@ namespace BoardGames.HostServices
                 Stage = GameStage.New,
                 Players = ImmutableList<GamePlayer>.Empty.Add(new GamePlayer(userId))
             };
+            game = engine.Create(game);
             var dbGame = new DbGame();
             dbGame.UpdateFrom(game);
             dbContext.Add(dbGame);
@@ -138,7 +139,7 @@ namespace BoardGames.HostServices
                 LastMoveAt = now,
                 Stage = GameStage.Playing,
             };
-            game = GameEngines[game.EngineId].Start(game);
+            game = engine.Start(game);
             dbGame.UpdateFrom(game);
             await dbContext.SaveChangesAsync(cancellationToken);
             context.Operation().Items.Set(game);
@@ -156,16 +157,21 @@ namespace BoardGames.HostServices
             await using var dbContext = await CreateCommandDbContextAsync(cancellationToken);
             var dbGame = await GetDbGame(dbContext, id, cancellationToken);
             var game = dbGame.ToModel();
+            var engine = GameEngines[game.EngineId];
 
             if (game.Stage != GameStage.Playing)
                 throw new InvalidOperationException("Game has already ended or hasn't started yet.");
-            if (game.Players.All(p => p.UserId != userId))
+            var player = game.Players.SingleOrDefault(p => p.UserId == userId);
+            if (player == null)
                 throw new InvalidOperationException("You aren't a participant of this game.");
-            var engine = GameEngines[game.EngineId];
+            var playerIndex = game.Players.IndexOf(player);
+            var now = Clock.Now;
+            move = move with {
+                PlayerIndex = playerIndex,
+                Time = now,
+            };
 
             context.Operation().Items.Set(game.Stage); // Saving prev. stage
-            var now = Clock.Now;
-            move = move with { Time = now };
             game = engine.Move(game, move) with { LastMoveAt = now };
             if (game.Stage == GameStage.Ended)
                 game = game with { EndedAt = now };
@@ -189,6 +195,14 @@ namespace BoardGames.HostServices
             var dbGame = await GetDbGame(dbContext, command.Id, cancellationToken);
             if (command.IsPublic.HasValue)
                 dbGame.IsPublic = command.IsPublic.Value;
+            if (command.RoundCount.HasValue) {
+                if (!dbGame.RoundCount.HasValue)
+                    throw new InvalidOperationException("This game doesn't have rounds.");
+                var roundCount = command.RoundCount.Value;
+                if (roundCount is < 1 or > 100)
+                    throw new InvalidOperationException("Round count must be an integer in [1..100] range.");
+                dbGame.RoundCount = roundCount;
+            }
             if (parsedIntro != null)
                 dbGame.Intro = parsedIntro.Format();
             var game = dbGame.ToModel();
