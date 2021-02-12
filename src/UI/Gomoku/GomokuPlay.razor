@@ -13,12 +13,12 @@
     <table><tbody>
         @for (var r = 0; r < GomokuEngine.BoardSize; r++) {
             var row = r;
-            <tr @key=@row>
+            <tr @key=@row class="p-0 m-0">
                 @for (var c = 0; c < GomokuEngine.BoardSize; c++) {
                     var col = c;
                     var cell = board[row, col];
-                    <td @key=@((row, col))>
-                        <Button Color="Color.Light" Style="margin: 1px; padding: 0px; min-width: 28px; min-height: 28px;"
+                    <td @key=@((row, col)) class="p-0 m-0">
+                        <Button Color="Color.Light" style="padding: 0px; margin: 2px; min-width: 26px; min-height: 26px;"
                                 @onclick="_ => MoveAsync(row, col)">
                             @GetIcon(cell)
                         </Button>

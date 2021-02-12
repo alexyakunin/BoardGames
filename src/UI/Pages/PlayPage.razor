@@ -19,7 +19,7 @@
 <AuthorizeView><Authorized>
         <div class="container"><div class="row">
         @if (state.Me.Id != 0) { // Loaded
-            <div class="col-md-8">
+            <div class="col-md-8 py-3">
                 @switch (State.Value.Game.Stage) {
                 case GameStage.New:
                     <Paragraph Margin="Margin.Is3.OnY">
@@ -36,7 +36,7 @@
                     throw new ArgumentOutOfRangeException();
                 }
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 py-3">
                 <Card>
                     <CardHeader>Chat</CardHeader>
                     <CardBody>
