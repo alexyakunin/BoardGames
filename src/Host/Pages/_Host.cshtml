@@ -43,7 +43,19 @@
         @(closeWindowFlowName) completed, you can close this window.
     </div>
 } else if (!isServerSideBlazor) {
-    <app id="app">Loading...</app>
+    <app id="app">
+        <div class="position-absolute h-100 w-100 absolute-center">
+            <div class="text-primary">
+                <div class="spinner-border" style="width: 6rem; height: 6rem;" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <div style="font-size: 1.25rem">
+                    <i class="fa fa-dice"></i>
+                    Board Games is loading...
+                </div>
+            </div>
+        </div>
+    </app>
 
     <div id="blazor-error-ui">
         An unhandled error has occurred.
