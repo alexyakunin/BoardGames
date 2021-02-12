@@ -36,10 +36,9 @@ namespace BoardGames.Abstractions
                 throw new ArgumentOutOfRangeException(nameof(users));
             List<MessageFragment> fragments = new();
             for (var i = 0; i < lUsers.Count; i++) {
+                var isFirst = i == 0;
                 var isLast = i == lUsers.Count - 1;
-                if (!isLast)
-                    fragments.Add(new PlainText(", "));
-                else {
+                if (isLast) {
                     var delimiter = lUsers.Count switch {
                         1 => "",
                         2 => " and ",
@@ -48,6 +47,11 @@ namespace BoardGames.Abstractions
                     if (!string.IsNullOrEmpty(delimiter))
                         fragments.Add(new PlainText(delimiter));
                 }
+                else {
+                    if (!isFirst)
+                        fragments.Add(new PlainText(", "));
+                }
+
                 fragments.Add(new UserMention(lUsers[i]));
             }
             fragments.Add(new PlainText(", " + suffix));
@@ -66,7 +70,6 @@ namespace BoardGames.Abstractions
                 if (!isFirst)
                     fragments.Add(new PlainText(", "));
                 fragments.Add(new UserMention(new AppUser(player.UserId)));
-                fragments.Add(new PlainText(": "));
                 fragments.Add(new GameScoreMention(game, player.Score));
                 isFirst = false;
             }
