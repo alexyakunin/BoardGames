@@ -2,7 +2,7 @@
 
 Live version of this app: https://boardgames.alexyakunin.com/
 
-"Board Games" is the new [Fusion] sample and a fully functional 
+"Board Games" is a new [Fusion] sample and a fully functional 
 web app allowing you to play real-time multiplayer board games.
 
 The sample implements a number of features that are 
@@ -16,7 +16,8 @@ different user accounts, and:
 - Try renaming your user & see its name changes everywhere - 
   even in chat mentions!
   
-The sample currently implements:
+### What's implemented in Board Games
+
 - Two games. I plan to add a couple more  a bit later - 
   there is a common base API allowing to add new games 
   pretty quickly
@@ -42,18 +43,46 @@ The [live version] of this app is hosted on Google Cloud:
 - Cloud Run runs its Docker image in 1-core/512MB RAM container
 - Cloud PostgreSql stores the data; it also runs on
   the cheapest 1 core/3.75GB RAM host.
+                   
+### Ok, real-time. But seriously, what's so new there?
 
-The most interesting part? **Nearly everything you see here
-was built by a single person in ~ 9 days.**
-[The very first commit](https://github.com/servicetitan/Stl.Fusion.Samples/commit/546ae7597bc7fa3a0b3c7f3b84e3a463bc3fd28f)
+The implementation cost of real-time updates. Everything you 
+see there required me to write [just 35 extra lines of code](https://github.com/alexyakunin/BoardGames/search?q=IsInvalidating)!
+
+- First 3 `if` blocks have ~ 15 lines of code inside
+- The last one (in `GameService.cs`, the invalidation logic is outside of 
+  an `if` clause there) has ~ 20 more.
+  
+And if you look at everything else, it's absolutely usual code you'd 
+have otherwise too.
+
+> More precisely, you'd need at least this "everything else" to implement 
+a *non-real-time* version of the same sample that supports just 
+Blazor Server.
+
+WASM version would require way more - the approach used in this sample,
+where server-side services are replaced by their client-side caching
+replicas (so-called 
+["Replica Services"](https://github.com/servicetitan/Stl.Fusion.Samples/blob/master/docs/tutorial/Part04.md)
+in Fusion terms) simply won't work without Fusion-style distributed
+version of "computed observable" that eliminates every RPC call known 
+to return the same result as the locally cached one. 
+
+In other words, if you use Fusion, Blazor WASM mode has virtually 
+zero implementation cost as well. 
+
+**And this is what allowed me build Board Games single-handedly
+in 9 days.** Proof: 
+[the very first commit](https://github.com/servicetitan/Stl.Fusion.Samples/commit/546ae7597bc7fa3a0b3c7f3b84e3a463bc3fd28f)
 cloning Fusion's Blazorise template was made on Feb 1, 
-and I wrote the README describing what's already done
-on Feb 10, though at that point there was just one game. 
+and I wrote this README describing what's already done
+on Feb 10 (though at that point there was just one game). 
+
+### Looks interesting, how do I learn more about Fusion?
 
 Check out [Fusion] and its 
-[other samples](https://github.com/servicetitan/Stl.Fusion.Samples)
-if you want to learn more.
-Our [Discord Server] is the best place to ask questions.
+[other samples](https://github.com/servicetitan/Stl.Fusion.Samples);
+join our [Discord Server] to ask questions.
 
 P.S. I am sure there are some bugs - if you'll find one, 
 please 
