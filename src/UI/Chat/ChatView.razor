@@ -30,7 +30,7 @@
 
 <Form @onsubmit="_ => PostAsync()" >
     <Addons>
-        <TextEdit @bind-Text="@Message.Value"/>
+        <input @bind="@Message.Value" @bind:event="onchange" class="form-control" />
         <Addon AddonType="AddonType.End">
             <Button Type="@ButtonType.Submit" Color="Color.Primary">
                 <Blazorise.Icon Name="@FontAwesomeIcons.PaperPlane"/>

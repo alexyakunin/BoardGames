@@ -18,7 +18,8 @@
                         <Blazorise.Icon Name="FontAwesomeIcons.Comment" />
                     </AddonLabel>
                 </Addon>
-                <TextEdit @bind-Text="@Intro.Value" Placeholder="Introduction or game title?"/>
+                <input @bind="@Intro.Value" @bind:event="onchange"
+                        class="form-control" placeholder="Introduction or game title?"/>
                 <Addon AddonType="AddonType.End">
                     <Button Type="@ButtonType.Submit" Color="Color.Primary">
                         <Blazorise.Icon Name="FontAwesomeIcons.Check"/>

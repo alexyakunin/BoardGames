@@ -38,7 +38,7 @@ This comment resets the indent :) -->
                 <Addon AddonType="AddonType.Start">
                     <AddonLabel>Name:</AddonLabel>
                 </Addon>
-                <TextEdit @bind-Text="@UserName.Value" />
+                <input @bind="@UserName.Value" @bind:event="onchange" class="form-control" />
                 <Addon AddonType="AddonType.End">
                     <Button Type="@ButtonType.Submit" Color="Color.Primary">
                         <Blazorise.Icon Name="FontAwesomeIcons.Check"/>

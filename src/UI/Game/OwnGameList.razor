@@ -20,7 +20,7 @@
         <Table Narrow="true" Striped="true" Hoverable="true">
             <TableHeader>
                 <TableHeaderCell Style="width: 1%"></TableHeaderCell>
-                @if (GameEngineId != null) {
+                @if (GameEngineId == null) {
                     <TableHeaderCell Style="width: 20%">Game type</TableHeaderCell>
                 }
                 <TableHeaderCell Style="width: 20%">Creator and players</TableHeaderCell>
@@ -38,7 +38,7 @@
                                 <Blazorise.Icon Name="@FontAwesomeIcons.Gamepad" />
                             </Button>
                         </TableRowCell>
-                        @if (GameEngineId != null) {
+                        @if (GameEngineId == null) {
                             <TableHeaderCell>
                                 <a href="@LinkBuilder.Game(game.EngineId)">@GameEngines[game.EngineId].Title</a>
                             </TableHeaderCell>
