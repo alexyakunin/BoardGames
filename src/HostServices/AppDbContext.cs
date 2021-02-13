@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Stl.Fusion.EntityFramework.Authentication;
+using Stl.Fusion.EntityFramework.Extensions;
 using Stl.Fusion.EntityFramework.Operations;
 
 namespace BoardGames.HostServices
@@ -12,10 +13,11 @@ namespace BoardGames.HostServices
         public DbSet<DbChatMessage> ChatMessages { get; protected set; } = null!;
 
         // Stl.Fusion.EntityFramework tables
-        public DbSet<DbOperation> Operations { get; protected set; } = null!;
-        public DbSet<DbSessionInfo> Sessions { get; protected set; } = null!;
         public DbSet<DbUser> Users { get; protected set; } = null!;
         public DbSet<DbUserIdentity> UserIdentities { get; protected set; } = null!;
+        public DbSet<DbSessionInfo> Sessions { get; protected set; } = null!;
+        public DbSet<DbKeyValue> KeyValues { get; protected set; } = null!;
+        public DbSet<DbOperation> Operations { get; protected set; } = null!;
 
         // Data protection key storage
         public DbSet<DataProtectionKey> DataProtectionKeys { get; protected set; } = null!;

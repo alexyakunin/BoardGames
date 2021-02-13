@@ -103,8 +103,9 @@ namespace BoardGames.HostServices
             context.Operation().Items.Set(game);
 
             // Try auto-start
-            if (join && engine.AutoStart && game.Players.Count == engine.MaxPlayerCount)
+            if (join && engine.AutoStart && game.Players.Count == engine.MaxPlayerCount) {
                 await StartAsync(new Game.StartCommand(session, id), cancellationToken);
+            }
         }
 
         public virtual async Task StartAsync(Game.StartCommand command, CancellationToken cancellationToken = default)

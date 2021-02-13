@@ -102,6 +102,7 @@ namespace BoardGames.Host
                     // can be arbitrary long - all depends on the reliability of Notifier-Monitor chain.
                     o.UnconditionalWakeUpPeriod = TimeSpan.FromSeconds(Env.IsDevelopment() ? 60 : 5);
                 });
+                b.AddKeyValueStore();
                 var operationLogChangeAlertPath = sqliteDbPath + "_changed";
                 b.AddFileBasedDbOperationLogChangeNotifier(operationLogChangeAlertPath);
                 b.AddFileBasedDbOperationLogChangeMonitor(operationLogChangeAlertPath);
