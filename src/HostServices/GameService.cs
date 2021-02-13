@@ -16,6 +16,7 @@ using Stl.DependencyInjection;
 using Stl.Fusion.Authentication;
 using Stl.Fusion.EntityFramework;
 using Stl.Fusion.Operations;
+using Stl.Internal;
 
 namespace BoardGames.HostServices
 {
@@ -133,7 +134,7 @@ namespace BoardGames.HostServices
                 throw new InvalidOperationException(
                     $"Too many players: {engine.MaxPlayerCount - game.Players.Count} player(s) must leave to start the game.");
 
-            context.Operation().Items.Set(game.Stage); // Saving prev. stage
+            context.Operation().Items.Set(Box.New(game.Stage)); // Saving prev. stage
             var now = Clock.Now;
             game = game with {
                 StartedAt = now,
@@ -172,7 +173,7 @@ namespace BoardGames.HostServices
                 Time = now,
             };
 
-            context.Operation().Items.Set(game.Stage); // Saving prev. stage
+            context.Operation().Items.Set(Box.New(game.Stage)); // Saving prev. stage
             game = engine.Move(game, move) with { LastMoveAt = now };
             if (game.Stage == GameStage.Ended)
                 game = game with { EndedAt = now };
@@ -310,7 +311,7 @@ namespace BoardGames.HostServices
 
             var operationItems = context.Operation().Items;
             var game = operationItems.Get<Game>();
-            var prevState = operationItems.GetOrDefault(game.Stage);
+            var prevState = operationItems.GetOrDefault(Box.New(game.Stage)).Value;
 
             // Invalidation
             FindAsync(game.Id, default).Ignore();
