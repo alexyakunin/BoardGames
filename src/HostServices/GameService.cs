@@ -231,7 +231,7 @@ namespace BoardGames.HostServices
             await PseudoListOwnAsync(user.Id, cancellationToken);
 
             await using var dbContext = CreateDbContext();
-            var games = dbContext.Games.AsQueryable().Where(g => g.Players.Any(p => p.UserId == userId));
+            var games = dbContext.Games.AsQueryable().Where(g => g.Players.Any(p => p.DbUserId == userId));
             if (engineId != null)
                 games = games.Where(g => g.EngineId == engineId);
             if (stage != null) {

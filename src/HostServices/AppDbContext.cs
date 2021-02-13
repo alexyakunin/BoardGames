@@ -25,7 +25,7 @@ namespace BoardGames.HostServices
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var dbGamePlayer = modelBuilder.Entity<DbGamePlayer>();
-            dbGamePlayer.HasKey(p => new { p.GameId, p.UserId });
+            dbGamePlayer.HasKey(e => new { e.DbGameId, UserId = e.DbUserId });
         }
     }
 }

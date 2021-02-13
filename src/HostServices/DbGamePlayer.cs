@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using BoardGames.Abstractions;
 
@@ -7,19 +8,21 @@ namespace BoardGames.HostServices
     public class DbGamePlayer
     {
         public string EngineId { get; set; } = "";
-        public string GameId { get; set; } = "";
-        public long UserId { get; set; }
+        [Column("GameId")]
+        public string DbGameId { get; set; } = "";
+        [Column("UserId")]
+        public long DbUserId { get; set; }
         public int Index { get; set; }
         public long Score { get; set; }
 
         public GamePlayer ToModel()
-            => new(UserId, Score);
+            => new(DbUserId, Score);
 
         public void UpdateFrom(GamePlayer model, Game game, int index)
         {
             EngineId = game.EngineId;
-            GameId = game.Id;
-            UserId = model.UserId;
+            DbGameId = game.Id;
+            DbUserId = model.UserId;
             Index = index;
             Score = model.Score;
         }

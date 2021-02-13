@@ -160,9 +160,9 @@ namespace BoardGames.HostServices
             var dbMessages = dbContext.ChatMessages.AsQueryable();
             if (period.HasValue) {
                 var minCreatedAt = Clock.UtcNow - period.Value;
-                dbMessages = dbMessages.Where(m => m.ChatId == chatId && m.CreatedAt >= minCreatedAt);
+                dbMessages = dbMessages.Where(m => m.DbChatId == chatId && m.CreatedAt >= minCreatedAt);
             } else {
-                dbMessages = dbMessages.Where(m => m.ChatId == chatId);
+                dbMessages = dbMessages.Where(m => m.DbChatId == chatId);
             }
             return await dbMessages.LongCountAsync(cancellationToken);
         }
@@ -179,7 +179,7 @@ namespace BoardGames.HostServices
 
             // Fetching messages
             var dbMessages = await dbContext.ChatMessages.AsQueryable()
-                .Where(m => m.ChatId == chatId)
+                .Where(m => m.DbChatId == chatId)
                 .OrderByDescending(m => m.Id)
                 .Take(limit)
                 .ToListAsync(cancellationToken);
