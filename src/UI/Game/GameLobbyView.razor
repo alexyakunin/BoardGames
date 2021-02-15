@@ -102,7 +102,7 @@
     private Task EditAsync()
     {
         if (!RoundCount.IsValid) {
-            CommandRunner.SetError(new ValidationException("Round count must be an integer."));
+            CommandRunner.Error = new ValidationException("Round count must be an integer.");
             return Task.CompletedTask;
         }
         var roundCount = RoundCount.Value != "" ? (int?) int.Parse(RoundCount.Value) : null;

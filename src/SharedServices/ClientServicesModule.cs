@@ -3,6 +3,8 @@ using BoardGames.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Pluralize.NET;
 using Stl.Extensibility;
+using Stl.Fusion;
+using Stl.Fusion.Extensions;
 
 namespace BoardGames.ClientServices
 {
@@ -14,8 +16,9 @@ namespace BoardGames.ClientServices
 
         public override void Use()
         {
-            // Other UI services
+            // Other UI-related services
             Services.AddSingleton<IPluralize, Pluralizer>();
+            Services.AddFusion().AddLiveClock();
             base.Use();
         }
     }
