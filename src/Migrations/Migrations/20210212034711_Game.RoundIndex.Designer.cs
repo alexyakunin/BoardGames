@@ -3,15 +3,17 @@ using System;
 using BoardGames.HostServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BoardGames.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210212034711_Game.RoundIndex")]
+    partial class GameRoundIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,17 +26,12 @@ namespace BoardGames.Migrations.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
+                    b.Property<string>("ChatId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("DbChatId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("ChatId");
-
-                    b.Property<long>("DbUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("UserId");
 
                     b.Property<DateTime>("EditedAt")
                         .HasColumnType("timestamp without time zone");
@@ -46,19 +43,22 @@ namespace BoardGames.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("DbChatId", "CreatedAt");
+                    b.HasIndex("ChatId", "CreatedAt");
 
-                    b.HasIndex("DbChatId", "Id", "CreatedAt");
+                    b.HasIndex("ChatId", "Id", "CreatedAt");
 
-                    b.HasIndex("DbUserId", "CreatedAt", "DbChatId");
+                    b.HasIndex("UserId", "ChatId", "CreatedAt");
 
-                    b.HasIndex("DbUserId", "DbChatId", "CreatedAt");
+                    b.HasIndex("UserId", "CreatedAt", "ChatId");
 
-                    b.HasIndex("DbUserId", "DbChatId", "Id", "CreatedAt");
+                    b.HasIndex("UserId", "ChatId", "Id", "CreatedAt");
 
-                    b.HasIndex("DbUserId", "Id", "CreatedAt", "DbChatId");
+                    b.HasIndex("UserId", "Id", "CreatedAt", "ChatId");
 
                     b.ToTable("ChatMessages");
                 });
@@ -70,10 +70,6 @@ namespace BoardGames.Migrations.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<long>("DbUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("UserId");
 
                     b.Property<DateTime?>("EndedAt")
                         .HasColumnType("timestamp without time zone");
@@ -115,26 +111,30 @@ namespace BoardGames.Migrations.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("DbUserId", "CreatedAt", "Stage");
-
-                    b.HasIndex("DbUserId", "Stage", "CreatedAt");
-
                     b.HasIndex("Stage", "IsPublic", "CreatedAt");
+
+                    b.HasIndex("UserId", "CreatedAt", "Stage");
+
+                    b.HasIndex("UserId", "Stage", "CreatedAt");
 
                     b.ToTable("Games");
                 });
 
             modelBuilder.Entity("BoardGames.HostServices.DbGamePlayer", b =>
                 {
-                    b.Property<string>("DbGameId")
-                        .HasColumnType("text")
-                        .HasColumnName("GameId");
+                    b.Property<string>("GameId")
+                        .HasColumnType("text");
 
-                    b.Property<long>("DbUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("UserId");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("DbGameId")
+                        .HasColumnType("text");
 
                     b.Property<string>("EngineId")
                         .IsRequired()
@@ -146,7 +146,9 @@ namespace BoardGames.Migrations.Migrations
                     b.Property<long>("Score")
                         .HasColumnType("bigint");
 
-                    b.HasKey("DbGameId", "DbUserId");
+                    b.HasKey("GameId", "UserId");
+
+                    b.HasIndex("DbGameId");
 
                     b.HasIndex("EngineId", "Score");
 
@@ -174,8 +176,7 @@ namespace BoardGames.Migrations.Migrations
             modelBuilder.Entity("Stl.Fusion.EntityFramework.Authentication.DbSessionInfo", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasColumnType("text");
 
                     b.Property<string>("AuthenticatedIdentity")
                         .IsRequired()
@@ -245,13 +246,15 @@ namespace BoardGames.Migrations.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<long>("DbUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("UserId");
+                    b.Property<long?>("DbUserId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Secret")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -260,25 +263,6 @@ namespace BoardGames.Migrations.Migrations
                     b.HasIndex("Id");
 
                     b.ToTable("UserIdentities");
-                });
-
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Extensions.DbKeyValue", b =>
-                {
-                    b.Property<string>("Key")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Key");
-
-                    b.HasIndex("ExpiresAt");
-
-                    b.ToTable("_KeyValues");
                 });
 
             modelBuilder.Entity("Stl.Fusion.EntityFramework.Operations.DbOperation", b =>
@@ -317,18 +301,14 @@ namespace BoardGames.Migrations.Migrations
                 {
                     b.HasOne("BoardGames.HostServices.DbGame", null)
                         .WithMany("Players")
-                        .HasForeignKey("DbGameId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DbGameId");
                 });
 
             modelBuilder.Entity("Stl.Fusion.EntityFramework.Authentication.DbUserIdentity", b =>
                 {
                     b.HasOne("Stl.Fusion.EntityFramework.Authentication.DbUser", null)
                         .WithMany("Identities")
-                        .HasForeignKey("DbUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DbUserId");
                 });
 
             modelBuilder.Entity("BoardGames.HostServices.DbGame", b =>

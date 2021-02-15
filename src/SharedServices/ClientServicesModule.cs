@@ -7,6 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pluralize.NET;
 using Stl.Extensibility;
+using Stl.Fusion;
+using Stl.Fusion.Extensions;
 
 namespace BoardGames.ClientServices
 {
@@ -18,14 +20,10 @@ namespace BoardGames.ClientServices
 
         public override void Use()
         {
-            // Game engines
-            Services.TryAddEnumerable(ServiceDescriptor.Singleton<IGameEngine, GomokuEngine>());
-            Services.TryAddEnumerable(ServiceDescriptor.Singleton<IGameEngine, DiceEngine>());
-            Services.AddSingleton(c =>
-                c.GetRequiredService<IEnumerable<IGameEngine>>().ToImmutableDictionary(e => e.Id));
 
-            // Other UI services
+            // Other UI-related services
             Services.AddSingleton<IPluralize, Pluralizer>();
+            Services.AddFusion().AddLiveClock();
             base.Use();
         }
     }

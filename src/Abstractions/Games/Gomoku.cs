@@ -1,11 +1,17 @@
 using System;
 using System.Linq;
 using Stl.DependencyInjection;
-using Stl.Time;
 using Stl.Time.Internal;
 
 namespace BoardGames.Abstractions.Games
 {
+    public enum GomokuGameEndingKind
+    {
+        None = 0,
+        Win,
+        Draw,
+    }
+
     public record GomokuState(CharBoard Board, int MoveIndex = 0, int FirstPlayerIndex = 0)
     {
         public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % 2;
@@ -14,9 +20,9 @@ namespace BoardGames.Abstractions.Games
         public GomokuState() : this((CharBoard) null!) { }
     }
 
-    public record GomokuMove(int PlayerIndex, int Row, int Column, Moment Time = default) : GameMove(Time)
+    public record GomokuMove(int Row, int Column) : GameMove
     {
-        public GomokuMove() : this(0, 0, 0) { }
+        public GomokuMove() : this(0, 0) { }
     }
 
     [Service, ServiceAlias(typeof(IGameEngine), IsEnumerable = true)]
@@ -61,22 +67,32 @@ namespace BoardGames.Abstractions.Games
             };
             var nextPlayer = game.Players[nextState.PlayerIndex];
             var nextGame = game with { StateJson = SerializeState(nextState) };
-            if (CheckGameEnded(nextBoard, move))
-                nextGame = IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
+
+            var gameEndingKind = GetGameEnding(nextBoard, move);
+            switch (gameEndingKind) {
+            case GomokuGameEndingKind.None:
+                return nextGame with {
+                    StateMessage = StandardMessages.MoveTurn(new AppUser(nextPlayer.UserId)),
+                };
+            case GomokuGameEndingKind.Win:
+                return IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
                     StateMessage = StandardMessages.Win(new AppUser(player.UserId)),
                     Stage = GameStage.Ended,
                 };
-            else
-                nextGame = nextGame with {
-                    StateMessage = StandardMessages.MoveTurn(new AppUser(nextPlayer.UserId)),
+            case GomokuGameEndingKind.Draw:
+                return IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
+                    StateMessage = StandardMessages.Draw(),
+                    Stage = GameStage.Ended,
                 };
-            return nextGame;
+            default:
+                throw new ArgumentOutOfRangeException();
+            }
         }
 
         public char GetPlayerMarker(int playerIndex)
             => playerIndex == 0 ? 'X' : 'O';
 
-        private bool CheckGameEnded(CharBoard board, GomokuMove lastMove)
+        private GomokuGameEndingKind GetGameEnding(CharBoard board, GomokuMove lastMove)
         {
             var marker = GetPlayerMarker(lastMove.PlayerIndex);
             int Count(int dr, int dc)
@@ -87,9 +103,14 @@ namespace BoardGames.Abstractions.Games
                     .Count();
             int SymmetricCount(int dr, int dc)
                 => Count(dr, dc) + Count(-dr, -dc) - 1;
-            bool IsGameEnded(int dr, int dc)
+            bool IsWin(int dr, int dc)
                 => SymmetricCount(dr, dc) >= 5;
-            return IsGameEnded(0, 1) || IsGameEnded(1, 0) || IsGameEnded(1, 1) || IsGameEnded(-1, 1);
+
+            if (IsWin(0, 1) || IsWin(1, 0) || IsWin(1, 1) || IsWin(-1, 1))
+                return GomokuGameEndingKind.Win;
+            if (board.Cells.All(c => c != ' '))
+                return GomokuGameEndingKind.Draw;
+            return GomokuGameEndingKind.None;
         }
     }
 }

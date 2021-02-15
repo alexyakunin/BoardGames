@@ -12,8 +12,8 @@ namespace BoardGames.HostServices
 {
     [Table("Games")]
     [Index(nameof(Stage), nameof(IsPublic), nameof(CreatedAt))]
-    [Index(nameof(UserId), nameof(Stage), nameof(CreatedAt))]
-    [Index(nameof(UserId), nameof(CreatedAt), nameof(Stage))]
+    [Index(nameof(DbUserId), nameof(Stage), nameof(CreatedAt))]
+    [Index(nameof(DbUserId), nameof(CreatedAt), nameof(Stage))]
     public class DbGame
     {
         private DateTime _createdAt;
@@ -23,8 +23,11 @@ namespace BoardGames.HostServices
 
         [Key] public string Id { get; set; } = "";
         public string EngineId { get; set; } = "";
-        public long UserId { get; set; }
+        [Column("UserId")]
+        public long DbUserId { get; set; }
         public bool IsPublic { get; set; }
+        public int? RoundCount { get; set; }
+        public int RoundIndex { get; set; }
         public string Intro { get; set; } = "";
 
         public List<DbGamePlayer> Players { get; set; } = new();
@@ -58,8 +61,10 @@ namespace BoardGames.HostServices
             => new() {
                 Id = Id,
                 EngineId = EngineId,
-                UserId = UserId,
+                UserId = DbUserId,
                 IsPublic = IsPublic,
+                RoundCount = RoundCount,
+                RoundIndex = RoundIndex,
                 Intro = Intro,
                 CreatedAt = CreatedAt,
                 StartedAt = StartedAt,
@@ -77,10 +82,12 @@ namespace BoardGames.HostServices
             if (string.IsNullOrEmpty(Id)) {
                 Id = model.Id;
                 EngineId = model.EngineId;
-                UserId = model.UserId;
+                DbUserId = model.UserId;
                 CreatedAt = model.CreatedAt;
             }
             IsPublic = model.IsPublic;
+            RoundCount = model.RoundCount;
+            RoundIndex = model.RoundIndex;
             Intro = model.Intro;
             StartedAt = model.StartedAt;
             LastMoveAt = model.StartedAt;
@@ -91,7 +98,7 @@ namespace BoardGames.HostServices
             StateJson = model.StateJson;
 
             var players = model.Players.ToDictionary(p => p.UserId);
-            var dbPlayers = Players.Where(p => players.ContainsKey(p.UserId)).ToDictionary(p => p.UserId);
+            var dbPlayers = Players.Where(p => players.ContainsKey(p.DbUserId)).ToDictionary(p => p.DbUserId);
             Players = new List<DbGamePlayer>();
             var playerIndex = 0;
             foreach (var player in model.Players) {

@@ -19,14 +19,12 @@
 <AuthorizeView><Authorized>
         <div class="container"><div class="row">
         @if (state.Me.Id != 0) { // Loaded
-            <div class="col-md-8">
+            <div class="col-md-8 py-3">
                 @switch (State.Value.Game.Stage) {
                 case GameStage.New:
-                    <Row Margin="Margin.Is3.OnY">
-                        <Column ColumnSize="ColumnSize.Is6">
-                            <CopyUrlField Url="@Navigator.Uri"><b>Game URL:</b></CopyUrlField>
-                        </Column>
-                    </Row>
+                    <Paragraph Margin="Margin.Is3.OnY">
+                        <CopyUrlField Url="@Navigator.Uri"><b>Game URL:</b></CopyUrlField>
+                    </Paragraph>
 
                     <GameLobbyView Model="@state" GameEngine="@GameEngine" />
                     break;
@@ -38,7 +36,7 @@
                     throw new ArgumentOutOfRangeException();
                 }
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 py-3">
                 <Card>
                     <CardHeader>Chat</CardHeader>
                     <CardBody>

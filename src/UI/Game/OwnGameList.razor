@@ -20,7 +20,7 @@
         <Table Narrow="true" Striped="true" Hoverable="true">
             <TableHeader>
                 <TableHeaderCell Style="width: 1%"></TableHeaderCell>
-                @if (GameEngineId != null) {
+                @if (GameEngineId == null) {
                     <TableHeaderCell Style="width: 20%">Game type</TableHeaderCell>
                 }
                 <TableHeaderCell Style="width: 20%">Creator and players</TableHeaderCell>
@@ -38,7 +38,7 @@
                                 <Blazorise.Icon Name="@FontAwesomeIcons.Gamepad" />
                             </Button>
                         </TableRowCell>
-                        @if (GameEngineId != null) {
+                        @if (GameEngineId == null) {
                             <TableHeaderCell>
                                 <a href="@LinkBuilder.Game(game.EngineId)">@GameEngines[game.EngineId].Title</a>
                             </TableHeaderCell>
@@ -89,16 +89,15 @@
     [Parameter]
     public GameStage? GameStage { get; set; }
 
-    protected override Task OnParametersSetAsync()
+    protected override void OnParametersSet()
     {
-        if (string.IsNullOrEmpty(Title)) {
-            Title = $"Your {(GameStage.HasValue ? GetStageName(GameStage.Value) : "")} games";
-            if (GameEngineId != null) {
-                var gameEngine = GameEngines[GameEngineId];
-                Title += $"of {gameEngine.Title}";
-            }
+        Title = "Your " + (GameStage.HasValue ? GetStageName(GameStage.Value) : "");
+        if (GameEngineId != null) {
+            var gameEngine = GameEngines[GameEngineId];
+            Title += $" {gameEngine.Title}";
         }
-        return Task.CompletedTask;
+        Title += " games";
+        base.OnParametersSet();
     }
 
     protected Color GetStageColor(GameStage stage)

@@ -3,15 +3,17 @@ using System;
 using BoardGames.HostServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BoardGames.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210213021658_Fix_Relationships")]
+    partial class Fix_Relationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,8 +176,7 @@ namespace BoardGames.Migrations.Migrations
             modelBuilder.Entity("Stl.Fusion.EntityFramework.Authentication.DbSessionInfo", b =>
                 {
                     b.Property<string>("Id")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
+                        .HasColumnType("text");
 
                     b.Property<string>("AuthenticatedIdentity")
                         .IsRequired()
@@ -245,13 +246,15 @@ namespace BoardGames.Migrations.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
-                    b.Property<long>("DbUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("UserId");
+                    b.Property<long?>("DbUserId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Secret")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -260,25 +263,6 @@ namespace BoardGames.Migrations.Migrations
                     b.HasIndex("Id");
 
                     b.ToTable("UserIdentities");
-                });
-
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Extensions.DbKeyValue", b =>
-                {
-                    b.Property<string>("Key")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Key");
-
-                    b.HasIndex("ExpiresAt");
-
-                    b.ToTable("_KeyValues");
                 });
 
             modelBuilder.Entity("Stl.Fusion.EntityFramework.Operations.DbOperation", b =>
@@ -326,9 +310,7 @@ namespace BoardGames.Migrations.Migrations
                 {
                     b.HasOne("Stl.Fusion.EntityFramework.Authentication.DbUser", null)
                         .WithMany("Identities")
-                        .HasForeignKey("DbUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("DbUserId");
                 });
 
             modelBuilder.Entity("BoardGames.HostServices.DbGame", b =>

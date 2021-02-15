@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
+using Stl.DependencyInjection;
 using Stl.Fusion;
 using Stl.Time;
 using Stl.Time.Internal;
@@ -18,11 +19,12 @@ namespace BoardGames.Abstractions.Games
         public DiceState() : this((DiceBoard) null!, (Dictionary<int, int>) null!) { }
     }
 
-    public record DiceMove(int PlayerIndex, int Value, Moment Time = default) : GameMove(Time)
+    public record DiceMove(int PlayerIndex, int Value) : GameMove
     {
         public DiceMove() : this(0, 0) {}
     }
 
+    [Service, ServiceAlias(typeof(IGameEngine), IsEnumerable = true)]
     public class DiceEngine : GameEngine<DiceState, DiceMove>
     {
         public static int BoardSize { get; } = 8;

@@ -1,25 +1,53 @@
+using System;
 using System.Collections.Generic;
 
 namespace BoardGames.UI.Shared
 {
     public class Editor<TValue>
     {
-        private TValue _original = default!;
+        private TValue _originalValue = default!;
+        private TValue _value = default!;
+        private Func<Editor<TValue>, string> _validator = _ => "";
 
-        public TValue Original {
-            get => _original;
+        public TValue OriginalValue {
+            get => _originalValue;
             set {
                 var isChanged = IsChanged;
-                _original = value;
+                _originalValue = value;
                 if (!isChanged)
-                    Current = value;
+                    Value = value;
+                else
+                    ValidationMessage = Validator.Invoke(this);
             }
         }
 
-        public TValue Current { get; set; } = default!;
-        public bool IsChanged => !EqualityComparer<TValue>.Default.Equals(Original, Current);
+        public TValue Value {
+            get => _value;
+            set {
+                _value = value;
+                ValidationMessage = Validator.Invoke(this);
+            }
+        }
+
+        public Func<Editor<TValue>, string> Validator {
+            get => _validator;
+            set {
+                _validator = value;
+                ValidationMessage = Validator.Invoke(this);
+            }
+        }
+
+        public string ValidationMessage { get; private set; } = "";
+        public bool IsChanged => !EqualityComparer<TValue>.Default.Equals(OriginalValue, Value);
+        public bool IsValid => string.IsNullOrEmpty(ValidationMessage);
 
         public void Reset()
-            => Current = Original;
+            => Value = OriginalValue;
+
+        public void Reset(TValue original)
+        {
+            OriginalValue = original;
+            Value = OriginalValue;
+        }
     }
 }

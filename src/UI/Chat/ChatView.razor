@@ -30,7 +30,7 @@
 
 <Form @onsubmit="_ => PostAsync()" >
     <Addons>
-        <TextEdit @bind-Text="@Message.Current"/>
+        <input @bind="@Message.Value" @bind:event="onchange" class="form-control" />
         <Addon AddonType="AddonType.End">
             <Button Type="@ButtonType.Submit" Color="Color.Primary">
                 <Blazorise.Icon Name="@FontAwesomeIcons.PaperPlane"/>
@@ -49,8 +49,8 @@
 
     protected override void OnParametersSet()
     {
-        State.Invalidate();
         CommandRunner.Component = this;
+        base.OnParametersSet();
     }
 
     protected override async Task<ChatPage> ComputeStateAsync(CancellationToken cancellationToken)
@@ -58,10 +58,10 @@
 
     private Task PostAsync()
     {
-        var text = Message.Current;
+        var text = Message.Value;
         if (string.IsNullOrEmpty(text))
             return Task.CompletedTask;
-        Message.Current = "";
+        Message.Value = "";
         return CommandRunner.CallAsync(new Chat.PostCommand(Session, ChatId, text));
     }
 }

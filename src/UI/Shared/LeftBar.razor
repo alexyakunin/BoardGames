@@ -15,7 +15,7 @@
             @foreach(var engine in GameEngines.OrderBy(e => e.Title)) {
                 @Item(engine.Icon, engine.Title, LinkBuilder.Game(engine.Id), Match.Prefix)
             }
-            <BarItem Style="min-height: 20px"></BarItem>
+            <BarItem Style="min-height: 0.5rem"></BarItem>
             @Item(FontAwesomeIcons.User, "Profile", LinkBuilder.Profile())
             @Item(FontAwesomeIcons.Code, "Source @ GitHub", LinkBuilder.SourceCode())
         </BarStart>
