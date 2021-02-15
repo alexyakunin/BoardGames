@@ -22,6 +22,7 @@
             Drop Dice
         </Button>
         <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
+        <Card>Your color: @board.</Card>
 
     </Paragraph>
 }
@@ -31,39 +32,81 @@
         @for (var r = 0; r < DiceEngine.BoardSize; r++) {
             var row = r;
             <tr @key=@row>
-                @for (var c = 0; c < DiceEngine.BoardSize; c++) {
-                    var col = c;
-                    var cell = board[row, col];
-                    <td @key=@((row, col))>
-                        <table style="margin: 1px; min-width: 50px; min-height: 50px; background: lightgoldenrodyellow;">
-                            <tbody>
-                            <tr>
-                                <td align="center">
-                                    <div align="center">
-                                        <i class="fas fa-circle" style="opacity: @cell[0]; color: blue;"></i>
-                                    </div>
-                                </td>
-                                <td align="center">
-                                    <div align="center">
-                                        <i class="fas fa-circle" style="opacity: @cell[1]; color: green;"></i>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="center">
-                                    <div align="center">
-                                        <i class="fas fa-circle" style="opacity: @cell[2]; color: red;"></i>
-                                    </div>
-                                </td>
-                                <td align="center">
-                                    <div align="center">
-                                        <i class="fas fa-circle" style="opacity: @cell[3]; color: yellow;"></i>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </td>
+                @if (r % 2 == 0)
+                {
+                    @for (var c = 0; c < DiceEngine.BoardSize; c++)
+                    {
+                        var col = c;
+                        var cell = board[row, col];
+                        <td @key=@((row, col))>
+                            <table style="margin: 1px; min-width: 50px; min-height: 50px; background: lightgoldenrodyellow;">
+                                <tbody>
+                                <tr>
+                                    <td align="center">
+                                        <div align="center">
+                                            <i class="fas fa-circle" style="opacity: @cell[0]; color: blue;"></i>
+                                        </div>
+                                    </td>
+                                    <td align="center">
+                                        <div align="center">
+                                            <i class="fas fa-circle" style="opacity: @cell[1]; color: green;"></i>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <div align="center">
+                                            <i class="fas fa-circle" style="opacity: @cell[2]; color: red;"></i>
+                                        </div>
+                                    </td>
+                                    <td align="center">
+                                        <div align="center">
+                                            <i class="fas fa-circle" style="opacity: @cell[3]; color: yellow;"></i>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    }
+                }
+                else
+                {
+                    @for (var c = DiceEngine.BoardSize - 1; c >= 0; c--)
+                    {
+                        var col = c;
+                        var cell = board[row, col];
+                        <td @key=@((row, col))>
+                            <table style="margin: 1px; min-width: 50px; min-height: 50px; background: lightgoldenrodyellow;">
+                                <tbody>
+                                <tr>
+                                    <td align="center">
+                                        <div align="center">
+                                            <i class="fas fa-circle" style="opacity: @cell[0]; color: blue;"></i>
+                                        </div>
+                                    </td>
+                                    <td align="center">
+                                        <div align="center">
+                                            <i class="fas fa-circle" style="opacity: @cell[1]; color: green;"></i>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="center">
+                                        <div align="center">
+                                            <i class="fas fa-circle" style="opacity: @cell[2]; color: red;"></i>
+                                        </div>
+                                    </td>
+                                    <td align="center">
+                                        <div align="center">
+                                            <i class="fas fa-circle" style="opacity: @cell[3]; color: yellow;"></i>
+                                        </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    }
                 }
             </tr>
         }
@@ -90,5 +133,4 @@
         var rnd = new Random();
         return rnd.Next(1, 7);
     }
-
 }

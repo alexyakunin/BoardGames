@@ -102,7 +102,6 @@ namespace BoardGames.Abstractions.Games
             var cells = board.Cells;
             for (int i = 0; i < newScore + 1; i++) {
                 var cell = cells.ElementAt(i).Value;
-                Task.Delay(1000);
                 cell[playerIndex] = GetOpacity(Opacity.Past);
             }
             return board;

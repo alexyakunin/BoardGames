@@ -17,7 +17,7 @@ namespace BoardGames.Host
 
         // DBs
         public string UsePostgreSql { get; set; } =
-            "Server=localhost;Database=board_games_dev;Port=5432;User Id=postgres;Password=Fusion.0.to.1";
+            "Server=localhost;Database=board_games_dev;Port=5432;User Id=postgres;Password=pg051825";
         public bool UseSqlite { get; set; } = false;
 
         // Sign-in
