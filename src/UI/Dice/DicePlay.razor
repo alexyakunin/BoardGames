@@ -22,7 +22,7 @@
             Drop Dice
         </Button>
         <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
-        <Card>Your color: @board.</Card>
+        <button type="button" class="btn btn-custom" disabled>Your color</button>
 
     </Paragraph>
 }
@@ -116,7 +116,7 @@
 
 @code {
     private int diceValue;
-    
+
     private Task MoveAsync()
     {
         diceValue = GetRandomDigit();
@@ -133,4 +133,20 @@
         var rnd = new Random();
         return rnd.Next(1, 7);
     }
+
+    private Dictionary<int, string> Colors = new Dictionary<int, string>()
+    {
+        {0, "blue"},
+        {1, "green"},
+        {2, "red"},
+        {3, "yellow"},
+    };
 }
+
+<style>
+    .btn-custom {
+        background: @Colors[MyPlayerIndex];
+        color: white;
+        margin-left: 20%;
+    }
+</style>
