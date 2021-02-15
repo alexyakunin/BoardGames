@@ -12,7 +12,7 @@
     <BlazorVersion>5.0.3</BlazorVersion>
     <BlazoriseVersion>0.9.*</BlazoriseVersion>
     <SystemNetHttpJsonVersion>5.0.3</SystemNetHttpJsonVersion>
-    <StlFusionVersion>0.9.114</StlFusionVersion>
+    <StlFusionVersion>0.10.3</StlFusionVersion>
   </PropertyGroup>
 
   <ItemGroup Label="Nupkg Versions">
@@ -72,6 +72,7 @@
     <PackageReference Update="Stl.Fusion.Client" Version="$(StlFusionVersion)" />
     <PackageReference Update="Stl.Fusion.Blazor" Version="$(StlFusionVersion)" />
     <PackageReference Update="Stl.Fusion.EntityFramework" Version="$(StlFusionVersion)" />
+    <PackageReference Update="Stl.Fusion.EntityFramework.Npgsql" Version="$(StlFusionVersion)" />
     <PackageReference Update="Stl.Testing" Version="$(StlFusionVersion)" />
     <PackageReference Update="Swashbuckle.AspNetCore" Version="6.0.2" />
     <PackageReference Update="System.Collections.Immutable" Version="5.0.*" />

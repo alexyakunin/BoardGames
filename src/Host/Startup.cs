@@ -34,6 +34,7 @@ using Microsoft.EntityFrameworkCore;
 using Stl.Extensibility;
 using Stl.Fusion.EntityFramework;
 using Stl.Fusion.EntityFramework.Authentication;
+using Stl.Fusion.EntityFramework.Npgsql;
 using Stl.Fusion.Operations.Internal;
 using Stl.IO;
 
@@ -102,10 +103,12 @@ namespace BoardGames.Host
                     // can be arbitrary long - all depends on the reliability of Notifier-Monitor chain.
                     o.UnconditionalWakeUpPeriod = TimeSpan.FromSeconds(Env.IsDevelopment() ? 60 : 5);
                 });
+                if (HostSettings.UseSqlite)
+                    b.AddFileBasedDbOperationLogChangeTracking(sqliteDbPath + "_changed");
+                else
+                    b.AddNpgsqlDbOperationLogChangeTracking();
+
                 b.AddKeyValueStore();
-                var operationLogChangeAlertPath = sqliteDbPath + "_changed";
-                b.AddFileBasedDbOperationLogChangeNotifier(operationLogChangeAlertPath);
-                b.AddFileBasedDbOperationLogChangeMonitor(operationLogChangeAlertPath);
                 b.AddDbAuthentication((_, options) => {
                     options.MinUpdatePresencePeriod = TimeSpan.FromSeconds(55);
                 });
