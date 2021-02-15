@@ -35,34 +35,32 @@
                     var col = c;
                     var cell = board[row, col];
                     <td @key=@((row, col))>
-                        
-                        <table style="margin: 1px; min-width: 50px; min-height: 50px; background: lightblue;">
+                        <table style="margin: 1px; min-width: 50px; min-height: 50px; background: lightgoldenrodyellow;">
                             <tbody>
                             <tr>
                                 <td align="center">
                                     <div align="center">
-                                        <i class="fas fa-circle" style="color: @cell[0];"></i>
+                                        <i class="fas fa-circle" style="opacity: @cell[0]; color: blue;"></i>
                                     </div>
                                 </td>
                                 <td align="center">
                                     <div align="center">
-                                        <i class="fas fa-circle" style="color: @cell[1];"></i>
+                                        <i class="fas fa-circle" style="opacity: @cell[1]; color: green;"></i>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td align="center">
                                     <div align="center">
-                                        <i class="fas fa-circle" style="color: @cell[2];"></i>
+                                        <i class="fas fa-circle" style="opacity: @cell[2]; color: red;"></i>
                                     </div>
                                 </td>
                                 <td align="center">
                                     <div align="center">
-                                        <i class="fas fa-circle" style="color: @cell[3];"></i>
+                                        <i class="fas fa-circle" style="opacity: @cell[3]; color: yellow;"></i>
                                     </div>
                                 </td>
                             </tr>
-
                             </tbody>
                         </table>
                     </td>

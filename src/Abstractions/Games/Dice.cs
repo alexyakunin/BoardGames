@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using Stl.Fusion;
 using Stl.Time;
 using Stl.Time.Internal;
@@ -57,10 +59,16 @@ namespace BoardGames.Abstractions.Games
                 throw new ApplicationException("It's another player's turn.");
             var board = state.Board;
             var player = game.Players[state.PlayerIndex];
+            var oldPlayerScore = state.Scores[state.PlayerIndex];
             state.Scores[state.PlayerIndex] += move.Value;
             var playerScore = state.Scores[state.PlayerIndex];
             var scores = state.Scores;
-            board = RemovePreviousMoves(board, move.PlayerIndex);
+
+            if (playerScore >= (BoardSize * BoardSize) - 1)
+                playerScore = (BoardSize * BoardSize) - 1;
+
+            board = ChangePlayerCells(board, move.PlayerIndex, playerScore, oldPlayerScore);
+            
             if (playerScore >= (BoardSize * BoardSize) - 1) {
                 var newState = state with {Board = board, MoveIndex = state.MoveIndex + 1, Scores = scores};
                 var newGame = game with {StateJson = SerializeState(newState)};
@@ -73,7 +81,7 @@ namespace BoardGames.Abstractions.Games
             
             var rowAndCol = GetRowAndColValues(playerScore);
 
-            var nextBoard = board.Set(rowAndCol.Item1, rowAndCol.Item2, state.PlayerIndex, DicePiece[move.PlayerIndex]);
+            var nextBoard = board.Set(rowAndCol.Item1, rowAndCol.Item2, state.PlayerIndex, GetOpacity(Opacity.Visible));
             var nextState = state with {
                 Board = nextBoard,
                 MoveIndex = state.MoveIndex + 1,
@@ -87,19 +95,15 @@ namespace BoardGames.Abstractions.Games
             return nextGame;
         }
 
-        private DiceBoard RemovePreviousMoves(DiceBoard board, int playerIndex)
+        private DiceBoard ChangePlayerCells(DiceBoard board, int playerIndex, int newScore, int oldScore)
         {
-            var playerColor = DicePiece[playerIndex];
             var cells = board.Cells;
-            cells = cells.ToDictionary(kv => kv.Key,
-                kv => kv.Value[playerIndex] != playerColor ? kv.Value : UpdatePlayerCellToDefault(kv.Value, playerIndex));
-            return new DiceBoard(BoardSize, cells);
-        }
-
-        private string[] UpdatePlayerCellToDefault(string[] colors, int playerIndex)
-        {
-            colors[playerIndex] = DefaultCell;
-            return colors;
+            for (int i = 0; i < newScore + 1; i++) {
+                var cell = cells.ElementAt(i).Value;
+                Task.Delay(1000);
+                cell[playerIndex] = GetOpacity(Opacity.Past);
+            }
+            return board;
         }
 
         private (int, int) GetRowAndColValues(long value)
@@ -109,14 +113,16 @@ namespace BoardGames.Abstractions.Games
             return ((int)row, (int)col);
         }
 
-        readonly string DefaultCell = "lightblue";
+        enum Opacity
+        {
+            Invisible = 0,
+            Past = 1,
+            Visible = 10,
+        }
 
-        readonly Dictionary<int, string> DicePiece = new Dictionary<int, string>() {
-            {0, "blue"},
-            {1, "green"},
-            {2, "red"},
-            {3, "yellow"},
-        };
+        private double GetOpacity(Opacity opacity)
+        {
+            return (double)opacity / 10;
+        }
     }
-    
 }

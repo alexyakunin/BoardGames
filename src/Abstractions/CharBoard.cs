@@ -82,31 +82,32 @@ namespace BoardGames.Abstractions
         public static DiceBoard Empty(int size) => EmptyCache.GetOrAdd(size, size1 => new DiceBoard(size1));
 
         public int Size { get; }
-        public Dictionary<int, string[]> Cells { get; }
-
-        public string[] this[int r, int c] {
+        public ImmutableDictionary<int, double[]> Cells { get; }
+        
+        public double[] this[int r, int c] {
             get {
                 var cellIndex = GetCellIndex(r, c);
                 if (cellIndex < 0 || cellIndex >= Cells.Count)
-                    return new string[] {"lightblue", "lightblue", "lightblue", "lightblue"};
+                    return new double[] {0.0, 0.0, 0.0, 0.0};
                 return Cells[cellIndex];
             }
         }
-
+        
         public DiceBoard(int size)
         {
-            var defaultValue = "lightblue";
+            var defaultValue = 0.0;
             if (size < 1)
                 throw new ArgumentOutOfRangeException(nameof(size));
             Size = size;
-            Cells = new Dictionary<int, string[]>();
+            var builder = ImmutableDictionary.CreateBuilder<int, double[]>();
             for (int i = 0; i < size * size; i++) {
-                Cells[i] = new string[] {defaultValue, defaultValue, defaultValue, defaultValue};
+                builder.Add(i, new double[] {defaultValue, defaultValue, defaultValue, defaultValue});
             }
+            Cells = builder.ToImmutable();
         }
 
         [JsonConstructor]
-        public DiceBoard(int size, Dictionary<int, string[]> cells)
+        public DiceBoard(int size, ImmutableDictionary<int, double[]> cells)
         {
             if (size < 1)
                 throw new ArgumentOutOfRangeException(nameof(size));
@@ -118,7 +119,7 @@ namespace BoardGames.Abstractions
 
         public int GetCellIndex(int r, int c) => r * Size + c;
 
-        public DiceBoard Set(int r, int c, int playerIndex, string value)
+        public DiceBoard Set(int r, int c, int playerIndex, double value)
         {
             if (r < 0 || r >= Size)
                 throw new ArgumentOutOfRangeException(nameof(r));
