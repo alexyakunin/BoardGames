@@ -12,9 +12,9 @@
 
 @if (Game.Stage != GameStage.Ended) {
     <Paragraph>
-        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users" />
+        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users"/>
         <hr>
-        
+
         <Button Color="@GetDiceColor(gameState.PlayerIndex)"
                 Style="align-content: center; border-radius: 3px;"
                 disabled="@(gameState.PlayerIndex != MyPlayerIndex)"
@@ -22,7 +22,9 @@
             Drop Dice
         </Button>
         <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
-        <button type="button" class="btn btn-custom" disabled>Your color</button>
+        <button type="button" class="btn btn-custom" disabled>My color</button>
+        <button type="button" class="btn btn-forward" disabled>+3 steps</button>
+        <button type="button" class="btn btn-backward" disabled>-3 steps</button>
 
     </Paragraph>
 }
@@ -39,7 +41,7 @@
                         var col = c;
                         var cell = board[row, col];
                         <td @key=@((row, col))>
-                            <table style="margin: 1px; min-width: 50px; min-height: 50px; background: lightgoldenrodyellow;">
+                            <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(cell);">
                                 <tbody>
                                 <tr>
                                     <td align="center">
@@ -77,7 +79,7 @@
                         var col = c;
                         var cell = board[row, col];
                         <td @key=@((row, col))>
-                            <table style="margin: 1px; min-width: 50px; min-height: 50px; background: lightgoldenrodyellow;">
+                            <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(cell);">
                                 <tbody>
                                 <tr>
                                     <td align="center">
@@ -141,12 +143,55 @@
         {2, "red"},
         {3, "yellow"},
     };
+
+    private string GetCellBackground(double[] cell)
+    {
+        if (cell[4] == 1)
+            return "#DC381F";
+        if (cell[4] == 2)
+            return "#52D017";
+        return "lightgoldenrodyellow";
+    }
 }
 
 <style>
     .btn-custom {
         background: @Colors[MyPlayerIndex];
         color: white;
-        margin-left: 20%;
+        margin-left: 5px;
+    }
+    .btn-custom:hover{
+        background: @Colors[MyPlayerIndex];
+        color: white;
+        opacity: 1;
+    }
+    .btn-custom:disabled{
+        opacity: 1;
+    }
+    .btn-forward {
+        background: #52D017;
+        color: white;
+        opacity: 1;
+    }
+    .btn-forward:hover{
+        background: #52D017;
+        color: white;
+        opacity: 1;
+    }
+    .btn-forward:disabled{
+        opacity: 1;
+    }
+    .btn-backward {
+        background: #DC381F;
+        color: white;
+        opacity: 1;
+    }
+    .btn-backward:hover{
+        background: #DC381F;
+        color: white;
+        opacity: 1;
+    }
+    .btn-backward:disabled{
+        opacity: 1;
     }
 </style>

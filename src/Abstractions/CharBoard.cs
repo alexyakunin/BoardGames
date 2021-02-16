@@ -84,12 +84,14 @@ namespace BoardGames.Abstractions
 
         public int Size { get; }
         public ImmutableDictionary<int, double[]> Cells { get; }
+        public int[] BackwardStep { get; }
+        public int[] ForwardStep { get; }
         
         public double[] this[int r, int c] {
             get {
                 var cellIndex = GetCellIndex(r, c);
                 if (cellIndex < 0 || cellIndex >= Cells.Count)
-                    return new double[] {0.0, 0.0, 0.0, 0.0};
+                    return new double[] {0.0, 0.0, 0.0, 0.0, 0.0};
                 return Cells[cellIndex];
             }
         }
@@ -102,7 +104,14 @@ namespace BoardGames.Abstractions
             Size = size;
             var builder = ImmutableDictionary.CreateBuilder<int, double[]>();
             for (int i = 0; i < size * size; i++) {
-                builder.Add(i, new double[] {defaultValue, defaultValue, defaultValue, defaultValue});
+                if (i == 10 || i == 27 || i == 44) {   // ForwardStep cells
+                    builder.Add(i, new double[] {defaultValue, defaultValue, defaultValue, defaultValue, 2.0});
+                } else if (i == 20 || i == 35 || i == 54) {    // BackwardStep cells
+                    builder.Add(i, new double[] {defaultValue, defaultValue, defaultValue, defaultValue, 1.0});
+                }
+                else {
+                    builder.Add(i, new double[] {defaultValue, defaultValue, defaultValue, defaultValue, defaultValue});
+                }
             }
             Cells = builder.ToImmutable();
         }

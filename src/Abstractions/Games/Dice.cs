@@ -64,6 +64,12 @@ namespace BoardGames.Abstractions.Games
             var oldPlayerScore = state.Scores[state.PlayerIndex];
             state.Scores[state.PlayerIndex] += move.Value;
             var playerScore = state.Scores[state.PlayerIndex];
+            if (playerScore == 10 || playerScore == 27 || playerScore == 44) {
+                playerScore += 3;
+            }
+            if (playerScore == 20 || playerScore == 35 || playerScore == 54) {
+                playerScore -= 3;
+            }
             var scores = state.Scores;
 
             if (playerScore >= (BoardSize * BoardSize) - 1)
@@ -104,6 +110,12 @@ namespace BoardGames.Abstractions.Games
                 var cell = cells.ElementAt(i).Value;
                 cell[playerIndex] = GetOpacity(Opacity.Past);
             }
+
+            for (int i = newScore + 1; i < BoardSize * BoardSize; i++) {
+                var cell = cells.ElementAt(i).Value;
+                cell[playerIndex] = GetOpacity(Opacity.Invisible);
+            }
+
             return board;
         }
 
