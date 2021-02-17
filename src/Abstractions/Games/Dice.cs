@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Stl.DependencyInjection;
 using Stl.Fusion;
@@ -11,12 +12,16 @@ using Stl.Time.Internal;
 
 namespace BoardGames.Abstractions.Games
 {
-    public record DiceState(DiceBoard Board, Dictionary<int, int> Scores, int MoveIndex = 0, int FirstPlayerIndex = 0)
+    public record DiceState(DiceBoard Board,
+        Dictionary<int, int> Scores,
+        Dictionary<int, int> Steps,
+        int MoveIndex = 0,
+        int FirstPlayerIndex = 0,
+        int PlayersCount = 0)
 
     {
-        public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % 2;
-        public int NextPlayerIndex => (PlayerIndex + 1) % 2;
-        public DiceState() : this((DiceBoard) null!, (Dictionary<int, int>) null!) { }
+        public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % PlayersCount;
+        public DiceState() : this((DiceBoard) null!, (Dictionary<int, int>) null!, (Dictionary<int, int>) null!) { }
     }
 
     public record DiceMove(int PlayerIndex, int Value) : GameMove
@@ -43,8 +48,16 @@ namespace BoardGames.Abstractions.Games
                 {2, -1},
                 {3, -1},
             };
-            var firstPlayerIndex = CoarseStopwatch.RandomInt32 & 1;
-            var state = new DiceState(DiceBoard.Empty(BoardSize), scores,0, firstPlayerIndex);
+            var steps = new Dictionary<int, int>() {
+                {0, 0},
+                {1, 0},
+                {2, 0},
+                {3, 0},
+            };
+            var rnd = new Random();
+            var playersCount = game.Players.Count;
+            var firstPlayerIndex = rnd.Next(0, playersCount);
+            var state = new DiceState(DiceBoard.Empty(BoardSize), scores, steps, 0, firstPlayerIndex, playersCount);
             var player = game.Players[state.PlayerIndex];
             return game with {
                 StateJson = SerializeState(state),
@@ -62,14 +75,16 @@ namespace BoardGames.Abstractions.Games
             var board = state.Board;
             var player = game.Players[state.PlayerIndex];
             var oldPlayerScore = state.Scores[state.PlayerIndex];
-            state.Scores[state.PlayerIndex] += move.Value;
-            var playerScore = state.Scores[state.PlayerIndex];
+            var playerScore = oldPlayerScore += move.Value;
+            state.Steps[state.PlayerIndex] += 1;
+            var playerSteps = state.Steps[state.PlayerIndex];
             if (playerScore == 10 || playerScore == 27 || playerScore == 44) {
                 playerScore += 3;
             }
             if (playerScore == 20 || playerScore == 35 || playerScore == 54) {
                 playerScore -= 3;
             }
+            state.Scores[state.PlayerIndex] = playerScore;
             var scores = state.Scores;
 
             if (playerScore >= (BoardSize * BoardSize) - 1)
@@ -81,7 +96,7 @@ namespace BoardGames.Abstractions.Games
                 var newState = state with {Board = board, MoveIndex = state.MoveIndex + 1, Scores = scores};
                 var newGame = game with {StateJson = SerializeState(newState)};
                 newGame = IncrementPlayerScore(newGame, move.PlayerIndex, 1) with {
-                    StateMessage = StandardMessages.Win(new AppUser(player.UserId)),
+                    StateMessage = StandardMessages.WinWithScore(new AppUser(player.UserId), game, playerSteps),
                     Stage = GameStage.Ended,
                 };
                 return newGame;

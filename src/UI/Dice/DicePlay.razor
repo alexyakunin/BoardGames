@@ -22,9 +22,10 @@
             Drop Dice
         </Button>
         <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
+        <Button Color="Color.Light" Style="align-content: center; border: 1px solid darkblue; min-width: 50px;" disabled>@(gameState.Steps[MyPlayerIndex])</Button>
         <button type="button" class="btn btn-custom" disabled>My color</button>
-        <button type="button" class="btn btn-forward" disabled>+3 steps</button>
-        <button type="button" class="btn btn-backward" disabled>-3 steps</button>
+        <button type="button" class="btn btn-forward" disabled>+3</button>
+        <button type="button" class="btn btn-backward" disabled>-3</button>
 
     </Paragraph>
 }
@@ -158,7 +159,7 @@
     .btn-custom {
         background: @Colors[MyPlayerIndex];
         color: white;
-        margin-left: 5px;
+        margin-left: 40px;
     }
     .btn-custom:hover{
         background: @Colors[MyPlayerIndex];
@@ -172,6 +173,7 @@
         background: #52D017;
         color: white;
         opacity: 1;
+        min-width: 50px;
     }
     .btn-forward:hover{
         background: #52D017;
@@ -185,6 +187,7 @@
         background: #DC381F;
         color: white;
         opacity: 1;
+        min-width: 50px;
     }
     .btn-backward:hover{
         background: #DC381F;

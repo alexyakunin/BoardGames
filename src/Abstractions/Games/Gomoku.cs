@@ -15,8 +15,6 @@ namespace BoardGames.Abstractions.Games
     public record GomokuState(CharBoard Board, int MoveIndex = 0, int FirstPlayerIndex = 0)
     {
         public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % 2;
-        public int NextPlayerIndex => (PlayerIndex + 1) % 2;
-
         public GomokuState() : this((CharBoard) null!) { }
     }
 
