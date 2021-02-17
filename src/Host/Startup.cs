@@ -167,7 +167,7 @@ namespace BoardGames.Host
             services.AddMvc().AddApplicationPart(Assembly.GetExecutingAssembly());
             services.AddServerSideBlazor(o => o.DetailedErrors = true);
             fusionAuth.AddBlazor(o => { }); // Must follow services.AddServerSideBlazor()!
-            BlazorModeController.IsServerSideBlazorDefault = false;
+            BlazorModeController.IsServerSideBlazorDefault = true;
 
             // Swagger & debug tools
             services.AddSwaggerGen(c => {
