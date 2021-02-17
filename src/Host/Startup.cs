@@ -36,6 +36,7 @@ using Stl.Fusion.EntityFramework;
 using Stl.Fusion.EntityFramework.Authentication;
 using Stl.Fusion.EntityFramework.Npgsql;
 using Stl.Fusion.Operations.Internal;
+using Stl.Fusion.Server.Controllers;
 using Stl.IO;
 
 namespace BoardGames.Host
@@ -166,6 +167,7 @@ namespace BoardGames.Host
             services.AddMvc().AddApplicationPart(Assembly.GetExecutingAssembly());
             services.AddServerSideBlazor(o => o.DetailedErrors = true);
             fusionAuth.AddBlazor(o => { }); // Must follow services.AddServerSideBlazor()!
+            BlazorModeController.IsServerSideBlazorDefault = false;
 
             // Swagger & debug tools
             services.AddSwaggerGen(c => {
