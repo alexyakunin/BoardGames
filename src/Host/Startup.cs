@@ -61,6 +61,8 @@ namespace BoardGames.Host
                 logging.AddConsole();
                 logging.SetMinimumLevel(LogLevel.Information);
                 if (Env.IsDevelopment()) {
+                    logging.AddFilter("Microsoft", LogLevel.Warning);
+                    logging.AddFilter("Microsoft.AspNetCore.Hosting", LogLevel.Information);
                     logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information);
                     logging.AddFilter("Stl.Fusion.Operations", LogLevel.Information);
                 }
