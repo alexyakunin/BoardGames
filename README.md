@@ -5,6 +5,10 @@ Live version of this app: https://boardgames.alexyakunin.com/
 "Board Games" is a new [Fusion] sample and a fully functional 
 web app allowing you to play real-time multiplayer board games.
 
+A short video explaining what's unique there:
+
+[<img src="doc/img/BoardGames.jpg">](https://www.youtube.com/watch?v=R1XB8UKJ1dk)
+
 The sample implements a number of features that are 
 hard to implement without Fusion. In particular, you might notice
 that real-time state sync works literally everywhere in it. 
