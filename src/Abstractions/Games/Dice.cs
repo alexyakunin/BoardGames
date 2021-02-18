@@ -104,7 +104,7 @@ namespace BoardGames.Abstractions.Games
             
             var rowAndCol = GetRowAndColValues(playerScore);
 
-            var nextBoard = board.Set(rowAndCol.Item1, rowAndCol.Item2, state.PlayerIndex, GetOpacity(Opacity.Visible));
+            var nextBoard = board.Set(rowAndCol.Item1, rowAndCol.Item2, state.PlayerIndex, DiceBoard.GetOpacity(DiceBoard.Opacity.Current));
             var nextState = state with {
                 Board = nextBoard,
                 MoveIndex = state.MoveIndex + 1,
@@ -123,12 +123,12 @@ namespace BoardGames.Abstractions.Games
             var cells = board.Cells;
             for (int i = 0; i < newScore + 1; i++) {
                 var cell = cells.ElementAt(i).Value;
-                cell[playerIndex] = GetOpacity(Opacity.Past);
+                cell.Opacities[playerIndex] = DiceBoard.GetOpacity(DiceBoard.Opacity.Past);
             }
 
             for (int i = newScore + 1; i < BoardSize * BoardSize; i++) {
                 var cell = cells.ElementAt(i).Value;
-                cell[playerIndex] = GetOpacity(Opacity.Invisible);
+                cell.Opacities[playerIndex] = DiceBoard.GetOpacity(DiceBoard.Opacity.Invisible);
             }
 
             return board;
@@ -139,18 +139,6 @@ namespace BoardGames.Abstractions.Games
             var row = value / BoardSize;
             var col = value % BoardSize;
             return ((int)row, (int)col);
-        }
-
-        enum Opacity
-        {
-            Invisible = 0,
-            Past = 1,
-            Visible = 10,
-        }
-
-        private double GetOpacity(Opacity opacity)
-        {
-            return (double)opacity / 10;
         }
     }
 }

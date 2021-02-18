@@ -31,94 +31,89 @@
 }
 
 <Row><Column ColumnSize="ColumnSize.Is6">
-    <table><tbody>
-        @for (var r = 0; r < DiceEngine.BoardSize; r++) {
-            var row = r;
-            <tr @key=@row>
-                @if (r % 2 == 0)
-                {
-                    @for (var c = 0; c < DiceEngine.BoardSize; c++)
+        <table>
+            <tbody>
+            @for (var r = 0; r < DiceEngine.BoardSize; r++)
+            {
+                var row = r;
+                <tr @key=@row>
+                    @if (r % 2 == 0)
                     {
-                        var col = c;
-                        var cell = board[row, col];
-                        <td @key=@((row, col))>
-                            <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(cell);">
-                                <tbody>
-                                <tr>
-                                    <td align="center">
-                                        <div align="center">
-                                            <i class="fas fa-circle" style="opacity: @cell[0]; color: blue;"></i>
-                                        </div>
-                                    </td>
-                                    <td align="center">
-                                        <div align="center">
-                                            <i class="fas fa-circle" style="opacity: @cell[1]; color: green;"></i>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align="center">
-                                        <div align="center">
-                                            <i class="fas fa-circle" style="opacity: @cell[2]; color: red;"></i>
-                                        </div>
-                                    </td>
-                                    <td align="center">
-                                        <div align="center">
-                                            <i class="fas fa-circle" style="opacity: @cell[3]; color: yellow;"></i>
-                                        </div>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
+                        @for (var c = 0; c < DiceEngine.BoardSize; c++)
+                        {
+                            var col = c;
+                            var cell = board[row, col];
+                            <td @key=@((row, col))>
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @cell.Background;">
+                                    <tbody>
+                                    <tr>
+                                        @for (int i = 0; i < 2; i++)
+                                        {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle" style="opacity: @cell.Opacities[i]; color: @cell.Colors[i];"></i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        @for (int i = 2; i < 4; i++)
+                                        {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle" style="opacity: @cell.Opacities[i]; color: @cell.Colors[i];"></i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        }
                     }
-                }
-                else
-                {
-                    @for (var c = DiceEngine.BoardSize - 1; c >= 0; c--)
+                    else
                     {
-                        var col = c;
-                        var cell = board[row, col];
-                        <td @key=@((row, col))>
-                            <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(cell);">
-                                <tbody>
-                                <tr>
-                                    <td align="center">
-                                        <div align="center">
-                                            <i class="fas fa-circle" style="opacity: @cell[0]; color: blue;"></i>
-                                        </div>
-                                    </td>
-                                    <td align="center">
-                                        <div align="center">
-                                            <i class="fas fa-circle" style="opacity: @cell[1]; color: green;"></i>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td align="center">
-                                        <div align="center">
-                                            <i class="fas fa-circle" style="opacity: @cell[2]; color: red;"></i>
-                                        </div>
-                                    </td>
-                                    <td align="center">
-                                        <div align="center">
-                                            <i class="fas fa-circle" style="opacity: @cell[3]; color: yellow;"></i>
-                                        </div>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </td>
+                        @for (var c = DiceEngine.BoardSize - 1; c >= 0; c--)
+                        {
+                            var col = c;
+                            var cell = board[row, col];
+                            <td @key=@((row, col))>
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @cell.Background;">
+                                    <tbody>
+                                    <tr>
+                                        @for (int i = 0; i < 2; i++)
+                                        {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle" style="opacity: @cell.Opacities[i]; color: @cell.Colors[i];"></i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        @for (int i = 2; i < 4; i++)
+                                        {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle" style="opacity: @cell.Opacities[i]; color: @cell.Colors[i];"></i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        }
                     }
-                }
-            </tr>
-        }
-        </tbody></table>
-</Column>
+                </tr>
+            }
+            </tbody></table>
+    </Column>
 </Row>
 
 @code {
     private int diceValue;
+    private string ButtonBackground;
 
     private Task MoveAsync()
     {
@@ -137,36 +132,33 @@
         return rnd.Next(1, 7);
     }
 
-    private Dictionary<int, string> Colors = new Dictionary<int, string>()
+    private string GetButtonColor(int playerIndex)
     {
-        {0, "blue"},
-        {1, "green"},
-        {2, "red"},
-        {3, "yellow"},
-    };
-
-    private string GetCellBackground(double[] cell)
-    {
-        if (cell[4] == 1)
-            return "#DC381F";
-        if (cell[4] == 2)
-            return "#52D017";
-        return "lightgoldenrodyellow";
+        var colors = new Dictionary<int, string>();
+        int i = 0;
+        foreach (DiceBoard.Colors color in Enum.GetValues(typeof(DiceBoard.Colors)))
+        {
+            colors.Add(i, color.ToString().ToLower());
+            i++;
+        }
+        return colors[playerIndex];
     }
 }
 
 <style>
     .btn-custom {
-        background: @Colors[MyPlayerIndex];
+        background: @GetButtonColor(MyPlayerIndex)
         color: white;
         margin-left: 40px;
     }
     .btn-custom:hover{
-        background: @Colors[MyPlayerIndex];
+        background: @GetButtonColor(MyPlayerIndex);
         color: white;
         opacity: 1;
     }
     .btn-custom:disabled{
+        background: @GetButtonColor(MyPlayerIndex);
+        color: white;
         opacity: 1;
     }
     .btn-forward {
