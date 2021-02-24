@@ -1,5 +1,4 @@
 @attribute [MatchFor(typeof(DiceEngine), ComponentScopes.GamePlay)]
-@using Stl.Time
 @inherits GamePlayBase
 
 @{
@@ -22,8 +21,8 @@
             Drop Dice
         </Button>
         <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
-        <Button Color="Color.Light" Style="align-content: center; border: 1px solid darkblue; min-width: 50px;" disabled>@(gameState.Steps[MyPlayerIndex])</Button>
-        <button type="button" class="btn btn-custom" disabled>My color</button>
+        <Button Color="Color.Light" Style="align-content: center; border: 1px solid darkblue; min-width: 50px;" disabled>@(gameState.PlayerSteps[MyPlayerIndex])</Button>
+        <button type="button" class="btn btn-custom" style="background: @CellBackground[MyPlayerIndex]" disabled>My color</button>
         <button type="button" class="btn btn-forward" disabled>+3</button>
         <button type="button" class="btn btn-backward" disabled>-3</button>
 
@@ -44,14 +43,16 @@
                             var col = c;
                             var cell = board[row, col];
                             <td @key=@((row, col))>
-                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @cell.Background;">
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col));">
                                     <tbody>
                                     <tr>
                                         @for (int i = 0; i < 2; i++)
                                         {
                                             <td align="center">
                                                 <div align="center">
-                                                    <i class="fas fa-circle" style="opacity: @cell.Opacities[i]; color: @cell.Colors[i];"></i>
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];"></i>
                                                 </div>
                                             </td>
                                         }
@@ -61,7 +62,9 @@
                                         {
                                             <td align="center">
                                                 <div align="center">
-                                                    <i class="fas fa-circle" style="opacity: @cell.Opacities[i]; color: @cell.Colors[i];"></i>
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];"></i>
                                                 </div>
                                             </td>
                                         }
@@ -78,14 +81,16 @@
                             var col = c;
                             var cell = board[row, col];
                             <td @key=@((row, col))>
-                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @cell.Background;">
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col));">
                                     <tbody>
                                     <tr>
                                         @for (int i = 0; i < 2; i++)
                                         {
                                             <td align="center">
                                                 <div align="center">
-                                                    <i class="fas fa-circle" style="opacity: @cell.Opacities[i]; color: @cell.Colors[i];"></i>
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];"></i>
                                                 </div>
                                             </td>
                                         }
@@ -95,7 +100,9 @@
                                         {
                                             <td align="center">
                                                 <div align="center">
-                                                    <i class="fas fa-circle" style="opacity: @cell.Opacities[i]; color: @cell.Colors[i];"></i>
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];"></i>
                                                 </div>
                                             </td>
                                         }
@@ -113,7 +120,6 @@
 
 @code {
     private int diceValue;
-    private string ButtonBackground;
 
     private Task MoveAsync()
     {
@@ -132,32 +138,41 @@
         return rnd.Next(1, 7);
     }
 
-    private string GetButtonColor(int playerIndex)
+    private double GetCellOpacity(int playerPosition, int cellIndex)
     {
-        var colors = new Dictionary<int, string>();
-        int i = 0;
-        foreach (DiceBoard.Colors color in Enum.GetValues(typeof(DiceBoard.Colors)))
-        {
-            colors.Add(i, color.ToString().ToLower());
-            i++;
-        }
-        return colors[playerIndex];
+        if (playerPosition > cellIndex)
+            return 0.1;
+        if (playerPosition < cellIndex)
+            return 0.0;
+        return 1.0;
     }
+
+    private string GetCellBackground(int cellIndex)
+    {
+        if (cellIndex == 10 || cellIndex == 27 || cellIndex == 44)
+            return CellBackground[6];
+        if (cellIndex == 20 || cellIndex == 35 || cellIndex == 54)
+            return CellBackground[5];
+        return CellBackground[4];
+    }
+
+    readonly string[] CellBackground = new string[]
+    {
+        "blue", "green", "red", "yellow", "lightgoldenrodyellow", "#DC381F", "#52D017"
+    };
+
 }
 
 <style>
     .btn-custom {
-        background: @GetButtonColor(MyPlayerIndex)
         color: white;
         margin-left: 40px;
     }
     .btn-custom:hover{
-        background: @GetButtonColor(MyPlayerIndex);
         color: white;
         opacity: 1;
     }
     .btn-custom:disabled{
-        background: @GetButtonColor(MyPlayerIndex);
         color: white;
         opacity: 1;
     }

@@ -1,9 +1,5 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -83,94 +79,32 @@ namespace BoardGames.Abstractions
         public static DiceBoard Empty(int size) => EmptyCache.GetOrAdd(size, size1 => new DiceBoard(size1));
 
         public int Size { get; }
-        public ImmutableDictionary<int, Cell> Cells { get; }
+        public string[] Cells { get; }
         
-        public struct Cell
-        {
-            public string Background;
-            public string[] Colors;
-            public double[] Opacities;
-
-            public Cell(string background, string[] colors, double[] opacities)
-            {
-                var defaultBackground = GetColor(DiceBoard.Colors.Gold);
-                var defaultColors = new string[] {GetColor(DiceBoard.Colors.Blue),
-                    GetColor(DiceBoard.Colors.Green),
-                    GetColor(DiceBoard.Colors.Red),
-                    GetColor(DiceBoard.Colors.Yellow), };
-                var defaultOpacities = new double[] {
-                    GetOpacity(Opacity.Invisible), GetOpacity(Opacity.Invisible), GetOpacity(Opacity.Invisible),
-                    GetOpacity(Opacity.Invisible),
-                };
-                background ??= defaultBackground;
-                colors ??= defaultColors;
-                opacities ??= defaultOpacities;
-                Background = background;
-                Colors = colors;
-                Opacities = opacities;
-            }
-        }
-        
-        public enum Colors
-        {
-            Blue,
-            Green,
-            Red,
-            Yellow,
-            Gold,
-            Forward,
-            Backward,
-        }
-
-        public enum Opacity
-        {
-            Current,
-            Past,
-            Invisible
-        }
-        
-        public Cell this[int r, int c] {
+        public string this[int r, int c] {
             get {
                 var cellIndex = GetCellIndex(r, c);
-                if (cellIndex < 0 || cellIndex >= Cells.Count)
-                    return new Cell {};
+                if (cellIndex < 0 || cellIndex >= Cells.Length)
+                    return "    ";
                 return Cells[cellIndex];
             }
         }
         
         public DiceBoard(int size)
         {
-            var opacity = GetOpacity(Opacity.Invisible);
-            var background = GetColor(Colors.Gold);
-            var p1 = GetColor(Colors.Blue);
-            var p2 = GetColor(Colors.Green);
-            var p3 = GetColor(Colors.Red);
-            var p4 = GetColor(Colors.Yellow);
-            var colors = new string[] {p1, p2, p3, p4};
-            var opacities = new double[] {opacity, opacity, opacity, opacity };
             if (size < 1)
                 throw new ArgumentOutOfRangeException(nameof(size));
             Size = size;
-            var builder = ImmutableDictionary.CreateBuilder<int, Cell>();
-            for (int i = 0; i < size * size; i++) {
-                if (i == 10 || i == 27 || i == 44) {   // ForwardStep cells
-                    builder.Add(i, new Cell() {Background = GetColor(Colors.Forward), Colors = colors, Opacities = opacities});
-                } else if (i == 20 || i == 35 || i == 54) {    // BackwardStep cells
-                    builder.Add(i, new Cell() {Background = GetColor(Colors.Backward), Colors = colors, Opacities = opacities});
-                }
-                else {
-                    builder.Add(i, new Cell() {Background = GetColor(Colors.Gold), Colors = colors, Opacities = opacities});
-                }
-            }
-            Cells = builder.ToImmutable();
+            Cells = new string[size * size];
+            for (int i = 0; i < size * size; i++) { Cells[i] = "    "; }
         }
         
         [JsonConstructor]
-        public DiceBoard(int size, ImmutableDictionary<int, Cell> cells)
+        public DiceBoard(int size, string[] cells)
         {
             if (size < 1)
                 throw new ArgumentOutOfRangeException(nameof(size));
-            if (size * size != cells.Count)
+            if (size * size != cells.Length)
                 throw new ArgumentOutOfRangeException(nameof(size));
             Size = size;
             Cells = cells;
@@ -178,7 +112,7 @@ namespace BoardGames.Abstractions
 
         public int GetCellIndex(int r, int c) => r * Size + c;
 
-        public DiceBoard Set(int r, int c, int playerIndex, double value)
+        public DiceBoard Set(int r, int c, int playerIndex, char value)
         {
             if (r < 0 || r >= Size)
                 throw new ArgumentOutOfRangeException(nameof(r));
@@ -186,32 +120,8 @@ namespace BoardGames.Abstractions
                 throw new ArgumentOutOfRangeException(nameof(c));
             var cellIndex = GetCellIndex(r, c);
             var cell = Cells[cellIndex];
-            cell.Opacities[playerIndex] = value;
+            cell = cell.Substring(0, playerIndex) + value + cell.Substring(playerIndex + 1);
             return new DiceBoard(Size, Cells);
-        }
-
-        public static double GetOpacity(Opacity opacity)
-        {
-            var results = new Dictionary<Opacity, double>() {
-                {Opacity.Current, 1.0},
-                {Opacity.Past, 0.1},
-                {Opacity.Invisible, 0.0},
-            };
-            return results[opacity];
-        }
-        
-        public static string GetColor(Colors color)
-        {
-            var results = new Dictionary<Colors, string>() {
-                {Colors.Blue, "blue"},
-                {Colors.Green, "green"},
-                {Colors.Red, "red"},
-                {Colors.Yellow, "yellow"},
-                {Colors.Gold, "lightgoldenrodyellow"},
-                {Colors.Backward, "#DC381F"},
-                {Colors.Forward, "#52D017"},
-            };
-            return results[color];
         }
     }
 }

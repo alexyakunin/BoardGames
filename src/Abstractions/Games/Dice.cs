@@ -1,27 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Drawing;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 using Stl.DependencyInjection;
-using Stl.Fusion;
-using Stl.Time;
-using Stl.Time.Internal;
 
 namespace BoardGames.Abstractions.Games
 {
     public record DiceState(DiceBoard Board,
-        Dictionary<int, int> Scores,
-        Dictionary<int, int> Steps,
+        int[] PlayerPositions,
+        int[] PlayerSteps,
         int MoveIndex = 0,
         int FirstPlayerIndex = 0,
-        int PlayersCount = 0)
+        int PlayersCount = 0
+        )
 
     {
         public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % PlayersCount;
-        public DiceState() : this((DiceBoard) null!, (Dictionary<int, int>) null!, (Dictionary<int, int>) null!) { }
+        public DiceState() : this((DiceBoard) null!, (int[]) null!, (int[]) null!) { }
     }
 
     public record DiceMove(int PlayerIndex, int Value) : GameMove
@@ -42,22 +34,12 @@ namespace BoardGames.Abstractions.Games
 
         public override Game Start(Game game)
         {
-            var scores = new Dictionary<int, int>() {
-                {0, -1},
-                {1, -1},
-                {2, -1},
-                {3, -1},
-            };
-            var steps = new Dictionary<int, int>() {
-                {0, 0},
-                {1, 0},
-                {2, 0},
-                {3, 0},
-            };
+            var positions = new int[] {-1, -1, -1, -1};
+            var steps = new int[] {0, 0, 0, 0};
             var rnd = new Random();
             var playersCount = game.Players.Count;
             var firstPlayerIndex = rnd.Next(0, playersCount);
-            var state = new DiceState(DiceBoard.Empty(BoardSize), scores, steps, 0, firstPlayerIndex, playersCount);
+            var state = new DiceState(DiceBoard.Empty(BoardSize), positions, steps, 0, firstPlayerIndex, playersCount);
             var player = game.Players[state.PlayerIndex];
             return game with {
                 StateJson = SerializeState(state),
@@ -74,26 +56,28 @@ namespace BoardGames.Abstractions.Games
                 throw new ApplicationException("It's another player's turn.");
             var board = state.Board;
             var player = game.Players[state.PlayerIndex];
-            var oldPlayerScore = state.Scores[state.PlayerIndex];
-            var playerScore = oldPlayerScore += move.Value;
-            state.Steps[state.PlayerIndex] += 1;
-            var playerSteps = state.Steps[state.PlayerIndex];
-            if (playerScore == 10 || playerScore == 27 || playerScore == 44) {
-                playerScore += 3;
-            }
-            if (playerScore == 20 || playerScore == 35 || playerScore == 54) {
-                playerScore -= 3;
-            }
-            state.Scores[state.PlayerIndex] = playerScore;
-            var scores = state.Scores;
-
-            if (playerScore >= (BoardSize * BoardSize) - 1)
-                playerScore = (BoardSize * BoardSize) - 1;
-
-            board = ChangePlayerCells(board, move.PlayerIndex, playerScore, oldPlayerScore);
             
-            if (playerScore >= (BoardSize * BoardSize) - 1) {
-                var newState = state with {Board = board, MoveIndex = state.MoveIndex + 1, Scores = scores};
+            state.PlayerPositions[state.PlayerIndex] += move.Value;
+            var playerPosition = state.PlayerPositions[state.PlayerIndex];
+
+            if (playerPosition == 10 || playerPosition == 27 || playerPosition == 44) {
+                state.PlayerPositions[state.PlayerIndex] += 3;
+                playerPosition += 3;
+            }
+            if (playerPosition == 20 || playerPosition == 35 || playerPosition == 54) {
+                state.PlayerPositions[state.PlayerIndex] -= 3;
+                playerPosition -= 3;
+            }
+            
+            if (playerPosition >= (BoardSize * BoardSize) - 1)
+                playerPosition = (BoardSize * BoardSize) - 1;
+            
+            state.PlayerSteps[state.PlayerIndex] += 1;
+            var playerSteps = state.PlayerSteps[state.PlayerIndex];
+            var scores = state.PlayerPositions;
+            
+            if (playerPosition >= (BoardSize * BoardSize) - 1) {
+                var newState = state with {Board = board, MoveIndex = state.MoveIndex + 1, PlayerPositions = scores};
                 var newGame = game with {StateJson = SerializeState(newState)};
                 newGame = IncrementPlayerScore(newGame, move.PlayerIndex, 1) with {
                     StateMessage = StandardMessages.WinWithScore(new AppUser(player.UserId), game, playerSteps),
@@ -102,13 +86,12 @@ namespace BoardGames.Abstractions.Games
                 return newGame;
             }
             
-            var rowAndCol = GetRowAndColValues(playerScore);
-
-            var nextBoard = board.Set(rowAndCol.Item1, rowAndCol.Item2, state.PlayerIndex, DiceBoard.GetOpacity(DiceBoard.Opacity.Current));
+            var rowAndCol = GetRowAndColValues(playerPosition);
+            var nextBoard = board.Set(rowAndCol.Item1, rowAndCol.Item2, state.PlayerIndex, 'X');
             var nextState = state with {
                 Board = nextBoard,
                 MoveIndex = state.MoveIndex + 1,
-                Scores = scores,
+                PlayerPositions = scores,
             };
             var nextPlayer = game.Players[nextState.PlayerIndex];
             var nextGame = game with {StateJson = SerializeState(nextState)};
@@ -116,22 +99,6 @@ namespace BoardGames.Abstractions.Games
                 StateMessage = StandardMessages.MoveTurn(new AppUser(nextPlayer.UserId)),
             };
             return nextGame;
-        }
-
-        private DiceBoard ChangePlayerCells(DiceBoard board, int playerIndex, int newScore, int oldScore)
-        {
-            var cells = board.Cells;
-            for (int i = 0; i < newScore + 1; i++) {
-                var cell = cells.ElementAt(i).Value;
-                cell.Opacities[playerIndex] = DiceBoard.GetOpacity(DiceBoard.Opacity.Past);
-            }
-
-            for (int i = newScore + 1; i < BoardSize * BoardSize; i++) {
-                var cell = cells.ElementAt(i).Value;
-                cell.Opacities[playerIndex] = DiceBoard.GetOpacity(DiceBoard.Opacity.Invisible);
-            }
-
-            return board;
         }
 
         private (int, int) GetRowAndColValues(long value)
