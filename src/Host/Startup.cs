@@ -90,7 +90,7 @@ namespace BoardGames.Host
                         o => o.MigrationsAssembly(typeof(MigrationsStartup).Assembly.FullName));
                 }
                 else {
-                    Log.LogInformation("DB: PostgreSql");
+                    Log.LogInformation("DB: PostgreSql @ {postgreSqlConnectionString}", HostSettings.UsePostgreSql);
                     builder.UseNpgsql(
                         HostSettings.UsePostgreSql,
                         o => o.MigrationsAssembly(typeof(MigrationsStartup).Assembly.FullName));
