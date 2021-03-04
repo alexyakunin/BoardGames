@@ -1,3 +1,10 @@
+ARG BOARDGAMES__ASSUMEHTTPS
+ARG BOARDGAMES__USEPOSTGRESQL
+ARG BOARDGAMES__GITHUBCLIENTSECRET
+ARG BOARDGAMES__GITHUBCLIENTID
+ARG BOARDGAMES__MICROSOFTCLIENTSECRET
+ARG BOARDGAMES__MICROSOFTCLIENTID
+
 FROM mcr.microsoft.com/dotnet/sdk:5.0 as build
 RUN apt-get update \
   && apt-get install -y --allow-unauthenticated \
@@ -26,5 +33,11 @@ WORKDIR /app/src/Host/bin/Debug/net5.0
 ENTRYPOINT ["dotnet", "BoardGames.Host.dll"]
 
 FROM runtime as app_ws
+ENV BoardGames__AssumeHttps $BOARDGAMES__ASSUMEHTTPS
+ENV BoardGames__UsePostgreSql $BOARDGAMES__USEPOSTGRESQL
+ENV BoardGames__GitHubClientSecret $BOARDGAMES__GITHUBCLIENTSECRET
+ENV BoardGames__GitHubClientId $BOARDGAMES__GITHUBCLIENTID
+ENV BoardGames__MicrosoftClientSecret $BOARDGAMES__MICROSOFTCLIENTSECRET
+ENV BoardGames__MicrosoftClientId $BOARDGAMES__MICROSOFTCLIENTSECRET
 WORKDIR /app
 ENTRYPOINT ["dotnet", "BoardGames.Host.dll"]

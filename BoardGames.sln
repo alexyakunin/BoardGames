@@ -40,7 +40,6 @@ ProjectSection(SolutionItems) = preProject
 	cloudbuild.yaml = cloudbuild.yaml
 	deployment.yml = deployment.yml
 	service.yml = service.yml
-	ingress.yml = ingress.yml
 	kustomization.yml = kustomization.yml
 	.github\workflows\gke.yml = .github\workflows\gke.yml
 EndProjectSection

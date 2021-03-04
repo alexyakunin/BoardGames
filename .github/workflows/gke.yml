@@ -44,6 +44,12 @@ jobs:
           --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
+          --build-arg BOARDGAMES__ASSUMEHTTPS="$BOARDGAMES__ASSUMEHTTPS" \
+          --build-arg BOARDGAMES__USEPOSTGRESQL="$BOARDGAMES__USEPOSTGRESQL" \
+          --build-arg BOARDGAMES__GITHUBCLIENTSECRET="$BOARDGAMES__GITHUBCLIENTSECRET" \
+          --build-arg BOARDGAMES__GITHUBCLIENTID="$BOARDGAMES__GITHUBCLIENTID" \
+          --build-arg BOARDGAMES__MICROSOFTCLIENTSECRET="$BOARDGAMES__MICROSOFTCLIENTSECRET" \
+          --build-arg BOARDGAMES__MICROSOFTCLIENTSECRET="$BOARDGAMES__MICROSOFTCLIENTSECRET" \
           .
 
     # Push the Docker image to Google Container Registry
