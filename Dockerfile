@@ -6,12 +6,15 @@ ARG BOARDGAMES__MICROSOFTCLIENTSECRET=na
 ARG BOARDGAMES__MICROSOFTCLIENTID=na
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 as build
-ENV BoardGames__AssumeHttps $BOARDGAMES__ASSUMEHTTPS
-ENV BoardGames__UsePostgreSql $BOARDGAMES__USEPOSTGRESQL
-ENV BoardGames__GitHubClientSecret $BOARDGAMES__GITHUBCLIENTSECRET
-ENV BoardGames__GitHubClientId $BOARDGAMES__GITHUBCLIENTID
-ENV BoardGames__MicrosoftClientSecret $BOARDGAMES__MICROSOFTCLIENTSECRET
-ENV BoardGames__MicrosoftClientId $BOARDGAMES__MICROSOFTCLIENTID
+RUN echo BoardGames__AssumeHttps = $BOARDGAMES__ASSUMEHTTPS
+RUN echo BoardGames__GitHubClientId = $BOARDGAMES__GITHUBCLIENTID
+
+ENV BoardGames__AssumeHttps=$BOARDGAMES__ASSUMEHTTPS
+ENV BoardGames__UsePostgreSql=$BOARDGAMES__USEPOSTGRESQL
+ENV BoardGames__GitHubClientSecret=$BOARDGAMES__GITHUBCLIENTSECRET
+ENV BoardGames__GitHubClientId=$BOARDGAMES__GITHUBCLIENTID
+ENV BoardGames__MicrosoftClientSecret=$BOARDGAMES__MICROSOFTCLIENTSECRET
+ENV BoardGames__MicrosoftClientId=$BOARDGAMES__MICROSOFTCLIENTID
 RUN echo BoardGames__AssumeHttps = $BoardGames__AssumeHttps
 RUN echo BoardGames__GitHubClientId = $BoardGames__GitHubClientId
 
