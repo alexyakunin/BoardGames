@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Blazorise;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -250,7 +251,6 @@ namespace BoardGames.Host
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.ApplicationServices.UseBootstrapProviders().UseFontAwesomeIcons(); // Blazorise
             app.UseEndpoints(endpoints => {
                 endpoints.MapBlazorHub();
                 endpoints.MapFusionWebSocketServer();
