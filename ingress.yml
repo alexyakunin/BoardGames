@@ -3,17 +3,17 @@ kind: Ingress
 metadata:
   name: board-games-ingress
   annotations:
-    nginx.ingress.kubernetes.io/affinity: "cookie"
-    nginx.ingress.kubernetes.io/session-cookie-name: "route"
-    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
-    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
-
+    kubernetes.io/ingress.class: traefik
+#    nginx.ingress.kubernetes.io/affinity: "cookie"
+#    nginx.ingress.kubernetes.io/session-cookie-name: "route"
+#    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+#    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
 spec:
   rules:
   - host: boardgames-gke.alexyakunin.com
     http:
       paths:
-      - backend:
+      - path: /
+        backend:
           serviceName: board-games-service
-          servicePort: 80
-        path: /
+          servicePort: 10000
