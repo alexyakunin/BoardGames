@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using BoardGames.Abstractions;
 using BoardGames.ClientServices;
 using Microsoft.Extensions.Logging;
+using Stl.DependencyInjection;
 using Stl.OS;
 using Stl.Extensibility;
 
@@ -16,7 +17,7 @@ namespace BoardGames.UI
 {
     public class Program
     {
-        public static Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             if (OSInfo.Kind != OSKind.WebAssembly)
                 throw new ApplicationException("This app runs only in browser.");
@@ -37,15 +38,8 @@ namespace BoardGames.UI
 
             hostBuilder.RootComponents.Add<App>("#app");
             var host = hostBuilder.Build();
-
-            var runTask = host.RunAsync();
-            Task.Run(async () => {
-                // We "manually" start IHostedServices here, because Blazor host doesn't do this.
-                var hostedServices = host.Services.GetRequiredService<IEnumerable<IHostedService>>();
-                foreach (var hostedService in hostedServices)
-                    await hostedService.StartAsync(default);
-            });
-            return runTask;
+            await host.Services.HostedServices().StartAsync();
+            await host.RunAsync();
         }
     }
 }
