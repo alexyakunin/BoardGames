@@ -3,12 +3,10 @@ kind: Service
 metadata:
   name: board-games-service
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: board-games
   ports:
-    - port: 10000
+    - port: 80
       targetPort: 80
-      protocol: TCP
-      name: http
   externalTrafficPolicy: Local
