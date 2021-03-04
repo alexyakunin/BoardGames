@@ -47,17 +47,25 @@ jobs:
         BOARDGAMES__MICROSOFTCLIENTSECRET: ${{ secrets.BOARDGAMES__MICROSOFTCLIENTSECRET }}
         BOARDGAMES__MICROSOFTCLIENTID: ${{ secrets.BOARDGAMES__MICROSOFTCLIENTID }}
       run: |-
-        docker build \
+        echo \
           --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
           --build-arg GITHUB_REF="$GITHUB_REF" \
           --build-arg BOARDGAMES__ASSUMEHTTPS="$BOARDGAMES__ASSUMEHTTPS" \
-          --build-arg BOARDGAMES__USEPOSTGRESQL="$BOARDGAMES__USEPOSTGRESQL" \
-          --build-arg BOARDGAMES__GITHUBCLIENTSECRET="$BOARDGAMES__GITHUBCLIENTSECRET" \
           --build-arg BOARDGAMES__GITHUBCLIENTID="$BOARDGAMES__GITHUBCLIENTID" \
-          --build-arg BOARDGAMES__MICROSOFTCLIENTSECRET="$BOARDGAMES__MICROSOFTCLIENTSECRET" \
           --build-arg BOARDGAMES__MICROSOFTCLIENTID="$BOARDGAMES__MICROSOFTCLIENTID" \
           .
+#        docker build \
+#          --tag "gcr.io/$PROJECT_ID/$IMAGE:$GITHUB_SHA" \
+#          --build-arg GITHUB_SHA="$GITHUB_SHA" \
+#          --build-arg GITHUB_REF="$GITHUB_REF" \
+#          --build-arg BOARDGAMES__ASSUMEHTTPS="$BOARDGAMES__ASSUMEHTTPS" \
+#          --build-arg BOARDGAMES__USEPOSTGRESQL="$BOARDGAMES__USEPOSTGRESQL" \
+#          --build-arg BOARDGAMES__GITHUBCLIENTSECRET="$BOARDGAMES__GITHUBCLIENTSECRET" \
+#          --build-arg BOARDGAMES__GITHUBCLIENTID="$BOARDGAMES__GITHUBCLIENTID" \
+#          --build-arg BOARDGAMES__MICROSOFTCLIENTSECRET="$BOARDGAMES__MICROSOFTCLIENTSECRET" \
+#          --build-arg BOARDGAMES__MICROSOFTCLIENTID="$BOARDGAMES__MICROSOFTCLIENTID" \
+#          .
 
     # Push the Docker image to Google Container Registry
     - name: Publish
