@@ -12,8 +12,8 @@ ENV BoardGames__GitHubClientSecret $BOARDGAMES__GITHUBCLIENTSECRET
 ENV BoardGames__GitHubClientId $BOARDGAMES__GITHUBCLIENTID
 ENV BoardGames__MicrosoftClientSecret $BOARDGAMES__MICROSOFTCLIENTSECRET
 ENV BoardGames__MicrosoftClientId $BOARDGAMES__MICROSOFTCLIENTID
-RUN echo BoardGames__AssumeHttps=${BoardGames__AssumeHttps}
-RUN echo BoardGames__AssumeHttps=$BoardGames__AssumeHttps
+RUN echo BoardGames__AssumeHttps = $BoardGames__AssumeHttps
+RUN echo BoardGames__GitHubClientId = $BoardGames__GitHubClientId
 
 RUN apt-get update \
   && apt-get install -y --allow-unauthenticated \
