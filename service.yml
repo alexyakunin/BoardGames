@@ -6,6 +6,6 @@ spec:
   type: LoadBalancer
   ports:
     - port: 80
-      targetPort: 5030
+      targetPort: 80
   selector:
     app: board-games

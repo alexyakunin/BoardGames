@@ -21,7 +21,7 @@ spec:
       - name: board-games
         image: gcr.io/PROJECT_ID/IMAGE:TAG
         ports:
-        - containerPort: 5030
+        - containerPort: 80
         resources:
           requests:
             cpu: 100m
