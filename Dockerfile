@@ -33,11 +33,11 @@ WORKDIR /app/src/Host/bin/Debug/net5.0
 ENTRYPOINT ["dotnet", "BoardGames.Host.dll"]
 
 FROM runtime as app_ws
-ENV BoardGames__AssumeHttps $BOARDGAMES__ASSUMEHTTPS
-ENV BoardGames__UsePostgreSql $BOARDGAMES__USEPOSTGRESQL
-ENV BoardGames__GitHubClientSecret $BOARDGAMES__GITHUBCLIENTSECRET
-ENV BoardGames__GitHubClientId $BOARDGAMES__GITHUBCLIENTID
-ENV BoardGames__MicrosoftClientSecret $BOARDGAMES__MICROSOFTCLIENTSECRET
-ENV BoardGames__MicrosoftClientId $BOARDGAMES__MICROSOFTCLIENTID
+ENV BoardGames__AssumeHttps=${BOARDGAMES__ASSUMEHTTPS}
+ENV BoardGames__UsePostgreSql=${BOARDGAMES__USEPOSTGRESQL}
+ENV BoardGames__GitHubClientSecret=${BOARDGAMES__GITHUBCLIENTSECRET}
+ENV BoardGames__GitHubClientId=${BOARDGAMES__GITHUBCLIENTID}
+ENV BoardGames__MicrosoftClientSecret=${BOARDGAMES__MICROSOFTCLIENTSECRET}
+ENV BoardGames__MicrosoftClientId=${BOARDGAMES__MICROSOFTCLIENTID}
 WORKDIR /app
 ENTRYPOINT ["dotnet", "BoardGames.Host.dll"]
