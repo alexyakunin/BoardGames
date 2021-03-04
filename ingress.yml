@@ -4,6 +4,7 @@ metadata:
   name: board-games-ingress
   annotations:
     kubernetes.io/ingress.class: "nginx"
+    nginx.org/websocket-services: "board-games-service"
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/session-cookie-name: "sa"
     nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
