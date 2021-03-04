@@ -38,7 +38,6 @@ namespace BoardGames.UI
             hostBuilder.RootComponents.Add<App>("#app");
             var host = hostBuilder.Build();
 
-            host.Services.UseBootstrapProviders().UseFontAwesomeIcons(); // Blazorise
             var runTask = host.RunAsync();
             Task.Run(async () => {
                 // We "manually" start IHostedServices here, because Blazor host doesn't do this.

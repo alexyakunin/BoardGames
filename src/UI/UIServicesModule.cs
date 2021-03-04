@@ -1,17 +1,12 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Reflection;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using BoardGames.Abstractions;
-using BoardGames.Abstractions.Games;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Pluralize.NET;
 using Stl.Extensibility;
 using Stl.Fusion;
 using Stl.Fusion.Authentication;
@@ -54,7 +49,7 @@ namespace BoardGames.UI
                 });
             }
 
-            // UI services: Blazorise, Pluralizer, etc.
+            // UI services: Blazorise, etc.
             Services.AddBlazorise().AddBootstrapProviders().AddFontAwesomeIcons();
 
             // UI-related Fusion services

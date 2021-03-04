@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Blazorise;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -34,7 +35,9 @@ using Microsoft.EntityFrameworkCore;
 using Stl.Extensibility;
 using Stl.Fusion.EntityFramework;
 using Stl.Fusion.EntityFramework.Authentication;
+using Stl.Fusion.EntityFramework.Npgsql;
 using Stl.Fusion.Operations.Internal;
+using Stl.Fusion.Server.Controllers;
 using Stl.IO;
 
 namespace BoardGames.Host
@@ -60,6 +63,8 @@ namespace BoardGames.Host
                 logging.AddConsole();
                 logging.SetMinimumLevel(LogLevel.Information);
                 if (Env.IsDevelopment()) {
+                    logging.AddFilter("Microsoft", LogLevel.Warning);
+                    logging.AddFilter("Microsoft.AspNetCore.Hosting", LogLevel.Information);
                     logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information);
                     logging.AddFilter("Stl.Fusion.Operations", LogLevel.Information);
                 }
@@ -103,10 +108,12 @@ namespace BoardGames.Host
                     // can be arbitrary long - all depends on the reliability of Notifier-Monitor chain.
                     o.UnconditionalWakeUpPeriod = TimeSpan.FromSeconds(Env.IsDevelopment() ? 60 : 5);
                 });
+                if (HostSettings.UseSqlite)
+                    b.AddFileBasedDbOperationLogChangeTracking(sqliteDbPath + "_changed");
+                else
+                    b.AddNpgsqlDbOperationLogChangeTracking();
+
                 b.AddKeyValueStore();
-                var operationLogChangeAlertPath = sqliteDbPath + "_changed";
-                b.AddFileBasedDbOperationLogChangeNotifier(operationLogChangeAlertPath);
-                b.AddFileBasedDbOperationLogChangeMonitor(operationLogChangeAlertPath);
                 b.AddDbAuthentication((_, options) => {
                     options.MinUpdatePresencePeriod = TimeSpan.FromSeconds(55);
                 });
@@ -162,6 +169,7 @@ namespace BoardGames.Host
             services.AddMvc().AddApplicationPart(Assembly.GetExecutingAssembly());
             services.AddServerSideBlazor(o => o.DetailedErrors = true);
             fusionAuth.AddBlazor(o => { }); // Must follow services.AddServerSideBlazor()!
+            BlazorModeController.IsServerSideBlazorDefault = true;
 
             // Swagger & debug tools
             services.AddSwaggerGen(c => {
@@ -244,7 +252,6 @@ namespace BoardGames.Host
             app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.ApplicationServices.UseBootstrapProviders().UseFontAwesomeIcons(); // Blazorise
             app.UseEndpoints(endpoints => {
                 endpoints.MapBlazorHub();
                 endpoints.MapFusionWebSocketServer();

@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
     <PackageReference Include="Stl.Fusion.Server" />
+    <PackageReference Include="Stl.Fusion.EntityFramework.Npgsql" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
 
