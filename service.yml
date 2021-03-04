@@ -5,7 +5,7 @@ metadata:
   annotations:
     beta.cloud.google.com/backend-config: '{"ports": {"80":"board-games-backendconfig"}}'
 spec:
-  type: NodaPort
+  type: NodePort
   selector:
     app: board-games
   ports:
