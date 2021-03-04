@@ -16,10 +16,10 @@ services:
     depends_on:
      - db
 
-  app_ws:
+  app_release:
     build:
       context: .
-      target: app_ws
+      target: app_release
     depends_on:
      - db
     ports:

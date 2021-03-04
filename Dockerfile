@@ -1,23 +1,5 @@
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 as build
-ARG BOARDGAMES__ASSUMEHTTPS=na
-ARG BOARDGAMES__USEPOSTGRESQL=na
-ARG BOARDGAMES__GITHUBCLIENTSECRET=na
-ARG BOARDGAMES__GITHUBCLIENTID=na
-ARG BOARDGAMES__MICROSOFTCLIENTSECRET=na
-ARG BOARDGAMES__MICROSOFTCLIENTID=na
-RUN echo BoardGames__AssumeHttps = $BOARDGAMES__ASSUMEHTTPS
-RUN echo BoardGames__GitHubClientId = $BOARDGAMES__GITHUBCLIENTID
-
-ENV BoardGames__AssumeHttps=$BOARDGAMES__ASSUMEHTTPS
-ENV BoardGames__UsePostgreSql=$BOARDGAMES__USEPOSTGRESQL
-ENV BoardGames__GitHubClientSecret=$BOARDGAMES__GITHUBCLIENTSECRET
-ENV BoardGames__GitHubClientId=$BOARDGAMES__GITHUBCLIENTID
-ENV BoardGames__MicrosoftClientSecret=$BOARDGAMES__MICROSOFTCLIENTSECRET
-ENV BoardGames__MicrosoftClientId=$BOARDGAMES__MICROSOFTCLIENTID
-RUN echo BoardGames__AssumeHttps = $BoardGames__AssumeHttps
-RUN echo BoardGames__GitHubClientId = $BoardGames__GitHubClientId
-
 RUN apt-get update \
   && apt-get install -y --allow-unauthenticated \
     libc6-dev \
@@ -44,6 +26,22 @@ FROM build as app_debug
 WORKDIR /app/src/Host/bin/Debug/net5.0
 ENTRYPOINT ["dotnet", "BoardGames.Host.dll"]
 
+FROM runtime as app_release
+WORKDIR /app
+ENTRYPOINT ["dotnet", "BoardGames.Host.dll"]
+
 FROM runtime as app_ws
+ARG BOARDGAMES__ASSUMEHTTPS
+ARG BOARDGAMES__USEPOSTGRESQL
+ARG BOARDGAMES__GITHUBCLIENTSECRET
+ARG BOARDGAMES__GITHUBCLIENTID
+ARG BOARDGAMES__MICROSOFTCLIENTSECRET
+ARG BOARDGAMES__MICROSOFTCLIENTID
+ENV BoardGames__AssumeHttps=$BOARDGAMES__ASSUMEHTTPS
+ENV BoardGames__UsePostgreSql=$BOARDGAMES__USEPOSTGRESQL
+ENV BoardGames__GitHubClientSecret=$BOARDGAMES__GITHUBCLIENTSECRET
+ENV BoardGames__GitHubClientId=$BOARDGAMES__GITHUBCLIENTID
+ENV BoardGames__MicrosoftClientSecret=$BOARDGAMES__MICROSOFTCLIENTSECRET
+ENV BoardGames__MicrosoftClientId=$BOARDGAMES__MICROSOFTCLIENTID
 WORKDIR /app
 ENTRYPOINT ["dotnet", "BoardGames.Host.dll"]
