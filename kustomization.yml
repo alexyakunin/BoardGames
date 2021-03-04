@@ -3,4 +3,5 @@ kind: Kustomization
 resources:
 - deployment.yml
 - service.yml
+- backend-config.yml
 - ingress.yml

@@ -2,11 +2,14 @@ apiVersion: v1
 kind: Service
 metadata:
   name: board-games-service
+  annotations:
+    beta.cloud.google.com/backend-config: '{"ports": {"80":"board-games-backendconfig"}}'
 spec:
-  type: ClusterIP
+  type: NodaPort
   selector:
     app: board-games
   ports:
     - port: 80
+      protocol: TCP
       targetPort: 80
   externalTrafficPolicy: Local
