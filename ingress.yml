@@ -10,7 +10,7 @@ metadata:
 
 spec:
   rules:
-  - host: boardgames.alexyakunin.com
+  - host: boardgames-gke.alexyakunin.com
     http:
       paths:
       - backend:
