@@ -4,9 +4,6 @@ metadata:
   name: board-games-service
 spec:
   type: NodePort
-  annotations:
-    traefik.ingress.kubernetes.io/affinity: "true"
-    traefik.ingress.kubernetes.io/session-cookie-name: "_sa"
   selector:
     app: board-games
   ports:
