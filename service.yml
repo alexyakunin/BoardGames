@@ -13,4 +13,3 @@ spec:
       targetPort: 80
       protocol: TCP
       name: http
-  externalTrafficPolicy: Local
