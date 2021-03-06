@@ -2,12 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: board-games-service
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
 spec:
+  type: LoadBalancer
+  selector:
+    app: hello
   ports:
     - port: 80
       targetPort: 80
       protocol: TCP
       name: http
-  selector:
-    app: board-games
   externalTrafficPolicy: Local
