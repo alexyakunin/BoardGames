@@ -2,10 +2,10 @@ apiVersion: v1
 kind: Service
 metadata:
   name: board-games-service
+  labels:
+    app: board-games-service
   annotations:
     networking.gke.io/load-balancer-type: "Internal"
-      labels:
-        app: board-games-service
 spec:
   type: LoadBalancer
   selector:
