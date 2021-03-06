@@ -4,10 +4,8 @@ metadata:
   name: board-games-service
   labels:
     app: board-games-service
-  annotations:
-    networking.gke.io/load-balancer-type: "Internal"
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     app: board-games
   ports:
