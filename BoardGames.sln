@@ -43,6 +43,7 @@ ProjectSection(SolutionItems) = preProject
 	kustomization.yml = kustomization.yml
 	.github\workflows\gke.yml = .github\workflows\gke.yml
 	ingress.yml = ingress.yml
+	managed-cert.yml = managed-cert.yml
 EndProjectSection
 EndProject
 Global

@@ -4,6 +4,7 @@ metadata:
   name: board-games-ingress
   annotations:
     kubernetes.io/ingress.global-static-ip-name: "fusion-ip"
+    networking.gke.io/managed-certificates: "boardgames-gke-cert"
     nginx.ingress.kubernetes.io/affinity: "cookie"
     nginx.ingress.kubernetes.io/session-cookie-name: "_ngsa"
     nginx.ingress.kubernetes.io/session-cookie-expires: "172800"

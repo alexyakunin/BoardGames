@@ -1,0 +1,8 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: boardgames-gke-cert
+spec:
+  domains:
+    - boardgames.alexyakunin.com
+    - boardgames-gke.alexyakunin.com
