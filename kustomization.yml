@@ -3,5 +3,4 @@ kind: Kustomization
 resources:
 - deployment.yml
 - service.yml
-- managed-cert.yml
 - ingress.yml
