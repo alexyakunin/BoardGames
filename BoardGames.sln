@@ -17,7 +17,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{01ABB1
 ProjectSection(SolutionItems) = preProject
 	Dockerfile = Dockerfile
 	docker-compose.yml = docker-compose.yml
-	cloudbuild.yaml = cloudbuild.yaml
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{8CA34149-29AE-4AC7-8808-822FE83008D3}"
@@ -34,6 +33,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{0CB5A4E5-5D81-474C-A489-A1DACA6954B8}"
 ProjectSection(SolutionItems) = preProject
 	README.md = README.md
+EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deploy", "deploy", "{18D2FE52-5446-4F5D-B133-D257A49DD9B5}"
+ProjectSection(SolutionItems) = preProject
+	cloudbuild.yaml = cloudbuild.yaml
+	deployment.yml = deployment.yml
+	service.yml = service.yml
+	kustomization.yml = kustomization.yml
+	.github\workflows\gke.yml = .github\workflows\gke.yml
+	ingress.yml = ingress.yml
 EndProjectSection
 EndProject
 Global

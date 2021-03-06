@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: board-games-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: "fusion-ip"
+#    networking.gke.io/managed-certificates: "boardgames-gke-cert"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/session-cookie-name: "_ngsa"
+    nginx.ingress.kubernetes.io/session-cookie-expires: "172800"
+    nginx.ingress.kubernetes.io/session-cookie-max-age: "172800"
+spec:
+  backend:
+    serviceName: board-games-service
+    servicePort: 80
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: board-games-service
+              servicePort: 80
