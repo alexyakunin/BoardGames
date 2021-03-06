@@ -4,10 +4,12 @@ metadata:
   name: board-games-service
   annotations:
     networking.gke.io/load-balancer-type: "Internal"
+      labels:
+        app: board-games-service
 spec:
   type: LoadBalancer
   selector:
-    app: hello
+    app: board-games
   ports:
     - port: 80
       targetPort: 80
