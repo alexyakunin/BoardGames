@@ -9,7 +9,7 @@ namespace BoardGames.Host
     {
         // Web
         public bool AssumeHttps { get; set; } = false;
-        public bool UseHttpsRedirection { get; set; } = true;
+        public bool UseHttpsRedirection { get; set; } = false;
         public bool UseForwardedHeaders { get; set; } = true;
 
         // Fusion

@@ -160,7 +160,9 @@ namespace BoardGames.Host
 
             // Web
             services.Configure<ForwardedHeadersOptions>(options => {
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+                if (!HostSettings.AssumeHttps)
+                    options.ForwardedHeaders |= ForwardedHeaders.XForwardedProto;
                 options.KnownNetworks.Clear();
                 options.KnownProxies.Clear();
             });
