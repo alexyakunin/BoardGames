@@ -37,7 +37,6 @@ EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deploy", "deploy", "{18D2FE52-5446-4F5D-B133-D257A49DD9B5}"
 ProjectSection(SolutionItems) = preProject
-	cloudbuild.yaml = cloudbuild.yaml
 	deployment.yml = deployment.yml
 	service.yml = service.yml
 	kustomization.yml = kustomization.yml
