@@ -130,12 +130,12 @@ namespace BoardGames.Host
                 });
 
             // Data protection
+            var dpCert = new X509Certificate2(Convert.FromBase64String(HostSettings.DataProtectionCert));
             services.AddScoped(c => c.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
-            var dataProtectionCertPath = PathEx.GetApplicationDirectory() & "Resources/dp.pfx";
             services.AddDataProtection()
                 .SetApplicationName(GetType().Namespace ?? "")
                 .PersistKeysToDbContext<AppDbContext>()
-                .ProtectKeysWithCertificate(new X509Certificate2(dataProtectionCertPath))
+                .ProtectKeysWithCertificate(dpCert)
                 .DisableAutomaticKeyGeneration();
 
             // Authentication
