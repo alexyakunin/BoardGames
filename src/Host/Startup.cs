@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using Blazorise;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -22,8 +23,6 @@ using Stl.Fusion.Blazor;
 using Stl.Fusion.Bridge;
 using Stl.Fusion.Client;
 using Stl.Fusion.Server;
-using Blazorise.Bootstrap;
-using Blazorise.Icons.FontAwesome;
 using BoardGames.Abstractions;
 using BoardGames.ClientServices;
 using BoardGames.Migrations;
@@ -34,7 +33,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Stl.Extensibility;
 using Stl.Fusion.EntityFramework;
-using Stl.Fusion.EntityFramework.Authentication;
 using Stl.Fusion.EntityFramework.Npgsql;
 using Stl.Fusion.Operations.Internal;
 using Stl.Fusion.Server.Controllers;
@@ -133,7 +131,12 @@ namespace BoardGames.Host
 
             // Data protection
             services.AddScoped(c => c.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
-            services.AddDataProtection().PersistKeysToDbContext<AppDbContext>();
+            var dataProtectionCertPath = PathEx.GetApplicationDirectory() & "Resources/DataProtectionCert.pfx";
+            services.AddDataProtection()
+                .SetApplicationName(GetType().Namespace ?? "")
+                .PersistKeysToDbContext<AppDbContext>()
+                .ProtectKeysWithCertificate(new X509Certificate2(dataProtectionCertPath))
+                .DisableAutomaticKeyGeneration();
 
             // Authentication
             services.AddAuthentication(options => {
