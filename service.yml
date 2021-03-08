@@ -5,10 +5,10 @@ metadata:
   labels:
     app: board-games-service
 spec:
-  type: NodePort
   selector:
     app: board-games
   ports:
     - port: 80
       targetPort: 80
       protocol: TCP
+      name: http
