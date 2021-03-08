@@ -3,5 +3,4 @@ kind: Kustomization
 resources:
 - deployment.yml
 - service.yml
-- nginx-class.yml
 - ingress.yml
