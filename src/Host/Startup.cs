@@ -131,7 +131,7 @@ namespace BoardGames.Host
 
             // Data protection
             services.AddScoped(c => c.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
-            var dataProtectionCertPath = PathEx.GetApplicationDirectory() & "Resources/DataProtectionCert.pfx";
+            var dataProtectionCertPath = PathEx.GetApplicationDirectory() & "Resources/dp.pfx";
             services.AddDataProtection()
                 .SetApplicationName(GetType().Namespace ?? "")
                 .PersistKeysToDbContext<AppDbContext>()

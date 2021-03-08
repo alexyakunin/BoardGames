@@ -5,6 +5,7 @@
 *.sh text eol=lf
 *.dll binary
 *.gz binary
+*.pfx binary
 
 ###############################################################################
 # Set default behavior for command prompt diff.
