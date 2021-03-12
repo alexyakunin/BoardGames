@@ -38,7 +38,7 @@
 
     private async Task CreateAsync()
     {
-        var game = await CommandRunner.CallAsync(new Game.CreateCommand(Session, GameEngine.Id));
+        var game = await CommandRunner.Call(new Game.CreateCommand(Session, GameEngine.Id));
         if (game != null)
             Navigator.NavigateTo(LinkBuilder.Game(GameEngineId, game.Id));
     }

@@ -53,7 +53,7 @@
         base.OnParametersSet();
     }
 
-    protected override async Task<ChatPage> ComputeStateAsync(CancellationToken cancellationToken)
+    protected override async Task<ChatPage> ComputeState(CancellationToken cancellationToken)
         => await Chats.GetTailAsync(Session, ChatId, Limit, cancellationToken);
 
     private Task PostAsync()
@@ -62,6 +62,6 @@
         if (string.IsNullOrEmpty(text))
             return Task.CompletedTask;
         Message.Value = "";
-        return CommandRunner.CallAsync(new Chat.PostCommand(Session, ChatId, text));
+        return CommandRunner.Call(new Chat.PostCommand(Session, ChatId, text));
     }
 }

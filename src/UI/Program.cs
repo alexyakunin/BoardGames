@@ -38,7 +38,7 @@ namespace BoardGames.UI
 
             hostBuilder.RootComponents.Add<App>("#app");
             var host = hostBuilder.Build();
-            await host.Services.HostedServices().StartAsync();
+            await host.Services.HostedServices().Start();
             await host.RunAsync();
         }
     }

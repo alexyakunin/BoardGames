@@ -73,7 +73,7 @@
     [Parameter]
     public bool ExcludeOwnGames { get; set; } = true;
 
-    protected override async Task<Model> ComputeStateAsync(CancellationToken cancellationToken)
+    protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {
         var count = Locals.Value ?? 100;
         var games = await Games.ListAsync(GameEngineId, GameStage, count, cancellationToken);
@@ -83,7 +83,7 @@
             .ToHashSet();
         var users = await userIds.ParallelSelectToListAsync((id, ct) => AppUsers.FindAsync(id, ct), cancellationToken);
         if (ExcludeOwnGames) {
-            var authState = await AuthStateProvider.State.UseAsync(cancellationToken);
+            var authState = await AuthStateProvider.State.Use(cancellationToken);
             if (authState.User.IsAuthenticated) {
                 var myUserId = long.Parse(authState.User.Id);
                 games = games.Where(g => g.UserId != myUserId).ToImmutableList();

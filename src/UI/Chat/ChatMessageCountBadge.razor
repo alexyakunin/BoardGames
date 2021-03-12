@@ -21,6 +21,6 @@
     [Parameter]
     public TimeSpan? Period { get; set; }
 
-    protected override async Task<long> ComputeStateAsync(CancellationToken cancellationToken)
+    protected override async Task<long> ComputeState(CancellationToken cancellationToken)
         => await Chats.GetMessageCountAsync(ChatId, Period, cancellationToken);
 }

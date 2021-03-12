@@ -88,16 +88,16 @@
     }
 
     private Task StartAsync()
-        => CommandRunner.CallAsync(new Game.StartCommand(Session, Game.Id));
+        => CommandRunner.Call(new Game.StartCommand(Session, Game.Id));
 
     private Task JoinAsync()
-        => CommandRunner.CallAsync(new Game.JoinCommand(Session, Game.Id));
+        => CommandRunner.Call(new Game.JoinCommand(Session, Game.Id));
 
     private Task LeaveAsync()
-        => CommandRunner.CallAsync(new Game.JoinCommand(Session, Game.Id, false));
+        => CommandRunner.Call(new Game.JoinCommand(Session, Game.Id, false));
 
     private Task ChangeIsPublicAsync()
-        => CommandRunner.CallAsync(new Game.EditCommand(Session, Game.Id, !Game.IsPublic));
+        => CommandRunner.Call(new Game.EditCommand(Session, Game.Id, !Game.IsPublic));
 
     private Task EditAsync()
     {
@@ -109,6 +109,6 @@
         var command = new Game.EditCommand(Session, Game.Id,
             Intro: Intro.Value,
             RoundCount: roundCount);
-        return CommandRunner.CallAsync(command);
+        return CommandRunner.Call(command);
     }
 }

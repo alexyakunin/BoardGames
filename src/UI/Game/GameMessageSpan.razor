@@ -17,6 +17,6 @@
     [Parameter]
     public string Text { get; set; } = "";
 
-    protected override async Task<GameMessage> ComputeStateAsync(CancellationToken cancellationToken)
+    protected override async Task<GameMessage> ComputeState(CancellationToken cancellationToken)
         => await MessageParser.ParseAsync(Text, cancellationToken);
 }

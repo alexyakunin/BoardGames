@@ -55,7 +55,7 @@ namespace BoardGames.UI
             // UI-related Fusion services
             Services.RemoveAll<UpdateDelayer.Options>();
             Services.AddSingleton(c => new UpdateDelayer.Options() {
-                Delay = TimeSpan.FromSeconds(0.5),
+                DelayDuration = TimeSpan.FromSeconds(0.5),
             });
             Services.RemoveAll<PresenceService.Options>();
             Services.AddSingleton(c => new PresenceService.Options() {

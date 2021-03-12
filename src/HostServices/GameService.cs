@@ -45,11 +45,11 @@ namespace BoardGames.HostServices
             var engine = GameEngines[engineId]; // Just to check it exists
             var context = CommandContext.GetCurrent();
 
-            var user = await AuthService.GetUserAsync(session, cancellationToken);
+            var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var userId = long.Parse(user.Id);
 
-            await using var dbContext = await CreateCommandDbContextAsync(cancellationToken);
+            await using var dbContext = await CreateCommandDbContext(cancellationToken);
 
             var game = new Game() {
                 Id = Ulid.NewUlid().ToString(),
@@ -74,11 +74,11 @@ namespace BoardGames.HostServices
             var (session, id, join) = command;
             var context = CommandContext.GetCurrent();
 
-            var user = await AuthService.GetUserAsync(session, cancellationToken);
+            var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var userId = long.Parse(user.Id);
 
-            await using var dbContext = await CreateCommandDbContextAsync(cancellationToken);
+            await using var dbContext = await CreateCommandDbContext(cancellationToken);
             var dbGame = await GetDbGame(dbContext, id, cancellationToken);
             var game = dbGame.ToModel();
             var engine = GameEngines[game.EngineId];
@@ -114,11 +114,11 @@ namespace BoardGames.HostServices
             var (session, id) = command;
             var context = CommandContext.GetCurrent();
 
-            var user = await AuthService.GetUserAsync(session, cancellationToken);
+            var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var userId = long.Parse(user.Id);
 
-            await using var dbContext = await CreateCommandDbContextAsync(cancellationToken);
+            await using var dbContext = await CreateCommandDbContext(cancellationToken);
             var dbGame = await GetDbGame(dbContext, id, cancellationToken);
             var game = dbGame.ToModel();
             var engine = GameEngines[game.EngineId];
@@ -152,11 +152,11 @@ namespace BoardGames.HostServices
             var (session, id, move) = command;
             var context = CommandContext.GetCurrent();
 
-            var user = await AuthService.GetUserAsync(session, cancellationToken);
+            var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var userId = long.Parse(user.Id);
 
-            await using var dbContext = await CreateCommandDbContextAsync(cancellationToken);
+            await using var dbContext = await CreateCommandDbContext(cancellationToken);
             var dbGame = await GetDbGame(dbContext, id, cancellationToken);
             var game = dbGame.ToModel();
             var engine = GameEngines[game.EngineId];
@@ -187,13 +187,13 @@ namespace BoardGames.HostServices
             var session = command.Session;
             var context = CommandContext.GetCurrent();
 
-            var user = await AuthService.GetUserAsync(session, cancellationToken);
+            var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var parsedIntro = command.Intro == null
                 ? null
                 : await MessageParser.ParseAsync(command.Intro, cancellationToken);
 
-            await using var dbContext = await CreateCommandDbContextAsync(cancellationToken);
+            await using var dbContext = await CreateCommandDbContext(cancellationToken);
             var dbGame = await GetDbGame(dbContext, command.Id, cancellationToken);
             if (command.IsPublic.HasValue)
                 dbGame.IsPublic = command.IsPublic.Value;
@@ -216,7 +216,7 @@ namespace BoardGames.HostServices
 
         public virtual async Task<Game?> FindAsync(string id, CancellationToken cancellationToken = default)
         {
-            var dbGame = await GameResolver.TryGetAsync(id, cancellationToken);
+            var dbGame = await GameResolver.TryGet(id, cancellationToken);
             return dbGame?.ToModel();
         }
 
@@ -227,7 +227,7 @@ namespace BoardGames.HostServices
             if (count < 1)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            var user = await AuthService.GetUserAsync(session, cancellationToken);
+            var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var userId = long.Parse(user.Id);
             await PseudoListOwnAsync(user.Id, cancellationToken);
@@ -305,7 +305,7 @@ namespace BoardGames.HostServices
             // Common invalidation logic for all IGameCommands
             var context = CommandContext.GetCurrent();
             if (!Computed.IsInvalidating()) {
-                await context.InvokeRemainingHandlersAsync(cancellationToken);
+                await context.InvokeRemainingHandlers(cancellationToken);
                 return;
             }
 

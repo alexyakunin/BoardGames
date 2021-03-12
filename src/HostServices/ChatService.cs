@@ -50,7 +50,7 @@ namespace BoardGames.HostServices
                 return null!;
             }
 
-            var user = await AuthService.GetUserAsync(session, cancellationToken);
+            var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var userId = long.Parse(user.Id);
             var cp = await GetChatPermissionsAsync(session, chatId, cancellationToken);
@@ -58,7 +58,7 @@ namespace BoardGames.HostServices
                 throw new SecurityException("You can't post to this chat.");
             var parsedMessage = await MessageParser.ParseAsync(text, cancellationToken);
 
-            await using var dbContext = await CreateCommandDbContextAsync(cancellationToken);
+            await using var dbContext = await CreateCommandDbContext(cancellationToken);
             var now = Clock.Now;
             var chatMessage = new ChatMessage(Ulid.NewUlid().ToString(), chatId) {
                 UserId = userId,
@@ -127,7 +127,7 @@ namespace BoardGames.HostServices
         public virtual async Task<ChatPermission> GetChatPermissionsAsync(
             Session session, string chatId, CancellationToken cancellationToken = default)
         {
-            var user = await AuthService.GetUserAsync(session, cancellationToken);
+            var user = await AuthService.GetUser(session, cancellationToken);
             if (!user.IsAuthenticated)
                 return 0;
             var chat = await FindChatAsync(chatId, cancellationToken);

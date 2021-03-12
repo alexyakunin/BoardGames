@@ -34,7 +34,7 @@
     {
         var move = new GomokuMove(r, c);
         var command = new Game.MoveCommand(Session, Game.Id, move);
-        return CommandRunner.CallAsync(command);
+        return CommandRunner.Call(command);
     }
 
     private RenderFragment GetIcon(char cell)
