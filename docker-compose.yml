@@ -15,6 +15,11 @@ services:
       target: app_debug
     depends_on:
      - db
+    ports:
+      - "5030:5030"
+    environment:
+      ASPNETCORE_URLS: "http://*:5030"
+      BoardGames__UsePostgreSql: "Server=db;Database=board_games_dev;Port=5432;User Id=postgres;Password=Fusion.0.to.1"
 
   app_release:
     build:
@@ -27,3 +32,4 @@ services:
     environment:
       ASPNETCORE_URLS: "http://*:80"
       HTTPS_PORT: 443
+      BoardGames__UsePostgreSql: "Server=db;Database=board_games_dev;Port=5432;User Id=postgres;Password=Fusion.0.to.1"
