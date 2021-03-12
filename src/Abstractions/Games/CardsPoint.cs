@@ -114,41 +114,6 @@ namespace BoardGames.Abstractions.Games
             };
         }
 
-        public Game Skip(Game game, PointMove move)
-        {
-            if (game.Stage == GameStage.Ended)
-                throw new ApplicationException("Game is ended.");
-            var state = DeserializeState(game.StateJson);
-            var currentPlayerStatus = Status.Finished;
-            var newStatuses = state.Statuses.SetItem(state.PlayerIndex, currentPlayerStatus);
-
-            var newState = state with {
-                Statuses = newStatuses
-            };
-            
-            var newGame = game with {
-                StateJson = SerializeState(newState)
-            };
-            
-            if (newState.Statuses.All(s => s.Value == Status.Finished))
-                return newGame with {
-                    StateJson = SerializeState(newState),
-                    StateMessage = StandardMessages.FinalStandings(newGame),
-                    Stage = GameStage.Ended
-                };
-
-            state = newState with {
-                MoveIndex = GetNextMoveIndex(newState.Statuses, newState.MoveIndex),
-            };
-            var newPlayer = newGame.Players[newState.PlayerIndex];
-            game = newGame with {StateJson = SerializeState(state)};
-            game = game with {
-                StateMessage = StandardMessages.MoveTurn(new AppUser(newPlayer.UserId))
-            };
-            
-            return game;
-        }
-        
         public override Game Move(Game game, PointMove move)
         {
             if (game.Stage == GameStage.Ended)
@@ -243,16 +208,12 @@ namespace BoardGames.Abstractions.Games
             game = game with {
                 StateMessage = StandardMessages.MoveTurn(new AppUser(player.UserId))
             };
-            
             return game;
         }
 
         private Card GetRandomCard(ImmutableList<Card> cards)
         {
-            var rnd = new Random();
-            var number = rnd.Next(0, cards.Count);
-            var card = cards[number];
-            return card;
+            return cards[new Random().Next(0, cards.Count)];
         }
 
         private int GetPlayerScores(Card card, int playerScores, int cardsCount)
@@ -266,7 +227,6 @@ namespace BoardGames.Abstractions.Games
                 if (currentScore == 21) currentScore += 5;
                 else if (currentScore > 21) currentScore = 2;
             }
-
             return currentScore;
         }
 
