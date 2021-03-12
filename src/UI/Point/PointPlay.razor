@@ -10,6 +10,7 @@
     var playersCards = gameState.PlayersCards;
     var playerStatuses = gameState.Statuses;
     var myCards = playersCards[MyPlayerIndex];
+    var scores = gameState.Scores;
 }
 
 <WhenCommandError Exception="CommandRunner.Error"/>
@@ -27,16 +28,22 @@
             Get Card
         </Button>
         <Button Color="Blazorise.Color.Primary"
-                Style="align-content: center; border: 1px solid darkblue;"
+                Style="align-content: center; border-radius: 3px;"
                 disabled="@(gameState.PlayerIndex != MyPlayerIndex
                             || playerStatuses[MyPlayerIndex] == Status.Finished)"
                 @onclick="_ => ChangePlayerStatusAsync()">
             Enough
         </Button>
-        @* $1$ <Button Color="Color.Light" Style="align-content: center; border: 1px solid darkblue; min-width: 50px;" disabled>@(gameState.PlayerSteps[MyPlayerIndex])</Button> #1# *@
-        @* <button type="button" class="btn btn-custom" style="background: @CellBackground[MyPlayerIndex]" disabled>My color</button> *@
-        @* <button type="button" class="btn btn-forward" disabled>+3</button> *@
-        @* <button type="button" class="btn btn-backward" disabled>-3</button> *@
+        <Buttons>
+            <Button Color="Blazorise.Color.Info" disabled
+                    style="border-bottom-left-radius: 3px; border-top-left-radius: 3px;">
+                Total:
+            </Button>
+            <Button Color="Blazorise.Color.Info" disabled
+                    style="border-bottom-right-radius: 3px; border-top-right-radius: 3px;">
+                @scores[MyPlayerIndex]
+            </Button>
+        </Buttons>
 
     </Paragraph>
 }
