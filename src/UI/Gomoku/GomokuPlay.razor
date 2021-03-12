@@ -19,7 +19,7 @@
                     var cell = board[row, col];
                     <td @key=@((row, col)) class="p-0 m-0">
                         <Button Color="Color.Light" style="padding: 0px; margin: 2px; width: 1.5rem; height: 1.5rem;"
-                                @onclick="_ => MoveAsync(row, col)">
+                                @onclick="_ => Move(row, col)">
                             @GetIcon(cell)
                         </Button>
                     </td>
@@ -30,7 +30,7 @@
 </Column></Row>
 
 @code {
-    private Task MoveAsync(int r, int c)
+    private Task Move(int r, int c)
     {
         var move = new GomokuMove(r, c);
         var command = new Game.MoveCommand(Session, Game.Id, move);

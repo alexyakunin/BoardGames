@@ -39,24 +39,24 @@ namespace BoardGames.HostServices
 
         // Commands
 
-        public virtual async Task<ChatMessage> PostAsync(
+        public virtual async Task<ChatMessage> Post(
             Chat.PostCommand command, CancellationToken cancellationToken = default)
         {
             var (session, chatId, text) = command;
             var context = CommandContext.GetCurrent();
             if (Computed.IsInvalidating()) {
                 var invChatMessage = context.Operation().Items.Get<ChatMessage>();
-                PseudoGetTailAsync(chatId, default).Ignore();
+                PseudoGetTail(chatId, default).Ignore();
                 return null!;
             }
 
             var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var userId = long.Parse(user.Id);
-            var cp = await GetChatPermissionsAsync(session, chatId, cancellationToken);
+            var cp = await GetPermissions(session, chatId, cancellationToken);
             if ((cp & ChatPermission.Write) != ChatPermission.Write)
                 throw new SecurityException("You can't post to this chat.");
-            var parsedMessage = await MessageParser.ParseAsync(text, cancellationToken);
+            var parsedMessage = await MessageParser.Parse(text, cancellationToken);
 
             await using var dbContext = await CreateCommandDbContext(cancellationToken);
             var now = Clock.Now;
@@ -75,7 +75,7 @@ namespace BoardGames.HostServices
             return chatMessage;
         }
 
-        public virtual Task DeleteAsync(
+        public virtual Task Delete(
             Chat.DeleteCommand command, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
@@ -83,14 +83,14 @@ namespace BoardGames.HostServices
 
         // Queries
 
-        public virtual async Task<Chat?> FindChatAsync(
+        public virtual async Task<Chat?> TryGet(
             string chatId, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(chatId))
                 return null;
             if (chatId.StartsWith("game/")) {
                 var gameId = chatId[5..];
-                var game = await Games.FindAsync(gameId, cancellationToken);
+                var game = await Games.TryGet(gameId, cancellationToken);
                 if (game == null)
                     return null;
                 return new Chat(chatId, ChatKind.Game) {
@@ -109,10 +109,10 @@ namespace BoardGames.HostServices
                     return null;
                 if (user1Id >= user2Id)
                     return null;
-                var user1 = await AppUsers.FindAsync(user1Id, cancellationToken);
+                var user1 = await AppUsers.TryGet(user1Id, cancellationToken);
                 if (user1 == null)
                     return null;
-                var user2 = await AppUsers.FindAsync(user2Id, cancellationToken);
+                var user2 = await AppUsers.TryGet(user2Id, cancellationToken);
                 if (user2 == null)
                     return null;
                 return new Chat(chatId, ChatKind.P2P) {
@@ -124,13 +124,13 @@ namespace BoardGames.HostServices
             return null;
         }
 
-        public virtual async Task<ChatPermission> GetChatPermissionsAsync(
+        public virtual async Task<ChatPermission> GetPermissions(
             Session session, string chatId, CancellationToken cancellationToken = default)
         {
             var user = await AuthService.GetUser(session, cancellationToken);
             if (!user.IsAuthenticated)
                 return 0;
-            var chat = await FindChatAsync(chatId, cancellationToken);
+            var chat = await TryGet(chatId, cancellationToken);
             if (chat == null || chat.Kind == ChatKind.Unknown)
                 return 0;
 
@@ -140,22 +140,22 @@ namespace BoardGames.HostServices
             if (chat.ParticipantIds.Contains(userId))
                 return ChatPermission.Write;
             if (chat.Kind == ChatKind.Game)
-                return ChatPermission.Post;
+                return ChatPermission.Write;
             return 0;
         }
 
-        public virtual async Task<ChatPage> GetTailAsync(Session session, string chatId, int limit, CancellationToken cancellationToken = default)
+        public virtual async Task<ChatPage> GetTail(Session session, string chatId, int limit, CancellationToken cancellationToken = default)
         {
-            var cp = await GetChatPermissionsAsync(session, chatId, cancellationToken);
+            var cp = await GetPermissions(session, chatId, cancellationToken);
             if ((cp & ChatPermission.Read) != ChatPermission.Read)
                 throw new SecurityException("You can't access this chat.");
-            return await GetTailAsync(chatId, limit, cancellationToken);
+            return await GetTail(chatId, limit, cancellationToken);
         }
 
-        public virtual async Task<long> GetMessageCountAsync(
+        public virtual async Task<long> GetMessageCount(
             string chatId, TimeSpan? period = null, CancellationToken cancellationToken = default)
         {
-            await PseudoGetTailAsync(chatId, default);
+            await PseudoGetTail(chatId, default);
             await using var dbContext = CreateDbContext();
             var dbMessages = dbContext.ChatMessages.AsQueryable();
             if (period.HasValue) {
@@ -170,11 +170,11 @@ namespace BoardGames.HostServices
         // Protected methods
 
         [ComputeMethod]
-        protected virtual async Task<ChatPage> GetTailAsync(string chatId, int limit, CancellationToken cancellationToken = default)
+        protected virtual async Task<ChatPage> GetTail(string chatId, int limit, CancellationToken cancellationToken = default)
         {
             if (limit is < 1 or > 1000)
                 throw new ArgumentOutOfRangeException(nameof(limit));
-            await PseudoGetTailAsync(chatId, default);
+            await PseudoGetTail(chatId, default);
             await using var dbContext = CreateDbContext();
 
             // Fetching messages
@@ -190,7 +190,7 @@ namespace BoardGames.HostServices
             foreach (var pack in messages.PackBy(128)) {
                 var packUsers = await Task.WhenAll(
                     pack.Where(m => !users.ContainsKey(m.UserId))
-                        .Select(m => AppUsers.FindAsync(m.UserId, cancellationToken)));
+                        .Select(m => AppUsers.TryGet(m.UserId, cancellationToken)));
                 foreach (var user in packUsers)
                     if (user != null)
                         users.TryAdd(user.Id, user);
@@ -205,7 +205,7 @@ namespace BoardGames.HostServices
         // Invalidation-related
 
         [ComputeMethod]
-        protected virtual Task<Unit> PseudoGetTailAsync(string chatId, CancellationToken cancellationToken)
+        protected virtual Task<Unit> PseudoGetTail(string chatId, CancellationToken cancellationToken)
             => TaskEx.UnitTask;
     }
 }

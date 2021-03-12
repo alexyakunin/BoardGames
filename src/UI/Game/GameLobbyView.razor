@@ -11,7 +11,7 @@
 
 <Container Padding="Padding.Is0">
     @if (IsOwner) {
-        <Form @onsubmit="_ => EditAsync()" Margin="Margin.Is0">
+        <Form @onsubmit="_ => Edit()" Margin="Margin.Is0">
             <Addons Margin="Margin.Is3.OnY">
                 <Addon AddonType="AddonType.Start">
                     <AddonLabel>
@@ -54,7 +54,7 @@
     }
     <Paragraph Margin="Margin.Is3.OnY">
         <Switch TValue="bool" Checked="@Game.IsPublic" Disabled="@(!IsOwner)"
-                CheckedChanged="_ => ChangeIsPublicAsync()">
+                CheckedChanged="_ => ChangeIsPublic()">
             Anyone can join
         </Switch>
     </Paragraph>
@@ -62,11 +62,11 @@
 
 <Paragraph>
     @if (IsOwner) {
-        <Button Color="Color.Primary" @onclick="_ => StartAsync()">Start the game</Button>
+        <Button Color="Color.Primary" @onclick="_ => Start()">Start the game</Button>
     } else if (!IsParticipant) {
-        <Button Color="Color.Primary" @onclick="_ => JoinAsync()">Join the game</Button>
+        <Button Color="Color.Primary" @onclick="_ => Join()">Join the game</Button>
     } else {
-        <Button Color="Color.Warning" @onclick="_ => LeaveAsync()">Leave this game</Button>
+        <Button Color="Color.Warning" @onclick="_ => Leave()">Leave this game</Button>
     }
 </Paragraph>
 
@@ -82,24 +82,24 @@
     {
         await base.OnParametersSetAsync();
         using var _ = Computed.SuspendDependencyCapture(); // Otherwise the next call may try to reg. as a dependency!
-        var parsedIntro = await MessageParser.ParseAsync(Game.Intro);
+        var parsedIntro = await MessageParser.Parse(Game.Intro);
         Intro.OriginalValue = parsedIntro.Format(true);
         RoundCount.OriginalValue = Game.RoundCount?.ToString() ?? "";
     }
 
-    private Task StartAsync()
+    private Task Start()
         => CommandRunner.Call(new Game.StartCommand(Session, Game.Id));
 
-    private Task JoinAsync()
+    private Task Join()
         => CommandRunner.Call(new Game.JoinCommand(Session, Game.Id));
 
-    private Task LeaveAsync()
+    private Task Leave()
         => CommandRunner.Call(new Game.JoinCommand(Session, Game.Id, false));
 
-    private Task ChangeIsPublicAsync()
+    private Task ChangeIsPublic()
         => CommandRunner.Call(new Game.EditCommand(Session, Game.Id, !Game.IsPublic));
 
-    private Task EditAsync()
+    private Task Edit()
     {
         if (!RoundCount.IsValid) {
             CommandRunner.Error = new ValidationException("Round count must be an integer.");

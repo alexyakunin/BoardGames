@@ -55,7 +55,7 @@ The [live version] of this app is hosted on Google Cloud GKE:
   [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/examples/affinity/cookie/)
   configured to route requests to the same backend host
   (selected using consistent hashing) relying on `_ngsa` cookie
-- Try opening https://boardgames.alexyakunin.com/api/hostInfo/hostName
+- Try opening https://boardgames.alexyakunin.com/api/hostInfo/getHostName
   normally and without this cookie (e.g. in incognito mode) to see 
   how it works. 
 - Check out [deployment.yml](deployment.yml), [service.yml](service.yml),

@@ -39,7 +39,7 @@ namespace BoardGames.HostServices
 
         // Commands
 
-        public virtual async Task<Game> CreateAsync(Game.CreateCommand command, CancellationToken cancellationToken = default)
+        public virtual async Task<Game> Create(Game.CreateCommand command, CancellationToken cancellationToken = default)
         {
             var (session, engineId) = command;
             var engine = GameEngines[engineId]; // Just to check it exists
@@ -69,7 +69,7 @@ namespace BoardGames.HostServices
             return game;
         }
 
-        public virtual async Task JoinAsync(Game.JoinCommand command, CancellationToken cancellationToken = default)
+        public virtual async Task Join(Game.JoinCommand command, CancellationToken cancellationToken = default)
         {
             var (session, id, join) = command;
             var context = CommandContext.GetCurrent();
@@ -105,11 +105,11 @@ namespace BoardGames.HostServices
 
             // Try auto-start
             if (join && engine.AutoStart && game.Players.Count == engine.MaxPlayerCount) {
-                await StartAsync(new Game.StartCommand(session, id), cancellationToken);
+                await Start(new Game.StartCommand(session, id), cancellationToken);
             }
         }
 
-        public virtual async Task StartAsync(Game.StartCommand command, CancellationToken cancellationToken = default)
+        public virtual async Task Start(Game.StartCommand command, CancellationToken cancellationToken = default)
         {
             var (session, id) = command;
             var context = CommandContext.GetCurrent();
@@ -147,7 +147,7 @@ namespace BoardGames.HostServices
             context.Operation().Items.Set(game);
         }
 
-        public virtual async Task MoveAsync(Game.MoveCommand command, CancellationToken cancellationToken = default)
+        public virtual async Task Move(Game.MoveCommand command, CancellationToken cancellationToken = default)
         {
             var (session, id, move) = command;
             var context = CommandContext.GetCurrent();
@@ -182,7 +182,7 @@ namespace BoardGames.HostServices
             context.Operation().Items.Set(game);
         }
 
-        public virtual async Task EditAsync(Game.EditCommand command, CancellationToken cancellationToken = default)
+        public virtual async Task Edit(Game.EditCommand command, CancellationToken cancellationToken = default)
         {
             var session = command.Session;
             var context = CommandContext.GetCurrent();
@@ -191,7 +191,7 @@ namespace BoardGames.HostServices
             user = user.MustBeAuthenticated();
             var parsedIntro = command.Intro == null
                 ? null
-                : await MessageParser.ParseAsync(command.Intro, cancellationToken);
+                : await MessageParser.Parse(command.Intro, cancellationToken);
 
             await using var dbContext = await CreateCommandDbContext(cancellationToken);
             var dbGame = await GetDbGame(dbContext, command.Id, cancellationToken);
@@ -214,13 +214,13 @@ namespace BoardGames.HostServices
 
         // Queries
 
-        public virtual async Task<Game?> FindAsync(string id, CancellationToken cancellationToken = default)
+        public virtual async Task<Game?> TryGet(string id, CancellationToken cancellationToken = default)
         {
             var dbGame = await GameResolver.TryGet(id, cancellationToken);
             return dbGame?.ToModel();
         }
 
-        public virtual async Task<ImmutableList<Game>> ListOwnAsync(
+        public virtual async Task<ImmutableList<Game>> ListOwn(
             string? engineId, GameStage? stage, int count, Session session,
             CancellationToken cancellationToken = default)
         {
@@ -230,7 +230,7 @@ namespace BoardGames.HostServices
             var user = await AuthService.GetUser(session, cancellationToken);
             user = user.MustBeAuthenticated();
             var userId = long.Parse(user.Id);
-            await PseudoListOwnAsync(user.Id, cancellationToken);
+            await PseudoListOwn(user.Id, cancellationToken);
 
             await using var dbContext = CreateDbContext();
             var games = dbContext.Games.AsQueryable().Where(g => g.Players.Any(p => p.DbUserId == userId));
@@ -257,17 +257,17 @@ namespace BoardGames.HostServices
             }
             var gameIds = await games.Select(g => g.Id).Take(count)
                 .ToListAsync(cancellationToken);
-            return await GetManyAsync(gameIds, cancellationToken);
+            return await GetMany(gameIds, cancellationToken);
         }
 
-        public virtual async Task<ImmutableList<Game>> ListAsync(
+        public virtual async Task<ImmutableList<Game>> List(
             string? engineId, GameStage? stage, int count,
             CancellationToken cancellationToken = default)
         {
             if (count < 1)
                 throw new ArgumentOutOfRangeException(nameof(count));
 
-            await PseudoListAsync(engineId, stage, cancellationToken);
+            await PseudoList(engineId, stage, cancellationToken);
 
             await using var dbContext = CreateDbContext();
             var games = dbContext.Games.AsQueryable().Where(g => g.IsPublic);
@@ -294,13 +294,13 @@ namespace BoardGames.HostServices
             }
             var gameIds = await games.Select(g => g.Id).Take(count)
                 .ToListAsync(cancellationToken);
-            return await GetManyAsync(gameIds, cancellationToken);
+            return await GetMany(gameIds, cancellationToken);
         }
 
         // Invalidation
 
         [CommandHandler(IsFilter = true, Priority = 1)]
-        protected virtual async Task OnGameCommandAsync(Game.IGameCommand command, CancellationToken cancellationToken = default)
+        protected virtual async Task OnGameCommand(Game.IGameCommand command, CancellationToken cancellationToken = default)
         {
             // Common invalidation logic for all IGameCommands
             var context = CommandContext.GetCurrent();
@@ -314,38 +314,38 @@ namespace BoardGames.HostServices
             var prevState = operationItems.GetOrDefault(Box.New(game.Stage)).Value;
 
             // Invalidation
-            FindAsync(game.Id, default).Ignore();
+            TryGet(game.Id, default).Ignore();
 
             // Own games of all affected players
             foreach (var gamePlayer in game.Players)
-                PseudoListOwnAsync(gamePlayer.UserId.ToString(), default).Ignore();
+                PseudoListOwn(gamePlayer.UserId.ToString(), default).Ignore();
             var leftPlayer = operationItems.TryGet<GamePlayer>();
             if (leftPlayer != null)
-                PseudoListOwnAsync(leftPlayer.UserId.ToString(), default).Ignore();
+                PseudoListOwn(leftPlayer.UserId.ToString(), default).Ignore();
 
             // Global lists
-            PseudoListAsync(game.EngineId, game.Stage, default).Ignore();
-            PseudoListAsync(game.EngineId, null, default).Ignore();
-            PseudoListAsync(null, game.Stage, default).Ignore();
-            PseudoListAsync(null, null, default).Ignore();
+            PseudoList(game.EngineId, game.Stage, default).Ignore();
+            PseudoList(game.EngineId, null, default).Ignore();
+            PseudoList(null, game.Stage, default).Ignore();
+            PseudoList(null, null, default).Ignore();
             if (prevState != game.Stage) {
-                PseudoListAsync(game.EngineId, prevState, default).Ignore();
-                PseudoListAsync(null, prevState, default).Ignore();
+                PseudoList(game.EngineId, prevState, default).Ignore();
+                PseudoList(null, prevState, default).Ignore();
             }
         }
 
         [ComputeMethod]
-        protected virtual Task<Unit> PseudoListOwnAsync(string userId, CancellationToken cancellationToken = default)
+        protected virtual Task<Unit> PseudoListOwn(string userId, CancellationToken cancellationToken = default)
             => TaskEx.UnitTask;
         [ComputeMethod]
-        protected virtual Task<Unit> PseudoListAsync(string? engineId, GameStage? stage, CancellationToken cancellationToken = default)
+        protected virtual Task<Unit> PseudoList(string? engineId, GameStage? stage, CancellationToken cancellationToken = default)
             => TaskEx.UnitTask;
 
         // Protected methods
 
-        protected async Task<ImmutableList<Game>> GetManyAsync(IEnumerable<string> gameIds, CancellationToken cancellationToken)
+        protected async Task<ImmutableList<Game>> GetMany(IEnumerable<string> gameIds, CancellationToken cancellationToken)
         {
-            var result = await gameIds.ParallelSelectToListAsync(FindAsync, cancellationToken);
+            var result = await gameIds.ParallelSelectToList(TryGet, cancellationToken);
             return ImmutableList<Game>.Empty.AddRange(result.Where(g => g != null)!);
         }
 

@@ -33,13 +33,13 @@ namespace BoardGames.HostServices
             DbUsers = services.GetRequiredService<IDbUserRepo<AppDbContext>>();
         }
 
-        public virtual async Task<AppUser?> FindAsync(long id, CancellationToken cancellationToken = default)
+        public virtual async Task<AppUser?> TryGet(long id, CancellationToken cancellationToken = default)
         {
             var user = await AuthService.TryGetUser(id.ToString(), cancellationToken);
             return user == null ? null : new AppUser() { Id = id, Name = user.Name };
         }
 
-        public virtual async Task<AppUser?> FindByNameAsync(string name, CancellationToken cancellationToken = default)
+        public virtual async Task<AppUser?> TryGetByName(string name, CancellationToken cancellationToken = default)
         {
             await using var dbContext = CreateDbContext();
             var user = await dbContext.Users.AsQueryable()
@@ -50,7 +50,7 @@ namespace BoardGames.HostServices
         }
 
         [ComputeMethod(AutoInvalidateTime = 61)]
-        public virtual async Task<bool> IsOnlineAsync(long id, CancellationToken cancellationToken = default)
+        public virtual async Task<bool> IsOnline(long id, CancellationToken cancellationToken = default)
         {
             await using var dbContext = CreateDbContext();
             var session = dbContext.Sessions.AsQueryable()
@@ -65,14 +65,14 @@ namespace BoardGames.HostServices
 
         // Takes care of invalidation of IsOnlineAsync once user signs in
         [CommandHandler(IsFilter = true, Priority = 1)]
-        protected virtual async Task OnSignInAsync(SignInCommand command, CancellationToken cancellationToken)
+        protected virtual async Task OnSignIn(SignInCommand command, CancellationToken cancellationToken)
         {
             var context = CommandContext.GetCurrent();
             await context.InvokeRemainingHandlers(cancellationToken);
             if (Computed.IsInvalidating()) {
                 var invSessionInfo = context.Operation().Items.TryGet<SessionInfo>();
                 if (invSessionInfo != null && long.TryParse(invSessionInfo.UserId, out var invUserId))
-                    IsOnlineAsync(invUserId, default).Ignore();
+                    IsOnline(invUserId, default).Ignore();
                 return;
             }
 
@@ -84,7 +84,7 @@ namespace BoardGames.HostServices
             var sessionInfo = context.Operation().Items.Get<SessionInfo>();
             var userId = long.Parse(sessionInfo.UserId);
             var dbUser = await DbUsers.TryGet(dbContext, userId, cancellationToken);
-            var newName = await NormalizeNameAsync(dbContext, dbUser!.Name, userId, cancellationToken);
+            var newName = await NormalizeName(dbContext, dbUser!.Name, userId, cancellationToken);
             if (newName != dbUser.Name) {
                 dbUser.Name = newName;
                 await dbContext.SaveChangesAsync(cancellationToken);
@@ -93,14 +93,14 @@ namespace BoardGames.HostServices
 
         // Validates user name on edit
         [CommandHandler(IsFilter = true, Priority = 1)]
-        protected virtual async Task OnEditUserAsync(EditUserCommand command, CancellationToken cancellationToken)
+        protected virtual async Task OnEditUser(EditUserCommand command, CancellationToken cancellationToken)
         {
             var (session, name) = command;
             var context = CommandContext.GetCurrent();
             if (Computed.IsInvalidating()) {
                 await context.InvokeRemainingHandlers(cancellationToken);
                 if (name != null)
-                    FindByNameAsync(name, default).Ignore();
+                    TryGetByName(name, default).Ignore();
                 return;
             }
             if (name != null) {
@@ -119,7 +119,7 @@ namespace BoardGames.HostServices
             await context.InvokeRemainingHandlers(cancellationToken);
         }
 
-        private async Task<string> NormalizeNameAsync(AppDbContext dbContext, string name, long userId, CancellationToken cancellationToken = default)
+        private async Task<string> NormalizeName(AppDbContext dbContext, string name, long userId, CancellationToken cancellationToken = default)
         {
             // Normalizing name
             var sb = StringBuilderEx.Acquire();

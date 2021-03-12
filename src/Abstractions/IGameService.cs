@@ -11,22 +11,22 @@ namespace BoardGames.Abstractions
     {
         // Commands
         [CommandHandler]
-        Task<Game> CreateAsync(Game.CreateCommand command, CancellationToken cancellationToken = default);
+        Task<Game> Create(Game.CreateCommand command, CancellationToken cancellationToken = default);
         [CommandHandler]
-        Task JoinAsync(Game.JoinCommand command, CancellationToken cancellationToken = default);
+        Task Join(Game.JoinCommand command, CancellationToken cancellationToken = default);
         [CommandHandler]
-        Task StartAsync(Game.StartCommand command, CancellationToken cancellationToken = default);
+        Task Start(Game.StartCommand command, CancellationToken cancellationToken = default);
         [CommandHandler]
-        Task MoveAsync(Game.MoveCommand command, CancellationToken cancellationToken = default);
+        Task Move(Game.MoveCommand command, CancellationToken cancellationToken = default);
         [CommandHandler]
-        Task EditAsync(Game.EditCommand command, CancellationToken cancellationToken = default);
+        Task Edit(Game.EditCommand command, CancellationToken cancellationToken = default);
 
         // Queries
         [ComputeMethod(KeepAliveTime = 1)]
-        Task<Game?> FindAsync(string id, CancellationToken cancellationToken = default);
+        Task<Game?> TryGet(string id, CancellationToken cancellationToken = default);
         [ComputeMethod(KeepAliveTime = 1)]
-        Task<ImmutableList<Game>> ListOwnAsync(string? engineId, GameStage? stage, int count, Session session, CancellationToken cancellationToken = default);
+        Task<ImmutableList<Game>> ListOwn(string? engineId, GameStage? stage, int count, Session session, CancellationToken cancellationToken = default);
         [ComputeMethod(KeepAliveTime = 1)]
-        Task<ImmutableList<Game>> ListAsync(string? engineId, GameStage? stage, int count, CancellationToken cancellationToken = default);
+        Task<ImmutableList<Game>> List(string? engineId, GameStage? stage, int count, CancellationToken cancellationToken = default);
     }
 }

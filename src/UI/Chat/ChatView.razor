@@ -28,7 +28,7 @@
 
 <WhenCommandError Exception="@CommandRunner.Error" />
 
-<Form @onsubmit="_ => PostAsync()" >
+<Form @onsubmit="_ => Post()" >
     <Addons>
         <input @bind="@Message.Value" @bind:event="onchange" class="form-control" />
         <Addon AddonType="AddonType.End">
@@ -54,9 +54,9 @@
     }
 
     protected override async Task<ChatPage> ComputeState(CancellationToken cancellationToken)
-        => await Chats.GetTailAsync(Session, ChatId, Limit, cancellationToken);
+        => await Chats.GetTail(Session, ChatId, Limit, cancellationToken);
 
-    private Task PostAsync()
+    private Task Post()
     {
         var text = Message.Value;
         if (string.IsNullOrEmpty(text))

@@ -7,6 +7,6 @@ namespace BoardGames.Abstractions
     public interface IMessageParser
     {
         [ComputeMethod(KeepAliveTime = 1)]
-        public Task<GameMessage> ParseAsync(string text, CancellationToken cancellationToken = default);
+        public Task<GameMessage> Parse(string text, CancellationToken cancellationToken = default);
     }
 }

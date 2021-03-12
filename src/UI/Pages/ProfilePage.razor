@@ -32,7 +32,7 @@ This comment resets the indent :) -->
 
 <Row Margin="Margin.Is3.OnY">
     <Column ColumnSize="ColumnSize.Is6">
-        <Form @onsubmit="_ => ChangeUserNameAsync()" >
+        <Form @onsubmit="_ => ChangeUserName()" >
             <Addons>
                 <Addon AddonType="AddonType.Start">
                     <AddonLabel>Name:</AddonLabel>
@@ -170,7 +170,7 @@ This comment resets the indent :) -->
         };
     }
 
-    private async Task ChangeUserNameAsync()
+    private async Task ChangeUserName()
     {
         var command = new EditUserCommand(Session, UserName.Value);
         await CommandRunner.Call(command);

@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BoardGames.Host.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController]
     public class HostInfoController : ControllerBase
     {
-        [HttpGet("hostName")]
-        public Task<string> GetHostNameAsync(CancellationToken cancellationToken = default)
+        [HttpGet]
+        public Task<string> GetHostName(CancellationToken cancellationToken = default)
             => Task.FromResult(Environment.MachineName);
     }
 }

@@ -14,7 +14,7 @@
 <AuthorizeView>
     <Authorized>
         <Text Margin="Margin.Is3.FromBottom">
-            <Button Color="Color.Primary" @onclick="_ => CreateAsync()">Start a new game</Button>
+            <Button Color="Color.Primary" @onclick="_ => Create()">Start a new game</Button>
         </Text>
         <OwnGameList GameEngineId="@GameEngine.Id" GameStage="GameStage.New"></OwnGameList>
         <OwnGameList GameEngineId="@GameEngine.Id" GameStage="GameStage.Playing"></OwnGameList>
@@ -36,7 +36,7 @@
     protected override void OnParametersSet()
         => CommandRunner.Component = this;
 
-    private async Task CreateAsync()
+    private async Task Create()
     {
         var game = await CommandRunner.Call(new Game.CreateCommand(Session, GameEngine.Id));
         if (game != null)

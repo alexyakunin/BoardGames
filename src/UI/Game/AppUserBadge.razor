@@ -24,6 +24,6 @@
     {
         if (User.Id <= 0)
             return false;
-        return await AppUserService.IsOnlineAsync(User.Id, cancellationToken);
+        return await AppUserService.IsOnline(User.Id, cancellationToken);
     }
 }

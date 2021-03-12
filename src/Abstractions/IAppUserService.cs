@@ -8,10 +8,10 @@ namespace BoardGames.Abstractions
     {
         // Queries
         [ComputeMethod(KeepAliveTime = 10)]
-        Task<AppUser?> FindAsync(long id, CancellationToken cancellationToken = default);
+        Task<AppUser?> TryGet(long id, CancellationToken cancellationToken = default);
         [ComputeMethod(KeepAliveTime = 10)]
-        Task<AppUser?> FindByNameAsync(string name, CancellationToken cancellationToken = default);
+        Task<AppUser?> TryGetByName(string name, CancellationToken cancellationToken = default);
         [ComputeMethod(KeepAliveTime = 10)]
-        Task<bool> IsOnlineAsync(long id, CancellationToken cancellationToken = default);
+        Task<bool> IsOnline(long id, CancellationToken cancellationToken = default);
     }
 }

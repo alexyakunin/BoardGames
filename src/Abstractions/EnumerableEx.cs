@@ -10,13 +10,13 @@ namespace BoardGames.Abstractions
 {
     public static class EnumerableEx
     {
-        public static IAsyncEnumerable<TResult> ParallelSelectAsync<T, TResult>(
+        public static IAsyncEnumerable<TResult> ParallelSelect<T, TResult>(
             this IEnumerable<T> source,
             Func<T, CancellationToken, Task<TResult>> selector,
             CancellationToken cancellationToken = default)
-            => source.ParallelSelectAsync(selector, 128, cancellationToken);
+            => source.ParallelSelect(selector, 128, cancellationToken);
 
-        public static async IAsyncEnumerable<TResult> ParallelSelectAsync<T, TResult>(
+        public static async IAsyncEnumerable<TResult> ParallelSelect<T, TResult>(
             this IEnumerable<T> source,
             Func<T, CancellationToken, Task<TResult>> selector,
             int packSize,
@@ -30,13 +30,13 @@ namespace BoardGames.Abstractions
             }
         }
 
-        public static Task<List<TResult>> ParallelSelectToListAsync<T, TResult>(
+        public static Task<List<TResult>> ParallelSelectToList<T, TResult>(
             this IEnumerable<T> source,
             Func<T, CancellationToken, Task<TResult>> selector,
             CancellationToken cancellationToken = default)
-            => source.ParallelSelectToListAsync(selector, 128, cancellationToken);
+            => source.ParallelSelectToList(selector, 128, cancellationToken);
 
-        public static async Task<List<TResult>> ParallelSelectToListAsync<T, TResult>(
+        public static async Task<List<TResult>> ParallelSelectToList<T, TResult>(
             this IEnumerable<T> source,
             Func<T, CancellationToken, Task<TResult>> selector,
             int packSize,
