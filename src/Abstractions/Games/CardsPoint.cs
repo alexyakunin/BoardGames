@@ -98,8 +98,8 @@ namespace BoardGames.Abstractions.Games
     public class PointEngine : GameEngine<PointState, PointMove>
     {
         public override string Id => "point";
-        public override string Title => "Point (21)";
-        public override string Icon => "fa-file-powerpoint";
+        public override string Title => "Point (Twenty-One)";
+        public override string Icon => "fa-map-marker-alt";
         public override int MinPlayerCount => 2;
         public override int MaxPlayerCount => 9;
         public override bool AutoStart => false;
@@ -148,7 +148,7 @@ namespace BoardGames.Abstractions.Games
                 state = newState with {
                     MoveIndex = GetNextMoveIndex(newState.Statuses, newState.MoveIndex),
                 };
-                newPlayer = newGame.Players[newState.PlayerIndex];
+                newPlayer = newGame.Players[state.PlayerIndex];
                 game = newGame with {StateJson = SerializeState(state)};
                 game = game with {
                     StateMessage = StandardMessages.MoveTurn(new AppUser(newPlayer.UserId))
