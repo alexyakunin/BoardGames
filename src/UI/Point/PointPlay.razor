@@ -49,26 +49,23 @@
 }
 
 <Row><Column ColumnSize="ColumnSize.Is6">
-        <table>
-            <tbody>
-            <tr>
-                @foreach (var card in myCards)
-                {
-                    <td @key=@card.Id class="p-0 m-0">
-                        <div align="center"
-                             style="width: 60pt; height: 90pt; margin: 5pt;;
-                             border: 1px solid black; border-radius: 5pt;">
-                            <div style="margin-top: 20%;">
-                                <p style="vertical-align: center;">@card.Suit</p>
-                            </div>
-                            <div>
-                                <p style="vertical-align: center;">@card.Rank</p>
-                            </div>
-                        </div>
-                    </td>
-                }
-            </tr>
-            </tbody></table>
+    <table><tbody><tr>
+        @foreach (var card in myCards) {
+            <td @key=@card.Id class="p-0 m-0">
+                <div align="center"
+                     style="width: 60pt; height: 90pt; margin: 5pt;;
+                     border: 1px solid black; border-radius: 5pt;">
+                    <div style="margin-top: 20%;">
+                        @* <p style="vertical-align: center;">@card.Suit</p> *@
+                        <p style="vertical-align: center;">@GetCardSuit(card.Suit)</p>
+                    </div>
+                    <div>
+                        <p style="vertical-align: center;">@card.Rank</p>
+                    </div>
+                </div>
+            </td>
+        }
+        </tr></tbody></table>
     </Column>
 </Row>
 
@@ -85,6 +82,16 @@
         var skip = new PointMove(true);
         var command = new Game.MoveCommand(Session, Game.Id, skip);
         return CommandRunner.CallAsync(command);
+    }
+
+    private MarkupString GetCardSuit(Suits suit)
+    {
+        Dictionary<Suits, string> _suits = new Dictionary<Suits, string>();
+        _suits.Add(Suits.Spades, "&spades;");
+        _suits.Add(Suits.Clubs, "&clubs;");
+        _suits.Add(Suits.Hearts, "&hearts;");
+        _suits.Add(Suits.Diamonds, "&diams;");;
+        return (MarkupString)_suits[suit];
     }
 }
 

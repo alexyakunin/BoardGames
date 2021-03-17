@@ -8,6 +8,7 @@ using Stl.Fusion;
 
 namespace BoardGames.Abstractions.Games
 {
+    // CardSuit
     public enum Suits
     {
         Diamonds,
@@ -16,6 +17,7 @@ namespace BoardGames.Abstractions.Games
         Clubs
     }
 
+    // CardRank
     public enum Ranks
     {
         Jack = 3,
@@ -65,8 +67,8 @@ namespace BoardGames.Abstractions.Games
         {
             var cards = new List<Card>();
             var cardId = 1;
-            foreach (Suits suit in Enum.GetValues(typeof(Suits))) {
-                foreach (Ranks rank in Enum.GetValues(typeof(Ranks))) {
+            foreach (var suit in (Suits[]) Enum.GetValues(typeof(Suits))) {
+                foreach (var rank in (Ranks[]) Enum.GetValues(typeof(Ranks))) {
                     var card = new Card(cardId, suit, rank);
                     cards.Add(card);
                     cardId++;
@@ -74,9 +76,10 @@ namespace BoardGames.Abstractions.Games
             }
             Cards = cards.ToImmutableList();
             var statuses = new Dictionary<int, Status>();
+            // change to Immutable
             var playersCards = new Dictionary<int, List<Card>>();
             var scores = new Dictionary<int, int>();
-            for (int i = 0; i < playersCount; i++) {
+            for (var i = 0; i < playersCount; i++) {
                 statuses.Add(i, Status.Active);
                 playersCards.Add(i, new List<Card>());
                 scores.Add(i, 0);
