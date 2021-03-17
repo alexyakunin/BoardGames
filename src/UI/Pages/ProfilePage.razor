@@ -32,7 +32,7 @@ This comment resets the indent :) -->
 
 <Row Margin="Margin.Is3.OnY">
     <Column ColumnSize="ColumnSize.Is6">
-        <Form @onsubmit="_ => ChangeUserNameAsync()" >
+        <Form @onsubmit="_ => ChangeUserName()" >
             <Addons>
                 <Addon AddonType="AddonType.Start">
                     <AddonLabel>Name:</AddonLabel>
@@ -52,7 +52,7 @@ This comment resets the indent :) -->
     <Paragraph Margin="Margin.Is3.OnY">
         <Buttons Margin="Margin.Is0">
             @foreach (var (name, displayName) in unusedAuthSchemas) {
-                <Button Color="Color.Primary" @onclick="_ => ClientAuthHelper.SignInAsync(name)">
+                <Button Color="Color.Primary" @onclick="_ => ClientAuthHelper.SignIn(name)">
                     <Blazorise.Icon Name="FontAwesomeIcons.Plus"/>
                     Add @displayName
                 </Button>
@@ -84,7 +84,7 @@ This comment resets the indent :) -->
                     }
                     else {
                         <Button Size="Size.Small" Color="Color.Danger"
-                                Clicked="@(_ => ClientAuthHelper.SignOutAsync(session.Id))">
+                                Clicked="@(_ => ClientAuthHelper.SignOut(session.Id))">
                             Kick
                         </Button>
                     }
@@ -96,8 +96,8 @@ This comment resets the indent :) -->
 
 <h4>Sign out</h4>
 
-<Button Color="Color.Warning" @onclick="_ => ClientAuthHelper.SignOutAsync()">Sign out</Button>
-<Button Color="Color.Danger" @onclick="_ => ClientAuthHelper.SignOutEverywhereAsync()">Sign out everywhere</Button>
+<Button Color="Color.Warning" @onclick="_ => ClientAuthHelper.SignOut()">Sign out</Button>
+<Button Color="Color.Danger" @onclick="_ => ClientAuthHelper.SignOutEverywhere()">Sign out everywhere</Button>
 
     </Authorized>
 </AuthorizeView>
@@ -137,7 +137,7 @@ This comment resets the indent :) -->
     {
         if (firstRender) {
             // GetSchemasAsync requires JS interop, so it can be called only at this point
-            AuthSchemas = await ClientAuthHelper.GetSchemasAsync();
+            AuthSchemas = await ClientAuthHelper.GetSchemas();
             StateHasChanged();
         }
     }
@@ -145,10 +145,10 @@ This comment resets the indent :) -->
     protected override void ConfigureState(LiveState<Model>.Options options)
         => options.WithInstantUpdates();
 
-    protected override async Task<Model> ComputeStateAsync(CancellationToken cancellationToken)
+    protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {
-        var user = await AuthService.GetUserAsync(Session, cancellationToken);
-        var sessions = await AuthService.GetUserSessionsAsync(Session, cancellationToken);
+        var user = await AuthService.GetUser(Session, cancellationToken);
+        var sessions = await AuthService.GetUserSessions(Session, cancellationToken);
 
         var sessionModels = new List<SessionModel>();
         foreach (var session in sessions) {
@@ -170,9 +170,9 @@ This comment resets the indent :) -->
         };
     }
 
-    private async Task ChangeUserNameAsync()
+    private async Task ChangeUserName()
     {
         var command = new EditUserCommand(Session, UserName.Value);
-        await CommandRunner.CallAsync(command);
+        await CommandRunner.Call(command);
     }
 }

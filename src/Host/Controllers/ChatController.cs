@@ -1,7 +1,7 @@
 using System;
-using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Stl.Fusion.Server;
 using Stl.Fusion.Authentication;
@@ -9,7 +9,7 @@ using BoardGames.Abstractions;
 
 namespace BoardGames.Host.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController, JsonifyErrors]
     public class ChatController : ControllerBase, IChatService
     {
@@ -24,42 +24,50 @@ namespace BoardGames.Host.Controllers
 
         // Commands
 
-        [HttpPost("post")]
-        public Task<ChatMessage> PostAsync([FromBody] Chat.PostCommand command, CancellationToken cancellationToken = default)
+        [HttpPost]
+        public Task<ChatMessage> Post([FromBody] Chat.PostCommand command, CancellationToken cancellationToken = default)
         {
             command.UseDefaultSession(SessionResolver);
-            return Chats.PostAsync(command, cancellationToken);
+            return Chats.Post(command, cancellationToken);
         }
 
-        [HttpPost("delete")]
-        public Task DeleteAsync([FromBody] Chat.DeleteCommand command, CancellationToken cancellationToken = default)
+        [HttpPost]
+        public Task Delete([FromBody] Chat.DeleteCommand command, CancellationToken cancellationToken = default)
         {
             command.UseDefaultSession(SessionResolver);
-            return Chats.DeleteAsync(command, cancellationToken);
+            return Chats.Delete(command, cancellationToken);
         }
 
         // Queries
 
-        [HttpGet("findChat/{id}"), Publish]
-        public Task<Chat?> FindChatAsync([FromRoute] string chatId, CancellationToken cancellationToken = default)
-            => Chats.FindChatAsync(chatId, cancellationToken);
-
-        [HttpGet("getChatPermissions"), Publish]
-        public Task<ChatPermission> GetChatPermissionsAsync(Session? session, string chatId, CancellationToken cancellationToken = default)
+        [HttpGet("{chatId}"), Publish]
+        public Task<Chat?> TryGet([FromRoute] string chatId, CancellationToken cancellationToken = default)
         {
-            session ??= SessionResolver.Session;
-            return Chats.GetChatPermissionsAsync(session, chatId, cancellationToken);
+            chatId = HttpUtility.UrlDecode(chatId);
+            return Chats.TryGet(chatId, cancellationToken);
         }
 
-        [HttpGet("getTail"), Publish]
-        public Task<ChatPage> GetTailAsync(Session? session, string chatId, int limit, CancellationToken cancellationToken = default)
+        [HttpGet("{chatId}"), Publish]
+        public Task<ChatPermission> GetPermissions(Session? session, [FromRoute] string chatId, CancellationToken cancellationToken = default)
         {
             session ??= SessionResolver.Session;
-            return Chats.GetTailAsync(session, chatId, limit, cancellationToken);
+            chatId = HttpUtility.UrlDecode(chatId);
+            return Chats.GetPermissions(session, chatId, cancellationToken);
         }
 
-        [HttpGet("getMessageCount"), Publish]
-        public Task<long> GetMessageCountAsync(string chatId, TimeSpan? period = null, CancellationToken cancellationToken = default)
-            => Chats.GetMessageCountAsync(chatId, period, cancellationToken);
+        [HttpGet("{chatId}"), Publish]
+        public Task<ChatPage> GetTail(Session? session, [FromRoute] string chatId, int limit, CancellationToken cancellationToken = default)
+        {
+            session ??= SessionResolver.Session;
+            chatId = HttpUtility.UrlDecode(chatId);
+            return Chats.GetTail(session, chatId, limit, cancellationToken);
+        }
+
+        [HttpGet("{chatId}"), Publish]
+        public Task<long> GetMessageCount([FromRoute] string chatId, TimeSpan? period = null, CancellationToken cancellationToken = default)
+        {
+            chatId = HttpUtility.UrlDecode(chatId);
+            return Chats.GetMessageCount(chatId, period, cancellationToken);
+        }
     }
 }

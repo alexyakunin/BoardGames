@@ -16,7 +16,7 @@
 <Heading Size="HeadingSize.Is4">Choose your destiny:</Heading>
 <Container Fluid="true">
     @foreach(var vote in AllVotes) {
-        <Button Margin="Margin.Is3" Padding="Padding.Is3" Color="Color.Light" @onclick="_ => MoveAsync(vote)">
+        <Button Margin="Margin.Is3" Padding="Padding.Is3" Color="Color.Light" @onclick="_ => Move(vote)">
             <Text Alignment="TextAlignment.Center">
                 <Blazorise.Icon Name="GetIconName(vote)" IconStyle="IconStyle.Regular" Style="font-size: 4rem; width: 5rem"/><br/>
                 @vote.ToString()
@@ -62,11 +62,11 @@
 @code {
     private RpsVote[] AllVotes { get; } = { RpsVote.Rock, RpsVote.Paper, RpsVote.Scissors };
 
-    private Task MoveAsync(RpsVote vote)
+    private Task Move(RpsVote vote)
     {
         var move = new RpsMove(vote);
         var command = new Game.MoveCommand(Session, Game.Id, move);
-        return CommandRunner.CallAsync(command);
+        return CommandRunner.Call(command);
     }
 
     private object GetIconName(RpsVote vote)

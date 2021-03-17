@@ -116,13 +116,13 @@
             _ => throw new ArgumentOutOfRangeException(nameof(stage))
             };
 
-    protected override async Task<Model> ComputeStateAsync(CancellationToken cancellationToken)
+    protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {
         var count = Locals.Value ?? 100;
         try {
-            var games = await Games.ListOwnAsync(GameEngineId, GameStage, count, Session, cancellationToken);
+            var games = await Games.ListOwn(GameEngineId, GameStage, count, Session, cancellationToken);
             var userIds = games.SelectMany(g => g.Players.Select(p => p.UserId)).ToHashSet();
-            var users = await userIds.ParallelSelectToListAsync((id, ct) => AppUsers.FindAsync(id, ct), cancellationToken);
+            var users = await userIds.ParallelSelectToList((id, ct) => AppUsers.TryGet(id, ct), cancellationToken);
             return new Model() {
                 Games = games,
                 Users = users.Where(u => u != null).ToImmutableDictionary(u => u!.Id)!,

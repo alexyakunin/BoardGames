@@ -43,10 +43,24 @@ different user accounts, and:
 Finally, the sample supports both both Blazor Server and 
 Blazor WebAssembly modes.
 
-The [live version] of this app is hosted on Google Cloud:
-- Cloud Run runs its Docker image in 1-core/512MB RAM container
+The [live version] of this app is hosted on Google Cloud GKE:
+- The deployment runs 3 replicas of this service on a small
+  Kubernetes cluster that includes 3 preemptive
+  [e2-small](https://cloud.google.com/compute/vm-instance-pricing#e2_sharedcore_machine_types) 
+  nodes ($3.67/mo each)
 - Cloud PostgreSql stores the data; it also runs on
   the cheapest 1 core/3.75GB RAM host.
+- Both Blazor Server and Fusion require session affinity. 
+  It's achieved here with 
+  [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/examples/affinity/cookie/)
+  configured to route requests to the same backend host
+  (selected using consistent hashing) relying on `_ngsa` cookie
+- Try opening https://boardgames.alexyakunin.com/api/hostInfo/getHostName
+  normally and without this cookie (e.g. in incognito mode) to see 
+  how it works. 
+- Check out [deployment.yml](deployment.yml), [service.yml](service.yml),
+  [ingress.yml](ingress.yml), and [.github/workflows/gke.yml](.github/workflows/gke.yml), 
+  if you're interested how to configure this.
                    
 ### Ok, real-time. But seriously, what's so new there?
 

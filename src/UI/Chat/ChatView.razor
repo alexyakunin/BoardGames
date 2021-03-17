@@ -28,7 +28,7 @@
 
 <WhenCommandError Exception="@CommandRunner.Error" />
 
-<Form @onsubmit="_ => PostAsync()" >
+<Form @onsubmit="_ => Post()" >
     <Addons>
         <input @bind="@Message.Value" @bind:event="onchange" class="form-control" />
         <Addon AddonType="AddonType.End">
@@ -53,15 +53,15 @@
         base.OnParametersSet();
     }
 
-    protected override async Task<ChatPage> ComputeStateAsync(CancellationToken cancellationToken)
-        => await Chats.GetTailAsync(Session, ChatId, Limit, cancellationToken);
+    protected override async Task<ChatPage> ComputeState(CancellationToken cancellationToken)
+        => await Chats.GetTail(Session, ChatId, Limit, cancellationToken);
 
-    private Task PostAsync()
+    private Task Post()
     {
         var text = Message.Value;
         if (string.IsNullOrEmpty(text))
             return Task.CompletedTask;
         Message.Value = "";
-        return CommandRunner.CallAsync(new Chat.PostCommand(Session, ChatId, text));
+        return CommandRunner.Call(new Chat.PostCommand(Session, ChatId, text));
     }
 }

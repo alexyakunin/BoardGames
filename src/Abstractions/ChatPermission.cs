@@ -6,8 +6,7 @@ namespace BoardGames.Abstractions
     public enum ChatPermission
     {
         Read = 0x1,
-        Post = 0x2 | Read,
-        Write = 0x4 | Post,
+        Write = 0x4 | Read,
         Owner = 0x100 | Write
     }
 }

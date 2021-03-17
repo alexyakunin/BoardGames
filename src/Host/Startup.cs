@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using Blazorise;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -22,8 +23,6 @@ using Stl.Fusion.Blazor;
 using Stl.Fusion.Bridge;
 using Stl.Fusion.Client;
 using Stl.Fusion.Server;
-using Blazorise.Bootstrap;
-using Blazorise.Icons.FontAwesome;
 using BoardGames.Abstractions;
 using BoardGames.ClientServices;
 using BoardGames.Migrations;
@@ -34,7 +33,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Stl.Extensibility;
 using Stl.Fusion.EntityFramework;
-using Stl.Fusion.EntityFramework.Authentication;
 using Stl.Fusion.EntityFramework.Npgsql;
 using Stl.Fusion.Operations.Internal;
 using Stl.Fusion.Server.Controllers;
@@ -133,8 +131,13 @@ namespace BoardGames.Host
                 });
 
             // Data protection
+            var dpCert = new X509Certificate2(Convert.FromBase64String(HostSettings.DataProtectionCert));
             services.AddScoped(c => c.GetRequiredService<IDbContextFactory<AppDbContext>>().CreateDbContext());
-            services.AddDataProtection().PersistKeysToDbContext<AppDbContext>();
+            services.AddDataProtection()
+                .SetApplicationName(GetType().Namespace ?? "")
+                .PersistKeysToDbContext<AppDbContext>()
+                .ProtectKeysWithCertificate(dpCert)
+                .DisableAutomaticKeyGeneration();
 
             // Authentication
             services.AddAuthentication(options => {
@@ -161,7 +164,9 @@ namespace BoardGames.Host
 
             // Web
             services.Configure<ForwardedHeadersOptions>(options => {
-                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor;
+                if (!HostSettings.AssumeHttps)
+                    options.ForwardedHeaders |= ForwardedHeaders.XForwardedProto;
                 options.KnownNetworks.Clear();
                 options.KnownProxies.Clear();
             });

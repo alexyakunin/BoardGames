@@ -68,13 +68,13 @@
     protected override void ConfigureState(LiveState<Model>.Options options)
         => options.WithInstantUpdates();
 
-    protected override async Task<Model> ComputeStateAsync(CancellationToken cancellationToken)
+    protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {
-        var game = await Games.FindAsync(GameId, cancellationToken);
+        var game = await Games.TryGet(GameId, cancellationToken);
         if (game == null || game.EngineId != GameEngineId)
             throw new KeyNotFoundException("Specified game doesn't exist.");
-        var users = await game.Players.ParallelSelectToListAsync((p, ct) => AppUsers.FindAsync(p.UserId, ct), cancellationToken);
-        var user = await AuthService.GetUserAsync(Session, cancellationToken);
+        var users = await game.Players.ParallelSelectToList((p, ct) => AppUsers.TryGet(p.UserId, ct), cancellationToken);
+        var user = await AuthService.GetUser(Session, cancellationToken);
         var appUser = user.IsAuthenticated ? new AppUser(long.Parse(user.Id), user.Name) : AppUser.None;
         return new Model() {
             Game = game,

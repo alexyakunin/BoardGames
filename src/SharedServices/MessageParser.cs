@@ -30,7 +30,7 @@ namespace BoardGames.ClientServices
             Log = log ?? NullLogger<MessageParser>.Instance;
         }
 
-        public virtual async Task<GameMessage> ParseAsync(string text, CancellationToken cancellationToken = default)
+        public virtual async Task<GameMessage> Parse(string text, CancellationToken cancellationToken = default)
         {
             List<MessageFragment> fragments = new();
             var startIndex = 0;
@@ -83,7 +83,7 @@ namespace BoardGames.ClientServices
                         AddPlainText(directiveStartIndex - startIndex);
                         continue;
                     }
-                    var user = await AppUsers.FindAsync(userId, cancellationToken);
+                    var user = await AppUsers.TryGet(userId, cancellationToken);
                     if (user == null) {
                         AddPlainText(directiveStartIndex - startIndex);
                         continue;
@@ -106,7 +106,7 @@ namespace BoardGames.ClientServices
                         AddPlainText(directiveStartIndex - startIndex);
                         continue;
                     }
-                    var game = await Games.FindAsync(gameId, cancellationToken);
+                    var game = await Games.TryGet(gameId, cancellationToken);
                     if (game == null) {
                         AddPlainText(directiveStartIndex - startIndex);
                         continue;
@@ -120,7 +120,7 @@ namespace BoardGames.ClientServices
                         AddPlainText(1);
                         continue;
                     }
-                    var user = await AppUsers.FindByNameAsync(name, cancellationToken);
+                    var user = await AppUsers.TryGetByName(name, cancellationToken);
                     if (user == null) {
                         AddPlainText(name.Length + 1);
                         continue;

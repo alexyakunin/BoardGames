@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using BoardGames.Abstractions;
 using Stl.Fusion.Authentication;
@@ -7,7 +8,7 @@ using Stl.Fusion.Server;
 
 namespace BoardGames.Host.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController, JsonifyErrors]
     public class AppUserController : ControllerBase, IAppUserService
     {
@@ -22,16 +23,19 @@ namespace BoardGames.Host.Controllers
 
         // Queries
 
-        [HttpGet("find/{id}"), Publish]
-        public Task<AppUser?> FindAsync([FromRoute] long id, CancellationToken cancellationToken = default)
-            => AppUsers.FindAsync(id, cancellationToken);
+        [HttpGet("{id}"), Publish]
+        public Task<AppUser?> TryGet([FromRoute] long id, CancellationToken cancellationToken = default)
+            => AppUsers.TryGet(id, cancellationToken);
 
-        [HttpGet("findByName/{name}"), Publish]
-        public Task<AppUser?> FindByNameAsync([FromRoute] string name, CancellationToken cancellationToken = default)
-            => AppUsers.FindByNameAsync(name, cancellationToken);
+        [HttpGet("{name}"), Publish]
+        public Task<AppUser?> TryGetByName([FromRoute] string name, CancellationToken cancellationToken = default)
+        {
+            name = HttpUtility.UrlDecode(name);
+            return AppUsers.TryGetByName(name, cancellationToken);
+        }
 
-        [HttpGet("isOnline/{id}"), Publish]
-        public Task<bool> IsOnlineAsync([FromRoute] long id, CancellationToken cancellationToken = default)
-            => AppUsers.IsOnlineAsync(id, cancellationToken);
+        [HttpGet("{id}"), Publish]
+        public Task<bool> IsOnline([FromRoute] long id, CancellationToken cancellationToken = default)
+            => AppUsers.IsOnline(id, cancellationToken);
     }
 }

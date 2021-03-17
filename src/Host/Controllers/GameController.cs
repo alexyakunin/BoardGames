@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.AspNetCore.Mvc;
 using Stl.Fusion.Server;
 using Stl.Fusion.Authentication;
@@ -8,7 +9,7 @@ using BoardGames.Abstractions;
 
 namespace BoardGames.Host.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     [ApiController, JsonifyErrors]
     public class GameController : ControllerBase, IGameService
     {
@@ -23,60 +24,63 @@ namespace BoardGames.Host.Controllers
 
         // Commands
 
-        [HttpPost("create")]
-        public Task<Game> CreateAsync([FromBody] Game.CreateCommand command, CancellationToken cancellationToken = default)
+        [HttpPost]
+        public Task<Game> Create([FromBody] Game.CreateCommand command, CancellationToken cancellationToken = default)
         {
             command.UseDefaultSession(SessionResolver);
-            return Games.CreateAsync(command, cancellationToken);
+            return Games.Create(command, cancellationToken);
         }
 
-        [HttpPost("join")]
-        public Task JoinAsync([FromBody] Game.JoinCommand command, CancellationToken cancellationToken = default)
+        [HttpPost]
+        public Task Join([FromBody] Game.JoinCommand command, CancellationToken cancellationToken = default)
         {
             command.UseDefaultSession(SessionResolver);
-            return Games.JoinAsync(command, cancellationToken);
+            return Games.Join(command, cancellationToken);
         }
 
-        [HttpPost("start")]
-        public Task StartAsync([FromBody] Game.StartCommand command, CancellationToken cancellationToken = default)
+        [HttpPost]
+        public Task Start([FromBody] Game.StartCommand command, CancellationToken cancellationToken = default)
         {
             command.UseDefaultSession(SessionResolver);
-            return Games.StartAsync(command, cancellationToken);
+            return Games.Start(command, cancellationToken);
         }
 
-        [HttpPost("move")]
-        public Task MoveAsync([FromBody] Game.MoveCommand command, CancellationToken cancellationToken = default)
+        [HttpPost]
+        public Task Move([FromBody] Game.MoveCommand command, CancellationToken cancellationToken = default)
         {
             command.UseDefaultSession(SessionResolver);
-            return Games.MoveAsync(command, cancellationToken);
+            return Games.Move(command, cancellationToken);
         }
 
-        [HttpPost("edit")]
-        public Task EditAsync([FromBody] Game.EditCommand command, CancellationToken cancellationToken = default)
+        [HttpPost]
+        public Task Edit([FromBody] Game.EditCommand command, CancellationToken cancellationToken = default)
         {
             command.UseDefaultSession(SessionResolver);
-            return Games.EditAsync(command, cancellationToken);
+            return Games.Edit(command, cancellationToken);
         }
 
         // Queries
 
-        [HttpGet("find/{id}"), Publish]
-        public Task<Game?> FindAsync([FromRoute] string id, CancellationToken cancellationToken = default)
-            => Games.FindAsync(id, cancellationToken);
+        [HttpGet("{id}"), Publish]
+        public Task<Game?> TryGet([FromRoute] string id, CancellationToken cancellationToken = default)
+        {
+            id = HttpUtility.UrlDecode(id);
+            return Games.TryGet(id, cancellationToken);
+        }
 
-        [HttpGet("listOwn"), Publish]
-        public Task<ImmutableList<Game>> ListOwnAsync(
+        [HttpGet, Publish]
+        public Task<ImmutableList<Game>> ListOwn(
             string? engineId, GameStage? stage, int count, Session? session,
             CancellationToken cancellationToken = default)
         {
             session ??= SessionResolver.Session;
-            return Games.ListOwnAsync(engineId, stage, count, session, cancellationToken);
+            return Games.ListOwn(engineId, stage, count, session, cancellationToken);
         }
 
-        [HttpGet("list"), Publish]
-        public Task<ImmutableList<Game>> ListAsync(
+        [HttpGet, Publish]
+        public Task<ImmutableList<Game>> List(
             string? engineId, GameStage? stage, int count,
             CancellationToken cancellationToken = default)
-            => Games.ListAsync(engineId, stage, count, cancellationToken);
+            => Games.List(engineId, stage, count, cancellationToken);
     }
 }

@@ -6,7 +6,7 @@
     </Addon>
     <TextEdit Text="@Url" ReadOnly="true" />
     <Addon AddonType="AddonType.End">
-        <Button Color="Color.Primary" Clicked="_ => CopyUrlAsync()">
+        <Button Color="Color.Primary" Clicked="_ => CopyUrl()">
             <Blazorise.Icon Name="FontAwesomeIcons.Copy"/> Copy
         </Button>
     </Addon>
@@ -20,6 +20,6 @@
     [Parameter]
     public string Url { get; set; } = "";
 
-    private async Task CopyUrlAsync()
+    private async Task CopyUrl()
         => await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", Url);
 }

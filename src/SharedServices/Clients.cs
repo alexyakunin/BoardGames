@@ -15,23 +15,23 @@ namespace BoardGames.ClientServices
     {
         // Commands
         [Post("create")]
-        Task<Game> CreateAsync([Body] Game.CreateCommand command, CancellationToken cancellationToken = default);
+        Task<Game> Create([Body] Game.CreateCommand command, CancellationToken cancellationToken = default);
         [Post("join")]
-        Task JoinAsync([Body] Game.JoinCommand command, CancellationToken cancellationToken = default);
+        Task Join([Body] Game.JoinCommand command, CancellationToken cancellationToken = default);
         [Post("start")]
-        Task StartAsync([Body] Game.StartCommand command, CancellationToken cancellationToken = default);
+        Task Start([Body] Game.StartCommand command, CancellationToken cancellationToken = default);
         [Post("move")]
-        Task MoveAsync([Body] Game.MoveCommand command, CancellationToken cancellationToken = default);
+        Task Move([Body] Game.MoveCommand command, CancellationToken cancellationToken = default);
         [Post("edit")]
-        Task EditAsync([Body] Game.EditCommand command, CancellationToken cancellationToken = default);
+        Task Edit([Body] Game.EditCommand command, CancellationToken cancellationToken = default);
 
         // Queries
-        [Get("find/{id}")]
-        Task<Game?> FindAsync([Path] string id, CancellationToken cancellationToken = default);
+        [Get("tryGet/{id}")]
+        Task<Game?> TryGet([Path] string id, CancellationToken cancellationToken = default);
         [Get("listOwn")]
-        Task<ImmutableList<Game>> ListOwnAsync(string? engineId, GameStage? stage, int count, Session session, CancellationToken cancellationToken = default);
+        Task<ImmutableList<Game>> ListOwn(string? engineId, GameStage? stage, int count, Session session, CancellationToken cancellationToken = default);
         [Get("list")]
-        Task<ImmutableList<Game>> ListAsync(string? engineId, GameStage? stage, int count, CancellationToken cancellationToken = default);
+        Task<ImmutableList<Game>> List(string? engineId, GameStage? stage, int count, CancellationToken cancellationToken = default);
     }
 
     [RestEaseReplicaService(typeof(IAppUserService), Scope = ServiceScope.ClientSideOnly)]
@@ -39,12 +39,12 @@ namespace BoardGames.ClientServices
     public interface IAppUserServiceClient
     {
         // Queries
-        [Get("find/{id}")]
-        Task<AppUser?> FindAsync([Path] long id, CancellationToken cancellationToken = default);
-        [Get("findByName/{name}")]
-        Task<AppUser?> FindByNameAsync([Path] string name, CancellationToken cancellationToken = default);
+        [Get("tryGet/{id}")]
+        Task<AppUser?> TryGet([Path] long id, CancellationToken cancellationToken = default);
+        [Get("tryGetByName/{name}")]
+        Task<AppUser?> TryGetByName([Path] string name, CancellationToken cancellationToken = default);
         [Get("isOnline/{id}")]
-        Task<bool> IsOnlineAsync([Path] long id, CancellationToken cancellationToken = default);
+        Task<bool> IsOnline([Path] long id, CancellationToken cancellationToken = default);
     }
 
     [RestEaseReplicaService(typeof(IChatService), Scope = ServiceScope.ClientSideOnly)]
@@ -53,18 +53,18 @@ namespace BoardGames.ClientServices
     {
         // Commands
         [Post("post")]
-        Task<ChatMessage> PostAsync([Body] Chat.PostCommand command, CancellationToken cancellationToken = default);
+        Task<ChatMessage> Post([Body] Chat.PostCommand command, CancellationToken cancellationToken = default);
         [Post("delete")]
-        Task DeleteAsync([Body] Chat.DeleteCommand command, CancellationToken cancellationToken = default);
+        Task Delete([Body] Chat.DeleteCommand command, CancellationToken cancellationToken = default);
 
         // Queries
-        [Get("findChat/{chatId}")]
-        Task<Chat?> FindChatAsync([Path] string chatId, CancellationToken cancellationToken = default);
-        [Get("getChatPermissions")]
-        Task<ChatPermission> GetChatPermissionsAsync(Session session, string chatId, CancellationToken cancellationToken = default);
-        [Get("getTail")]
-        Task<ChatPage> GetTailAsync(Session session, string chatId, int limit, CancellationToken cancellationToken = default);
-        [Get("getMessageCount")]
-        Task<long> GetMessageCountAsync(string chatId, TimeSpan? period = null, CancellationToken cancellationToken = default);
+        [Get("tryGet/{chatId}")]
+        Task<Chat?> TryGet([Path] string chatId, CancellationToken cancellationToken = default);
+        [Get("getPermissions/{chatId}")]
+        Task<ChatPermission> GetPermissions(Session session, [Path] string chatId, CancellationToken cancellationToken = default);
+        [Get("getTail/{chatId}")]
+        Task<ChatPage> GetTail(Session session, [Path] string chatId, int limit, CancellationToken cancellationToken = default);
+        [Get("getMessageCount/{chatId}")]
+        Task<long> GetMessageCount([Path] string chatId, TimeSpan? period = null, CancellationToken cancellationToken = default);
     }
 }
