@@ -52,9 +52,9 @@ namespace BoardGames.Abstractions.Games
         int FirstPlayerIndex = 0,
         int PlayersCount = 0)
     {
-        public ImmutableDictionary<int, List<Card>> PlayersCards { get; set; } = ImmutableDictionary<int, List<Card>>.Empty;
-        public ImmutableDictionary<int, Status> Statuses { get; set; } = ImmutableDictionary<int, Status>.Empty;
-        public ImmutableDictionary<int, int> Scores { get; set; } = ImmutableDictionary<int, int>.Empty;
+        public ImmutableList<ImmutableList<Card>> PlayersCards { get; set; } = ImmutableList<ImmutableList<Card>>.Empty;
+        public ImmutableList<Status> Statuses { get; set; } = ImmutableList<Status>.Empty;
+        public ImmutableList<int> Scores { get; set; } = ImmutableList<int>.Empty;
         public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % PlayersCount;
 
         public PointState() : this((ImmutableList<Card>)null!) { }
@@ -63,27 +63,30 @@ namespace BoardGames.Abstractions.Games
         {
             var cards = new List<Card>();
             var cardId = 1;
-            foreach (var suit in (CardSuit[]) Enum.GetValues(typeof(CardSuit))) {
-                foreach (var rank in (CardRank[]) Enum.GetValues(typeof(CardRank))) {
+            foreach (var suit in (CardSuit[])Enum.GetValues(typeof(CardSuit))) {
+                foreach (var rank in (CardRank[])Enum.GetValues(typeof(CardRank))) {
                     var card = new Card(cardId, suit, rank);
                     cards.Add(card);
                     cardId++;
                 }
             }
+
             Cards = cards.ToImmutableList();
-            var statuses = new Dictionary<int, Status>();
-            // change to Immutable
-            var playersCards = new Dictionary<int, List<Card>>();
-            var scores = new Dictionary<int, int>();
+            var statuses = new List<Status>();
+
+            // var playersCards = new Dictionary<int, List<Card>>();
+            var playersCards = new List<ImmutableList<Card>>();
+            // var scores = new Dictionary<int, int>();
+            var scores = new List<int>();
             for (var i = 0; i < playersCount; i++) {
-                statuses.Add(i, Status.Active);
-                playersCards.Add(i, new List<Card>());
-                scores.Add(i, 0);
+                statuses.Add(Status.Active);
+                playersCards.Add(ImmutableList<Card>.Empty);
+                scores.Add(0);
             }
 
-            Scores = scores.ToImmutableDictionary();
-            Statuses = statuses.ToImmutableDictionary();
-            PlayersCards = playersCards.ToImmutableDictionary();
+            Scores = scores.ToImmutableList();
+            Statuses = statuses.ToImmutableList();
+            PlayersCards = playersCards.ToImmutableList();
             MoveIndex = 0;
             FirstPlayerIndex = new Random().Next(0, playersCount);
             PlayersCount = playersCount;
@@ -120,7 +123,7 @@ namespace BoardGames.Abstractions.Games
             var state = DeserializeState(game.StateJson);
             var player = game.Players[state.PlayerIndex];
             Status currentPlayerStatus;
-            ImmutableDictionary<int, Status> newStatuses = ImmutableDictionary<int, Status>.Empty;
+            ImmutableList<Status> newStatuses = ImmutableList<Status>.Empty;
             var newState = state;
             var newGame = game;
             var newPlayer = newGame.Players[newState.PlayerIndex];
@@ -137,7 +140,7 @@ namespace BoardGames.Abstractions.Games
                     StateJson = SerializeState(newState)
                 };
             
-                if (newState.Statuses.All(s => s.Value == Status.Finished))
+                if (newState.Statuses.All(s => s == Status.Finished))
                     return newGame with {
                         StateJson = SerializeState(newState),
                         StateMessage = StandardMessages.FinalStandings(newGame),
@@ -162,18 +165,16 @@ namespace BoardGames.Abstractions.Games
             var card = GetRandomCard(cards);
             var newCards = cards.Remove(card);
             cards = newCards;
-            var playersCards = state.PlayersCards;
-            var currentCards = playersCards[state.PlayerIndex];
-            currentCards.Add(card);
-            playersCards.SetItem(state.PlayerIndex, currentCards);
+            var playersCards = state.PlayersCards.ToList();
+            var currentPlayerCards = playersCards[state.PlayerIndex].ToList();
+            currentPlayerCards.Add(card);
+            playersCards[state.PlayerIndex] = currentPlayerCards.ToImmutableList();
 
-            var scores = state.Scores;
-            var playerScores = scores[state.PlayerIndex];
-            var currentPlayerScores = GetPlayerScores(card, playerScores, currentCards.Count);
-            var newScores = scores.SetItem(state.PlayerIndex, currentPlayerScores);
+            var scores = state.Scores.ToList();
+            var currentPlayerScores = GetPlayerScores(card, scores[state.PlayerIndex], playersCards[state.PlayerIndex].Count);
+            scores[state.PlayerIndex] = currentPlayerScores;
             
             var allStatuses = state.Statuses;
-
             currentPlayerStatus = CheckOrChangePlayerStatus(currentPlayerScores);
             if (currentPlayerStatus != state.Statuses[state.PlayerIndex])
                 allStatuses.SetItem(state.PlayerIndex, currentPlayerStatus);
@@ -183,8 +184,8 @@ namespace BoardGames.Abstractions.Games
 
             newState = state with {
                 Cards = cards,
-                PlayersCards = playersCards,
-                Scores = newScores,
+                PlayersCards = playersCards.ToImmutableList(),
+                Scores = scores.ToImmutableList(),
                 Statuses = newStatuses
             };
             
@@ -192,7 +193,7 @@ namespace BoardGames.Abstractions.Games
                 StateJson = SerializeState(newState)
             };
             
-            if (newState.Statuses.All(s => s.Value == Status.Finished))
+            if (newState.Statuses.All(s => s == Status.Finished))
                 return newGame with {
                     StateJson = SerializeState(newState),
                     StateMessage = StandardMessages.FinalStandings(newGame),
@@ -235,7 +236,7 @@ namespace BoardGames.Abstractions.Games
             return Status.Active;
         }
 
-        private int GetNextMoveIndex(ImmutableDictionary<int, Status> statuses, int moveIndex)
+        private int GetNextMoveIndex(ImmutableList<Status> statuses, int moveIndex)
         {
             moveIndex += 1;
             moveIndex %= statuses.Count;
