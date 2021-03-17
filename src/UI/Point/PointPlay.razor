@@ -1,7 +1,4 @@
 @attribute [MatchFor(typeof(PointEngine), ComponentScopes.GamePlay)]
-@using Color = System.Drawing.Color
-@using System.Text.Encodings.Web
-@using Stl.Text
 @inherits GamePlayBase
 
 @{
@@ -56,7 +53,6 @@
                      style="width: 60pt; height: 90pt; margin: 5pt;;
                      border: 1px solid black; border-radius: 5pt;">
                     <div style="margin-top: 20%;">
-                        @* <p style="vertical-align: center;">@card.Suit</p> *@
                         <p style="vertical-align: center;">@GetCardSuit(card.Suit)</p>
                     </div>
                     <div>
@@ -74,66 +70,23 @@
     {
         var move = new PointMove(false);
         var command = new Game.MoveCommand(Session, Game.Id, move);
-        return CommandRunner.CallAsync(command);
+        return CommandRunner.Call(command);
     }
 
     private Task ChangePlayerStatusAsync()
     {
         var skip = new PointMove(true);
         var command = new Game.MoveCommand(Session, Game.Id, skip);
-        return CommandRunner.CallAsync(command);
+        return CommandRunner.Call(command);
     }
 
-    private MarkupString GetCardSuit(Suits suit)
+    private MarkupString GetCardSuit(CardSuit suit)
     {
-        Dictionary<Suits, string> _suits = new Dictionary<Suits, string>();
-        _suits.Add(Suits.Spades, "&spades;");
-        _suits.Add(Suits.Clubs, "&clubs;");
-        _suits.Add(Suits.Hearts, "&hearts;");
-        _suits.Add(Suits.Diamonds, "&diams;");;
+        Dictionary<CardSuit, string> _suits = new Dictionary<CardSuit, string>();
+        _suits.Add(CardSuit.Spades, "&spades;");
+        _suits.Add(CardSuit.Clubs, "&clubs;");
+        _suits.Add(CardSuit.Hearts, "&hearts;");
+        _suits.Add(CardSuit.Diamonds, "&diams;");;
         return (MarkupString)_suits[suit];
     }
 }
-
-<style>
-    .btn-custom {
-        color: white;
-        margin-left: 40px;
-    }
-    .btn-custom:hover{
-        color: white;
-        opacity: 1;
-    }
-    .btn-custom:disabled{
-        color: white;
-        opacity: 1;
-    }
-    .btn-forward {
-        background: #52D017;
-        color: white;
-        opacity: 1;
-        min-width: 50px;
-    }
-    .btn-forward:hover{
-        background: #52D017;
-        color: white;
-        opacity: 1;
-    }
-    .btn-forward:disabled{
-        opacity: 1;
-    }
-    .btn-backward {
-        background: #DC381F;
-        color: white;
-        opacity: 1;
-        min-width: 50px;
-    }
-    .btn-backward:hover{
-        background: #DC381F;
-        color: white;
-        opacity: 1;
-    }
-    .btn-backward:disabled{
-        opacity: 1;
-    }
-</style>

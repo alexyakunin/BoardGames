@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Microsoft.Extensions.Primitives;
 using Stl.DependencyInjection;
-using Stl.Fusion;
 
 namespace BoardGames.Abstractions.Games
 {
-    // CardSuit
-    public enum Suits
+    public enum CardSuit
     {
         Diamonds,
         Hearts,
@@ -17,8 +14,7 @@ namespace BoardGames.Abstractions.Games
         Clubs
     }
 
-    // CardRank
-    public enum Ranks
+    public enum CardRank
     {
         Jack = 3,
         Queen = 4,
@@ -40,10 +36,10 @@ namespace BoardGames.Abstractions.Games
     public record Card
     {
         public int Id { get; set; }
-        public Suits Suit { get; set; }
-        public Ranks Rank { get; set; }
+        public CardSuit Suit { get; set; }
+        public CardRank Rank { get; set; }
 
-        public Card(int id, Suits suit, Ranks rank)
+        public Card(int id, CardSuit suit, CardRank rank)
         {
             Id = id;
             Suit = suit;
@@ -67,8 +63,8 @@ namespace BoardGames.Abstractions.Games
         {
             var cards = new List<Card>();
             var cardId = 1;
-            foreach (var suit in (Suits[]) Enum.GetValues(typeof(Suits))) {
-                foreach (var rank in (Ranks[]) Enum.GetValues(typeof(Ranks))) {
+            foreach (var suit in (CardSuit[]) Enum.GetValues(typeof(CardSuit))) {
+                foreach (var rank in (CardRank[]) Enum.GetValues(typeof(CardRank))) {
                     var card = new Card(cardId, suit, rank);
                     cards.Add(card);
                     cardId++;

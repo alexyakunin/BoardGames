@@ -126,7 +126,7 @@
         diceValue = GetRandomDigit();
         var move = new DiceMove(MyPlayerIndex, diceValue);
         var command = new Game.MoveCommand(Session, Game.Id, move);
-        return CommandRunner.CallAsync(command);
+        return CommandRunner.Call(command);
     }
 
     private Color GetDiceColor(int playerIndex)
