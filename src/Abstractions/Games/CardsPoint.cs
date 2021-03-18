@@ -87,7 +87,7 @@ namespace BoardGames.Abstractions.Games
             Statuses = statuses.ToImmutableList();
             PlayersCards = playersCards.ToImmutableList();
             MoveIndex = 0;
-            FirstPlayerIndex = new Random().Next(0, playersCount);
+            FirstPlayerIndex = 0;
             PlayersCount = playersCount;
         }
     }
@@ -123,7 +123,6 @@ namespace BoardGames.Abstractions.Games
             if (game.Stage == GameStage.Ended)
                 throw new ApplicationException("Game is ended.");
             var state = DeserializeState(game.StateJson);
-            Status currentPlayerStatus;
             
             var newState = state;
             var newGame = game;
@@ -139,8 +138,7 @@ namespace BoardGames.Abstractions.Games
                 throw new ApplicationException("It's another player's turn.");
             
             if (move.IsSkip) {
-                currentPlayerStatus = Status.Finished;
-                newStatusesList[newState.PlayerIndex] = currentPlayerStatus;
+                newStatusesList[newState.PlayerIndex] = Status.Finished;
                 if (!IsRoundEnded(newStatusesList.ToImmutableList()))
                     newMoveIndex = GetNextMoveIndex(newStatusesList.ToImmutableList(), newState.MoveIndex);
             }
@@ -155,7 +153,7 @@ namespace BoardGames.Abstractions.Games
                 newScoresList[state.PlayerIndex] = currentPlayerScores;
                 newMoveIndex = GetNextMoveIndex(newStatusesList.ToImmutableList(), newState.MoveIndex);
                 
-                currentPlayerStatus = CheckOrChangePlayerStatus(currentPlayerScores);
+                var currentPlayerStatus = CheckOrChangePlayerStatus(currentPlayerScores);
                 if (currentPlayerStatus != newStatusesList[newState.PlayerIndex])
                     newStatusesList[newState.PlayerIndex] = currentPlayerStatus;
             }
@@ -248,9 +246,8 @@ namespace BoardGames.Abstractions.Games
         {
             moveIndex += 1;
             moveIndex %= statuses.Count;
-            if (statuses[moveIndex] == Status.Finished)
-                return GetNextMoveIndex(statuses, moveIndex);
-            return moveIndex;
+            var isActive = statuses[moveIndex] != Status.Finished;
+            return isActive ? moveIndex : GetNextMoveIndex(statuses, moveIndex);
         }
 
         private bool IsRoundEnded(ImmutableList<Status> statuses)

@@ -21,36 +21,34 @@
         <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users"/>
         <hr>
 
-        <Button Color="Blazorise.Color.Success"
-                Style="align-content: center; border-radius: 3px;"
-                disabled="@(gameState.PlayerIndex != MyPlayerIndex
-                            || playerStatuses[MyPlayerIndex] == Status.Finished)"
-                @onclick="_ => GetCardAsync()">
-            Get Card
-        </Button>
         <Button Color="Blazorise.Color.Primary"
                 Style="align-content: center; border-radius: 3px;"
                 disabled="@(gameState.PlayerIndex != MyPlayerIndex
-                            || playerStatuses[MyPlayerIndex] == Status.Finished)"
+                            || playerStatuses[gameState.PlayerIndex] == Status.Finished)"
+                @onclick="_ => GetCardAsync()">
+            Get Card
+        </Button>
+        <Button Color="Blazorise.Color.Dark"
+                Style="align-content: center; border-radius: 3px;"
+                disabled="@(gameState.PlayerIndex != MyPlayerIndex
+                            || playerStatuses[gameState.PlayerIndex] == Status.Finished)"
                 @onclick="_ => ChangePlayerStatusAsync()">
             Enough
         </Button>
         <Buttons>
-            <Button Color="Blazorise.Color.Info" disabled
+            <Button Color="Blazorise.Color.Primary" disabled
                     style="border-bottom-left-radius: 3px; border-top-left-radius: 3px;">
                 Current:
             </Button>
-            <Button Color="Blazorise.Color.Info" disabled
-                    style="border-bottom-right-radius: 3px; border-top-right-radius: 3px;">
+            <Button Color="Blazorise.Color.Primary" Outline="true" disabled>
                 @scores[MyPlayerIndex]
             </Button>
-            <Button Color="Blazorise.Color.Info" disabled
-                    style="border-bottom-left-radius: 3px; border-top-left-radius: 3px;">
+            <Button Color="Blazorise.Color.Primary" disabled>
                 Total:
             </Button>
-            <Button Color="Blazorise.Color.Info" disabled
+            <Button Color="Blazorise.Color.Primary" Outline="true" disabled
                     style="border-bottom-right-radius: 3px; border-top-right-radius: 3px;">
-                @totalScores[MyPlayerIndex]
+                @totalScores[gameState.PlayerIndex]
             </Button>
         </Buttons>
     </Paragraph>
@@ -62,12 +60,12 @@
                 <td @key=@card.Id class="p-0 m-0">
                     <div align="center"
                          style="width: 60pt; height: 90pt; margin: 5pt;;
-                     border: 1px solid black; border-radius: 5pt;">
+                     border: 2px solid black; border-radius: 5pt;">
                         <div style="margin-top: 20%;">
-                            <p style="vertical-align: center;">@GetCardSuit(card.Suit)</p>
+                            <p style="vertical-align: center; font-size: 200%;">@GetCardSuit(card.Suit)</p>
                         </div>
                         <div>
-                            <p style="vertical-align: center;">@card.Rank</p>
+                            <p style="vertical-align: center; font-weight: bold;">@card.Rank</p>
                         </div>
                     </div>
                 </td>

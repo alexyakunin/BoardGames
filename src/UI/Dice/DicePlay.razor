@@ -14,17 +14,17 @@
         <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users"/>
         <hr>
 
-        <Button Color="@GetDiceColor(gameState.PlayerIndex)"
+        <Button Color="Color.Primary"
                 Style="align-content: center; border-radius: 3px;"
                 disabled="@(gameState.PlayerIndex != MyPlayerIndex)"
                 @onclick="_ => MoveAsync()">
             Drop Dice
         </Button>
-        <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
-        <Button Color="Color.Light" Style="align-content: center; border: 1px solid darkblue; min-width: 50px;" disabled>@(gameState.PlayerSteps[MyPlayerIndex])</Button>
-        <button type="button" class="btn btn-custom" style="background: @CellBackground[MyPlayerIndex]" disabled>My color</button>
-        <button type="button" class="btn btn-forward" disabled>+3</button>
-        <button type="button" class="btn btn-backward" disabled>-3</button>
+        <Button Color="Color.Primary" Style="align-content: center; min-width: 50px; border-radius: 3px;" disabled>@diceValue</Button>
+        <Button Color="Color.Light" Style="align-content: center; min-width: 50px; border: 1px solid #5AAAFF; border-radius: 3px;" disabled>@(gameState.PlayerSteps[MyPlayerIndex])</Button>
+        <button type="button" class="btn btn-custom-light" disabled>
+            PIECE COLOR: <i class="fas fa-circle" style="color: @CellBackground[MyPlayerIndex];"></i>
+        </button>
 
     </Paragraph>
 }
@@ -43,7 +43,7 @@
                             var col = c;
                             var cell = board[row, col];
                             <td @key=@((row, col))>
-                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col));">
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col)); border-radius: 3px;">
                                     <tbody>
                                     <tr>
                                         @for (int i = 0; i < 2; i++)
@@ -81,7 +81,7 @@
                             var col = c;
                             var cell = board[row, col];
                             <td @key=@((row, col))>
-                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col));">
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col)); border-radius: 3px;">
                                     <tbody>
                                     <tr>
                                         @for (int i = 0; i < 2; i++)
@@ -117,6 +117,12 @@
             </tbody></table>
     </Column>
 </Row>
+<hr>
+<Row><Column ColumnSize="ColumnSize.Is6">
+    <i class="fas fa-square" style="color: @CellBackground[5]; font-size: 150%;"></i> - the Player goes 3 cells BACK.
+    <br>
+    <i class="fas fa-square" style="color: @CellBackground[6]; font-size: 150%;"></i> - the Player goes 3 cells FORWARD.
+</Column></Row>
 
 @code {
     private int diceValue;
@@ -158,50 +164,25 @@
 
     readonly string[] CellBackground = new string[]
     {
-        "blue", "green", "red", "yellow", "lightgoldenrodyellow", "#DC381F", "#52D017"
+        "blue", "green", "red", "yellow", "#F7F7F7", "#DC3545", "#FFC107"
     };
 
 }
 
 <style>
-    .btn-custom {
-        color: white;
+    .btn-custom-light {
+        color: #212529;
         margin-left: 40px;
+        background: #FAFBFC;
     }
-    .btn-custom:hover{
-        color: white;
+    .btn-custom-light:hover{
+        color: #212529;
         opacity: 1;
+        background: #FAFBFC;
     }
-    .btn-custom:disabled{
-        color: white;
+    .btn-custom-light:disabled{
+        color: #212529;
         opacity: 1;
-    }
-    .btn-forward {
-        background: #52D017;
-        color: white;
-        opacity: 1;
-        min-width: 50px;
-    }
-    .btn-forward:hover{
-        background: #52D017;
-        color: white;
-        opacity: 1;
-    }
-    .btn-forward:disabled{
-        opacity: 1;
-    }
-    .btn-backward {
-        background: #DC381F;
-        color: white;
-        opacity: 1;
-        min-width: 50px;
-    }
-    .btn-backward:hover{
-        background: #DC381F;
-        color: white;
-        opacity: 1;
-    }
-    .btn-backward:disabled{
-        opacity: 1;
+        background: #FAFBFC;
     }
 </style>
