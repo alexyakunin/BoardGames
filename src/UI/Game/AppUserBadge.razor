@@ -4,13 +4,10 @@
 @{
     var isOnline = State.LastValue;
 }
-
 <Badge Color="@Color" Class="@CssClass" Style="@(isOnline ? "" : "opacity: 0.5;")">
     <Blazorise.Icon Name="@(isOnline ? FontAwesomeIcons.User : FontAwesomeIcons.UserClock)" />
     @User.Name
 </Badge>
-
-<span></span>
 
 @code {
     [Parameter]
