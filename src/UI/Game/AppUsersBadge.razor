@@ -7,12 +7,12 @@
     [Parameter]
     public IEnumerable<AppUser> Users { get; set; } = Enumerable.Empty<AppUser>();
     [Parameter]
-    public bool HighlightCreator { get; set; } = true;
+    public bool UseAndDelimiter { get; set; } = true;
 
     private string GetDelimiter(int index)
         => index switch {
             0 => "",
-            1 => HighlightCreator ? " and " : ", ",
+            1 => UseAndDelimiter ? " and " : ", ",
             _ => ", "
         };
 }
