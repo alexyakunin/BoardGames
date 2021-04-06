@@ -12,7 +12,7 @@
     <BlazorVersion>5.0.4</BlazorVersion>
     <BlazoriseVersion>0.9.3.3</BlazoriseVersion>
     <SystemNetHttpJsonVersion>5.0.3</SystemNetHttpJsonVersion>
-    <StlFusionVersion>0.11.31</StlFusionVersion>
+    <StlFusionVersion>0.11.36</StlFusionVersion>
   </PropertyGroup>
 
   <ItemGroup Label="Nupkg Versions">
