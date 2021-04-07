@@ -21,14 +21,14 @@
         <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users"/>
         <hr>
 
-        <Button Color="Blazorise.Color.Primary"
+        <Button Color="Color.Primary"
                 Style="align-content: center; border-radius: 3px;"
                 disabled="@(gameState.PlayerIndex != MyPlayerIndex
                             || playerStatuses[gameState.PlayerIndex] == Status.Finished)"
                 @onclick="_ => GetCardAsync()">
             Get Card
         </Button>
-        <Button Color="Blazorise.Color.Dark"
+        <Button Color="Color.Dark"
                 Style="align-content: center; border-radius: 3px;"
                 disabled="@(gameState.PlayerIndex != MyPlayerIndex
                             || playerStatuses[gameState.PlayerIndex] == Status.Finished)"
@@ -36,19 +36,19 @@
             Enough
         </Button>
         <Buttons>
-            <Button Color="Blazorise.Color.Primary" disabled
+            <Button Color="Color.Primary" disabled
                     style="border-bottom-left-radius: 3px; border-top-left-radius: 3px;">
                 Current:
             </Button>
-            <Button Color="Blazorise.Color.Primary" Outline="true" disabled>
+            <Button Color="Color.Primary" Outline="true" disabled>
                 @scores[MyPlayerIndex]
             </Button>
-            <Button Color="Blazorise.Color.Primary" disabled>
+            <Button Color="Color.Primary" disabled>
                 Total:
             </Button>
-            <Button Color="Blazorise.Color.Primary" Outline="true" disabled
+            <Button Color="Color.Primary" Outline="true" disabled
                     style="border-bottom-right-radius: 3px; border-top-right-radius: 3px;">
-                @totalScores[gameState.PlayerIndex]
+                @totalScores[playerIndexes[0]]
             </Button>
         </Buttons>
     </Paragraph>
