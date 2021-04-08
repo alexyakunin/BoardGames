@@ -1,7 +1,6 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
 using Stl.DependencyInjection;
 using Stl.Time.Internal;
 
@@ -14,7 +13,9 @@ namespace BoardGames.Abstractions.Games
         Draw
     }
 
-    public record TicState(CharBoard Board, int MoveIndex = 0, int FirstPlayerIndex = 0)
+    public record TicState(CharBoard Board,
+        int MoveIndex = 0,
+        int FirstPlayerIndex = 0)
     {
         public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % 2;
         public TicState() : this((CharBoard) null!) { }
@@ -42,7 +43,7 @@ namespace BoardGames.Abstractions.Games
         public override Game Start(Game game)
         {
             var firstPlayerIndex = CoarseStopwatch.RandomInt32 & 1;
-            var state = new TicState(CharBoard.Empty(BoardSize), 0, firstPlayerIndex);
+            var state = new TicState(CharBoard.Empty(BoardSize),0, firstPlayerIndex);
             var player = game.Players[state.PlayerIndex];
             return game with {
                 StateJson = SerializeState(state),
@@ -70,52 +71,83 @@ namespace BoardGames.Abstractions.Games
             var nextPlayer = game.Players[nextState.PlayerIndex];
             var nextGame = game with { StateJson = SerializeState(nextState) };
 
-            var gameEnd = GetGameEnd(nextBoard, move);
-            switch (gameEnd) {
+            var roundIndex = game.RoundIndex;
+            var players = game.Players;
+
+            var roundEnd = GetRoundEnded(nextBoard, move);
+            switch (roundEnd) {
                 case TicEnd.None:
                     return nextGame with {
                         StateMessage = StandardMessages.MoveTurn(new AppUser(nextPlayer.UserId)),
                     };
                 case TicEnd.Win:
-                    return IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
-                        StateMessage = StandardMessages.Win(new AppUser(player.UserId)),
-                        Stage = GameStage.Ended,
+                    roundIndex++;
+                    var nextPlayers = players.ToList();
+                    nextPlayers[state.PlayerIndex] = player with {
+                        Score = player.Score + 1,
                     };
+                    players = nextPlayers.ToImmutableList();
+                    break;
                 case TicEnd.Draw:
-                    return IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
-                        StateMessage = StandardMessages.Draw(),
-                        Stage = GameStage.Ended,
-                    };
+                    roundIndex++;
+                    break;
                 default:
                     throw new ArgumentException();
             }
+
+            nextGame = nextGame with {
+                RoundIndex = roundIndex,
+                StateJson = SerializeState(nextState),
+                Players = players,
+            };
+
+            var isGameEnded = roundIndex >= game.RoundCount!.Value;
+            if (isGameEnded) {
+                nextGame = nextGame with {
+                    StateMessage = StandardMessages.FinalStandings(nextGame),
+                    Stage = GameStage.Ended,
+                };
+            }
+            else {
+                nextState = nextState with {
+                    Board = CharBoard.Empty(BoardSize),
+                    FirstPlayerIndex = CoarseStopwatch.RandomInt32 & 1,
+                    MoveIndex = 0,
+                };
+                player = nextGame.Players[nextState.PlayerIndex];
+                nextGame = nextGame with {
+                    StateJson = SerializeState(nextState),
+                    StateMessage = StandardMessages.MoveTurn(new AppUser(player.UserId))
+                };
+            }
+            return nextGame;
         }
 
         public char GetPlayerMarker(int playerIndex)
             => playerIndex == 0 ? 'X' : 'O';
 
-        private TicEnd GetGameEnd(CharBoard board, TicMove lastMove)
+        private TicEnd GetRoundEnded(CharBoard board, TicMove lastMove)
         {
             var marker = GetPlayerMarker(lastMove.PlayerIndex);
+            var winningCombos = new int[8, 3]
+            {
+                {0,1,2 }, {3,4,5 }, {6,7,8 }, {0,3,6 },
+                {1,4,7 }, {2,5,8 }, {0,4,8 }, {2,4,6 },
+            };
 
-            int Count(int dr, int dc)
-                => Enumerable.Range(0, 3)
-                    .Select(i => board[lastMove.Row + dr * i, lastMove.Column + dc * i])
-                    .TakeWhile(c => c == marker)
-                    .Take(3)
-                    .Count();
+            for (var i = 0; i < 8; i++)
+                if (board.Cells[winningCombos[i, 0]] == marker
+                    && board.Cells[winningCombos[i, 0]] == board.Cells[winningCombos[i, 1]]
+                    && board.Cells[winningCombos[i, 0]] == board.Cells[winningCombos[i, 2]])
+                    return TicEnd.Win;
 
-            int SymmetricCount(int dr, int dc)
-                => Count(dr, dc) + Count(-dr, -dc) - 1;
-
-            bool IsWin(int dr, int dc)
-                => SymmetricCount(dr, dc) >= 3;
-
-            if (IsWin(0, 1) || IsWin(1, 0) || IsWin(1, 1) || IsWin(-1, 1))
-                return TicEnd.Win;
-            if (board.Cells.All(c => c != ' '))
-                return TicEnd.Draw;
-            return TicEnd.None;
+            bool isBoardFull = true;
+            foreach (var cell in board.Cells)
+                if (cell == ' ') {
+                    isBoardFull = false;
+                    break;
+                }
+            return isBoardFull ? TicEnd.Draw : TicEnd.None;
         }
     }
 }

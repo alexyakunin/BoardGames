@@ -11,9 +11,6 @@
 
 @if (Game.Stage != GameStage.Ended) {
     <Paragraph>
-        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users"/>
-        <hr>
-
         <Button Color="Color.Primary"
                 Style="align-content: center; border-radius: 3px;"
                 disabled="@(gameState.PlayerIndex != MyPlayerIndex)"
