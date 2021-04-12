@@ -29,22 +29,18 @@
 <Row><Column ColumnSize="ColumnSize.Is6">
         <table>
             <tbody>
-            @for (var r = 0; r < DiceEngine.BoardSize; r++)
-            {
+            @for (var r = 0; r < DiceEngine.BoardSize; r++) {
                 var row = r;
                 <tr @key=@row>
-                    @if (r % 2 == 0)
-                    {
-                        @for (var c = 0; c < DiceEngine.BoardSize; c++)
-                        {
+                    @if (r % 2 == 0) {
+                        @for (var c = 0; c < DiceEngine.BoardSize; c++) {
                             var col = c;
                             var cell = board[row, col];
                             <td @key=@((row, col))>
                                 <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col)); border-radius: 3px;">
                                     <tbody>
                                     <tr>
-                                        @for (int i = 0; i < 2; i++)
-                                        {
+                                        @for (int i = 0; i < 2; i++) {
                                             <td align="center">
                                                 <div align="center">
                                                     <i class="fas fa-circle"
@@ -55,8 +51,7 @@
                                         }
                                     </tr>
                                     <tr>
-                                        @for (int i = 2; i < 4; i++)
-                                        {
+                                        @for (int i = 2; i < 4; i++) {
                                             <td align="center">
                                                 <div align="center">
                                                     <i class="fas fa-circle"
@@ -71,18 +66,15 @@
                             </td>
                         }
                     }
-                    else
-                    {
-                        @for (var c = DiceEngine.BoardSize - 1; c >= 0; c--)
-                        {
+                    else {
+                        @for (var c = DiceEngine.BoardSize - 1; c >= 0; c--) {
                             var col = c;
                             var cell = board[row, col];
                             <td @key=@((row, col))>
                                 <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col)); border-radius: 3px;">
                                     <tbody>
                                     <tr>
-                                        @for (int i = 0; i < 2; i++)
-                                        {
+                                        @for (int i = 0; i < 2; i++) {
                                             <td align="center">
                                                 <div align="center">
                                                     <i class="fas fa-circle"
@@ -93,8 +85,7 @@
                                         }
                                     </tr>
                                     <tr>
-                                        @for (int i = 2; i < 4; i++)
-                                        {
+                                        @for (int i = 2; i < 4; i++) {
                                             <td align="center">
                                                 <div align="center">
                                                     <i class="fas fa-circle"

@@ -61,8 +61,6 @@ namespace BoardGames.Abstractions
 
         public int GetCellIndex(int r, int c) => r * Size + c;
 
-        public int GetCardIndex(int r, int c) => r * 9 + c;
-
         public CharBoard Set(int r, int c, char value)
         {
             if (r < 0 || r >= Size)

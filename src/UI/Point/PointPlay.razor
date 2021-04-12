@@ -1,8 +1,8 @@
-@attribute [MatchFor(typeof(PointEngine), ComponentScopes.GamePlay)]
+@attribute [MatchFor(typeof(PointGameEngine), ComponentScopes.GamePlay)]
 @inherits GamePlayBase
 
 @{
-    var gameEngine = (PointEngine) GameEngine;
+    var gameEngine = (PointGameEngine) GameEngine;
     var gameState = gameEngine.DeserializeState(Game.StateJson);
     var playersCards = gameState.PlayersCards;
     var playerStatuses = gameState.Statuses;
@@ -101,14 +101,14 @@
 @code {
     private Task GetCardAsync()
     {
-        var move = new PointMove(false);
+        var move = new PointGameMove(false);
         var command = new Game.MoveCommand(Session, Game.Id, move);
         return CommandRunner.Call(command);
     }
 
     private Task ChangePlayerStatusAsync()
     {
-        var skip = new PointMove(true);
+        var skip = new PointGameMove(true);
         var command = new Game.MoveCommand(Session, Game.Id, skip);
         return CommandRunner.Call(command);
     }

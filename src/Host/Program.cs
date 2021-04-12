@@ -13,7 +13,7 @@ var host = Host.CreateDefaultBuilder()
         // Looks like there is no better way to set _default_ URL
         builder.Sources.Insert(0, new MemoryConfigurationSource() {
             InitialData = new Dictionary<string, string>() {
-                {WebHostDefaults.ServerUrlsKey, "http://localhost:5035"},
+                {WebHostDefaults.ServerUrlsKey, "http://localhost:5030"},
             }
         });
     })

@@ -47,7 +47,7 @@ namespace BoardGames.Abstractions.Games
         }
     }
 
-    public record PointState(ImmutableList<Card> Cards,
+    public record PointGameState(ImmutableList<Card> Cards,
         ImmutableList<int> TotalScores,
         int MoveIndex = 0,
         int FirstPlayerIndex = 0,
@@ -59,9 +59,9 @@ namespace BoardGames.Abstractions.Games
         public ImmutableList<int> TotalScores { get; set; } = ImmutableList<int>.Empty;
         public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % PlayersCount;
 
-        public PointState() : this((ImmutableList<Card>)null!, (ImmutableList<int>)null!) { }
+        public PointGameState() : this((ImmutableList<Card>)null!, (ImmutableList<int>)null!) { }
 
-        public PointState(int playersCount) : this(ImmutableList<Card>.Empty, ImmutableList<int>.Empty)
+        public PointGameState(int playersCount) : this(ImmutableList<Card>.Empty, ImmutableList<int>.Empty)
         {
             var cards = new List<Card>();
             var cardId = 1;
@@ -92,11 +92,11 @@ namespace BoardGames.Abstractions.Games
         }
     }
 
-    public record PointMove(bool IsSkip) : GameMove
+    public record PointGameMove(bool IsSkip) : GameMove
     { }
 
     [Service, ServiceAlias(typeof(IGameEngine), IsEnumerable = true)]
-    public class PointEngine : GameEngine<PointState, PointMove>
+    public class PointGameEngine : GameEngine<PointGameState, PointGameMove>
     {
         public override string Id => "point";
         public override string Title => "Point (Twenty-One)";
@@ -110,7 +110,7 @@ namespace BoardGames.Abstractions.Games
 
         public override Game Start(Game game)
         {
-            var state = new PointState(game.Players.Count);
+            var state = new PointGameState(game.Players.Count);
             var player = game.Players[state.PlayerIndex];
             return game with {
                 StateJson = SerializeState(state),
@@ -118,7 +118,7 @@ namespace BoardGames.Abstractions.Games
             };
         }
 
-        public override Game Move(Game game, PointMove move)
+        public override Game Move(Game game, PointGameMove move)
         {
             if (game.Stage == GameStage.Ended)
                 throw new ApplicationException("Game is ended.");
