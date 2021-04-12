@@ -2,7 +2,7 @@
 @inject IMessageParser MessageParser
 
 @{
-    var message = State.LastValue;
+    var message = State.LatestNonErrorValue;
 }
 
 <span class="@CssClass">

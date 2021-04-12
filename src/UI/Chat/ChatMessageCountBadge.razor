@@ -2,7 +2,7 @@
 @inject IChatService Chats
 
 @{
-    var state = State.LastValue;
+    var state = State.LatestNonErrorValue;
     var error = State.Error;
 }
 @if (state > 0) {

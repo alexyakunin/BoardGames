@@ -4,7 +4,7 @@
 @inject Session Session
 
 @{
-    var state = State.LastValue;
+    var state = State.LatestNonErrorValue;
     var error = State.Error;
 }
 
