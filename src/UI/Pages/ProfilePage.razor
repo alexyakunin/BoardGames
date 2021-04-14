@@ -2,7 +2,7 @@
 @using UAParser
 @using System.Collections.Concurrent
 @using Stl.Fusion.Authentication.Commands
-@inherits LiveComponentBase<ProfilePage.Model>
+@inherits ComputedStateComponent<ProfilePage.Model>
 @inject Session Session
 @inject IAuthService AuthService
 @inject ClientAuthHelper ClientAuthHelper
@@ -141,9 +141,6 @@ This comment resets the indent :) -->
             StateHasChanged();
         }
     }
-
-    protected override void ConfigureState(LiveState<Model>.Options options)
-        => options.WithInstantUpdates();
 
     protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {

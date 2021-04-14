@@ -1,19 +1,18 @@
 @using System.Threading
 @using Stl.Fusion.Extensions
-@inherits LiveComponentBase<string>
-@inject ILiveClock LiveClock
+@inherits ComputedStateComponent<string>
+@inject IFusionTime Time
 
 <span class="@CssClass">@State.Value</span>
 
 @code {
     [Parameter]
     public string CssClass { get; set; } = "";
-
     [Parameter]
     public DateTime? Value { get; set; }
     [Parameter]
     public string None { get; set; } = "n/a";
 
     protected override Task<string> ComputeState(CancellationToken cancellationToken)
-        => Value.HasValue ? LiveClock.GetMomentsAgo(Value.Value) : Task.FromResult(None);
+        => Value.HasValue ? Time.GetMomentsAgo(Value.Value) : Task.FromResult(None);
 }

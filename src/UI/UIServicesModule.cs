@@ -53,14 +53,9 @@ namespace BoardGames.UI
             Services.AddBlazorise().AddBootstrapProviders().AddFontAwesomeIcons();
 
             // UI-related Fusion services
-            Services.RemoveAll<UpdateDelayer.Options>();
-            Services.AddSingleton(c => new UpdateDelayer.Options() {
-                DelayDuration = TimeSpan.FromSeconds(0.5),
-            });
-            Services.RemoveAll<PresenceService.Options>();
-            Services.AddSingleton(c => new PresenceService.Options() {
-                UpdatePeriod = TimeSpan.FromMinutes(1),
-            });
+            Services.RemoveAll<IUpdateDelayer>().AddSingleton<IUpdateDelayer>(_ => new UpdateDelayer(0.5));
+            Services.RemoveAll<PresenceService.Options>().AddSingleton(
+                _ => new PresenceService.Options() { UpdatePeriod = TimeSpan.FromMinutes(1) });
 
             // Other UI services
             Services.AddSingleton<IMatchingTypeFinder>(new MatchingTypeFinder(typeof(Program).Assembly));
