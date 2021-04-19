@@ -23,7 +23,7 @@ namespace BoardGames.ClientServices
 
             // Other UI-related services
             Services.AddSingleton<IPluralize, Pluralizer>();
-            Services.AddFusion().AddLiveClock();
+            Services.AddFusion().AddFusionTime();
             base.Use();
         }
     }

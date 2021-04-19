@@ -1,5 +1,5 @@
 @page "/game/{GameEngineId}/{GameId}"
-@inherits LiveComponentBase<PlayPage.Model>
+@inherits ComputedStateComponent<PlayPage.Model>
 @inject IGameService Games
 @inject IAppUserService AppUsers
 @inject ImmutableDictionary<string, IGameEngine> GameEngines;
@@ -65,8 +65,8 @@
     public string GameId { get; set; } = "";
     private IGameEngine GameEngine => GameEngines[GameEngineId];
 
-    protected override void ConfigureState(LiveState<Model>.Options options)
-        => options.WithInstantUpdates();
+    protected override void ConfigureState(ComputedState<Model>.Options options)
+        => options.UpdateDelayer = UpdateDelayer.MinUpdateDelay;
 
     protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {

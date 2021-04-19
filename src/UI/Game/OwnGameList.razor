@@ -1,7 +1,7 @@
 @using System.Threading
 @using System.Collections.Immutable
 @using System.Security
-@inherits LiveComponentBase<OwnGameList.Model, int?>
+@inherits MixedStateComponent<OwnGameList.Model, int?>
 @inject IGameService Games
 @inject IAppUserService AppUsers
 @inject ImmutableDictionary<string, IGameEngine> GameEngines;
@@ -118,7 +118,7 @@
 
     protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {
-        var count = Locals.Value ?? 100;
+        var count = MutableState.Value ?? 100;
         try {
             var games = await Games.ListOwn(GameEngineId, GameStage, count, Session, cancellationToken);
             var userIds = games.SelectMany(g => g.Players.Select(p => p.UserId)).ToHashSet();
