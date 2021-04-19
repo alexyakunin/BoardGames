@@ -16,9 +16,11 @@ namespace BoardGames.Abstractions.Games
         public DiceState() : this((DiceBoard) null!, (int[]) null!, (int[]) null!) { }
     }
 
-    public record DiceMove(int PlayerIndex, int Value) : GameMove
+    public record DiceMove(int PlayerIndex) : GameMove
     {
-        public DiceMove() : this(0, 0) {}
+        public int Value = new Random().Next(1, 7);
+        public DiceMove() : this(0) { }
+
     }
 
     [Service, ServiceAlias(typeof(IGameEngine), IsEnumerable = true)]
@@ -56,7 +58,7 @@ namespace BoardGames.Abstractions.Games
                 throw new ApplicationException("It's another player's turn.");
             var board = state.Board;
             var player = game.Players[state.PlayerIndex];
-            
+
             state.PlayerPositions[state.PlayerIndex] += move.Value;
             var playerPosition = state.PlayerPositions[state.PlayerIndex];
 

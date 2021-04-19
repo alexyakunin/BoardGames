@@ -45,7 +45,8 @@
                                                 <div align="center">
                                                     <i class="fas fa-circle"
                                                        style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
-                                                        color: @CellBackground[i];"></i>
+                                                        color: @CellBackground[i];">
+                                                    </i>
                                                 </div>
                                             </td>
                                         }
@@ -56,7 +57,8 @@
                                                 <div align="center">
                                                     <i class="fas fa-circle"
                                                        style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
-                                                        color: @CellBackground[i];"></i>
+                                                        color: @CellBackground[i];">
+                                                    </i>
                                                 </div>
                                             </td>
                                         }
@@ -79,7 +81,8 @@
                                                 <div align="center">
                                                     <i class="fas fa-circle"
                                                        style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
-                                                        color: @CellBackground[i];"></i>
+                                                        color: @CellBackground[i];">
+                                                    </i>
                                                 </div>
                                             </td>
                                         }
@@ -90,7 +93,8 @@
                                                 <div align="center">
                                                     <i class="fas fa-circle"
                                                        style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
-                                                        color: @CellBackground[i];"></i>
+                                                        color: @CellBackground[i];">
+                                                    </i>
                                                 </div>
                                             </td>
                                         }
@@ -117,20 +121,15 @@
 
     private Task MoveAsync()
     {
-        diceValue = GetRandomDigit();
-        var move = new DiceMove(MyPlayerIndex, diceValue);
+        var move = new DiceMove(MyPlayerIndex);
+        diceValue = move.Value;
+        
         var command = new Game.MoveCommand(Session, Game.Id, move);
         return CommandRunner.Call(command);
     }
 
     private Color GetDiceColor(int playerIndex)
         => playerIndex == MyPlayerIndex ? Color.Success : Color.Danger;
-
-    private int GetRandomDigit()
-    {
-        var rnd = new Random();
-        return rnd.Next(1, 7);
-    }
 
     private double GetCellOpacity(int playerPosition, int cellIndex)
     {
