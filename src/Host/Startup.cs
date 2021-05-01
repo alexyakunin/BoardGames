@@ -97,8 +97,8 @@ namespace BoardGames.Host
                     builder.EnableSensitiveDataLogging();
             });
             services.AddDbContextServices<AppDbContext>(b => {
-                services.AddSingleton(new CompletionProducer.Options() {
-                    LogLevel = LogLevel.Information, // Let's log completions of "external" operations
+                services.AddSingleton(new CompletionProducer.Options {
+                    IsLoggingEnabled = true,
                 });
                 b.AddDbOperations((_, o) => {
                     // We use FileBasedDbOperationLogChangeMonitor, so unconditional wake up period

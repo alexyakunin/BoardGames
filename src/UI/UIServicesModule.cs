@@ -31,21 +31,16 @@ namespace BoardGames.UI
                 var baseUri = new Uri(WebAssemblyHostBuilder.HostEnvironment.BaseAddress);
                 var apiBaseUri = new Uri($"{baseUri}api/");
 
-                Services.AddFusion(fusion => {
-                    fusion.AddRestEaseClient(
-                        (c, o) => {
-                            o.BaseUri = baseUri;
-                            o.MessageLogLevel = LogLevel.Information;
-                        }).ConfigureHttpClientFactory(
-                        (c, name, o) => {
-                            var isFusionClient = (name ?? "").StartsWith("Stl.Fusion");
-                            var clientBaseUri = isFusionClient ? baseUri : apiBaseUri;
-                            o.HttpClientActions.Add(client => client.BaseAddress = clientBaseUri);
-                        });
-                    fusion.AddAuthentication(fusionAuth => {
-                        fusionAuth.AddRestEaseClient();
-                        fusionAuth.AddBlazor();
-                    });
+                var fusion = Services.AddFusion();
+                var fusionClient = fusion.AddRestEaseClient((_, o) => o.BaseUri = baseUri);
+                fusionClient.ConfigureHttpClientFactory((c, name, o) => {
+                    var isFusionClient = (name ?? "").StartsWith("Stl.Fusion");
+                    var clientBaseUri = isFusionClient ? baseUri : apiBaseUri;
+                    o.HttpClientActions.Add(client => client.BaseAddress = clientBaseUri);
+                });
+                fusion.AddAuthentication(fusionAuth => {
+                    fusionAuth.AddRestEaseClient();
+                    fusionAuth.AddBlazor();
                 });
             }
 
