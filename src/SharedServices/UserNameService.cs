@@ -5,7 +5,7 @@ using Stl.DependencyInjection;
 
 namespace BoardGames.ClientServices
 {
-    [Service(typeof(IUserNameService))]
+    [RegisterService(typeof(IUserNameService))]
     public class UserNameService : IUserNameService
     {
         public ValidationException? ValidateName(string name)

@@ -9,7 +9,7 @@ using Stl.Fusion.Authentication;
 
 namespace BoardGames.ClientServices
 {
-    [RestEaseReplicaService(typeof(IGameService), Scope = ServiceScope.ClientSideOnly)]
+    [RegisterRestEaseReplicaService(typeof(IGameService), Scope = ServiceScope.ClientSideOnly)]
     [BasePath("game")]
     public interface IGameServiceClient
     {
@@ -34,7 +34,7 @@ namespace BoardGames.ClientServices
         Task<ImmutableList<Game>> List(string? engineId, GameStage? stage, int count, CancellationToken cancellationToken = default);
     }
 
-    [RestEaseReplicaService(typeof(IAppUserService), Scope = ServiceScope.ClientSideOnly)]
+    [RegisterRestEaseReplicaService(typeof(IAppUserService), Scope = ServiceScope.ClientSideOnly)]
     [BasePath("appUser")]
     public interface IAppUserServiceClient
     {
@@ -47,7 +47,7 @@ namespace BoardGames.ClientServices
         Task<bool> IsOnline([Path] long id, CancellationToken cancellationToken = default);
     }
 
-    [RestEaseReplicaService(typeof(IChatService), Scope = ServiceScope.ClientSideOnly)]
+    [RegisterRestEaseReplicaService(typeof(IChatService), Scope = ServiceScope.ClientSideOnly)]
     [BasePath("chat")]
     public interface IChatServiceClient
     {

@@ -8,7 +8,7 @@ using Stl.Fusion.Extensions;
 
 namespace BoardGames.ClientServices
 {
-    [Module]
+    [RegisterModule]
     public class ClientServicesModule : AppModuleBase
     {
         public ClientServicesModule(IServiceCollection services, IServiceProvider moduleBuilderServices)

@@ -15,7 +15,7 @@ using Stl.Fusion.Client;
 
 namespace BoardGames.UI
 {
-    [Module]
+    [RegisterModule]
     public class UIServicesModule : AppModuleBase
     {
         public WebAssemblyHostBuilder? WebAssemblyHostBuilder { get; }

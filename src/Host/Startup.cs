@@ -71,7 +71,7 @@ namespace BoardGames.Host
             // Creating Log and HostSettings as early as possible
 #pragma warning disable ASP0000
             var tmpServices = services
-                .UseAttributeScanner(s => s.AddService<HostSettings>())
+                .UseRegisterAttributeScanner(s => s.Register<HostSettings>())
                 .BuildServiceProvider();
 #pragma warning restore ASP0000
             Log = tmpServices.GetRequiredService<ILogger<Startup>>();

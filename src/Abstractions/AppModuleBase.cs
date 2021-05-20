@@ -5,7 +5,7 @@ using Stl.Extensibility;
 
 namespace BoardGames.Abstractions
 {
-    [Module]
+    [RegisterModule]
     public abstract class AppModuleBase : ModuleBase
     {
         public IServiceProvider ModuleBuilderServices { get; }
@@ -20,9 +20,9 @@ namespace BoardGames.Abstractions
         public override void Use()
         {
             var moduleAssembly = GetType().Assembly;
-            Services.UseAttributeScanner()
-                .AddServicesFrom(moduleAssembly) // Add shared services
-                .WithScope(HostScope).AddServicesFrom(moduleAssembly); // Add host-specific services
+            Services.UseRegisterAttributeScanner()
+                .RegisterFrom(moduleAssembly) // Add shared services
+                .WithScope(HostScope).RegisterFrom(moduleAssembly); // Add host-specific services
         }
     }
 }

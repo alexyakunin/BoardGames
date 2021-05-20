@@ -19,7 +19,8 @@ using Stl.Text;
 
 namespace BoardGames.HostServices
 {
-    [ComputeService, ServiceAlias(typeof(IAppUserService))]
+    [RegisterComputeService]
+    [RegisterAlias(typeof(IAppUserService))]
     public class AppUserService : DbServiceBase<AppDbContext>, IAppUserService
     {
         protected IServerSideAuthService AuthService { get; }

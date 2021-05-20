@@ -20,7 +20,8 @@ using Stl.Internal;
 
 namespace BoardGames.HostServices
 {
-    [ComputeService, ServiceAlias(typeof(IGameService))]
+    [RegisterComputeService]
+    [RegisterAlias(typeof(IGameService))]
     public class GameService : DbServiceBase<AppDbContext>, IGameService
     {
         private readonly Lazy<IMessageParser> _messageParserLazy;

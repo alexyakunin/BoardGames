@@ -4,7 +4,7 @@ using Stl.DependencyInjection;
 
 namespace BoardGames.Host
 {
-    [Settings("BoardGames")]
+    [RegisterSettings("BoardGames")]
     public class HostSettings
     {
         // Web

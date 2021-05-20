@@ -6,7 +6,7 @@ using Stl.Extensibility;
 
 namespace BoardGames.Abstractions
 {
-    [Module]
+    [RegisterModule]
     public class AbstractionsModule : AppModuleBase
     {
         public AbstractionsModule(IServiceCollection services, IServiceProvider moduleBuilderServices)

@@ -10,7 +10,7 @@ using Stl.Fusion;
 
 namespace BoardGames.ClientServices
 {
-    [ComputeService(typeof(IMessageParser))]
+    [RegisterComputeService(typeof(IMessageParser))]
     public class MessageParser : IMessageParser
     {
         protected IGameService Games { get; }

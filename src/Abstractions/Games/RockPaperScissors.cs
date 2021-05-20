@@ -34,7 +34,8 @@ namespace BoardGames.Abstractions.Games
         public RpsMove() : this(RpsVote.None) { }
     }
 
-    [Service, ServiceAlias(typeof(IGameEngine), IsEnumerable = true)]
+    [RegisterService]
+    [RegisterAlias(typeof(IGameEngine), IsEnumerable = true)]
     public class RpsEngine : GameEngine<RpsState, RpsMove>
     {
         public override string Id => "rps";

@@ -20,7 +20,8 @@ using Stl.Fusion.Operations;
 
 namespace BoardGames.HostServices
 {
-    [ComputeService, ServiceAlias(typeof(IChatService))]
+    [RegisterComputeService]
+    [RegisterAlias(typeof(IChatService))]
     public class ChatService : DbServiceBase<AppDbContext>, IChatService
     {
         private readonly Lazy<IMessageParser> _messageParserLazy;
