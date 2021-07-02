@@ -40,7 +40,7 @@ different user accounts, and:
 - Web API - it's used when the sample works in Blazor 
   WASM mode, so whatever UI can do is available there too.
 
-Finally, the sample supports **both** Blazor Server and 
+Finally, the sample supports *both* Blazor Server and 
 Blazor WebAssembly modes.
 
 The [live version] of this app is hosted on Google Cloud GKE:
