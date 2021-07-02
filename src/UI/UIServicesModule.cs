@@ -53,7 +53,7 @@ namespace BoardGames.UI
                 _ => new PresenceService.Options() { UpdatePeriod = TimeSpan.FromMinutes(1) });
 
             // Other UI services
-            Services.AddSingleton<IMatchingTypeFinder>(new MatchingTypeFinder(typeof(Program).Assembly));
+            Services.AddSingleton<IMatchingTypeFinder>(new MatchingTypeFinder(typeof(App).Assembly));
 
             base.Use();
         }

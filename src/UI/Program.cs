@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using Blazorise.Bootstrap;
-using Blazorise.Icons.FontAwesome;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using BoardGames.Abstractions;
 using BoardGames.ClientServices;
 using Microsoft.Extensions.Logging;
@@ -24,8 +20,7 @@ namespace BoardGames.UI
 
             var hostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
             hostBuilder.Logging.SetMinimumLevel(LogLevel.Warning);
-
-            // Using modules to register ~ everything
+            // Using modules to register everything
             hostBuilder.Services.UseModules()
                 .ConfigureModuleServices(s => {
                     s.AddSingleton(ServiceScope.ClientSideOnly);
@@ -36,7 +31,6 @@ namespace BoardGames.UI
                 .Add<UIServicesModule>()
                 .Use();
 
-            hostBuilder.RootComponents.Add<App>("#app");
             var host = hostBuilder.Build();
             await host.Services.HostedServices().Start();
             await host.RunAsync();
