@@ -34,7 +34,7 @@ namespace BoardGames.Abstractions
         public abstract Game Move(Game game, TGameMove move);
 
         public virtual string SerializeState(TGameState state)
-            => JsonSerialized.New(state).SerializedValue;
+            => JsonSerialized.New(state).Data;
 
         public virtual TGameState DeserializeState(string stateJson)
             => JsonSerialized.New<TGameState>(stateJson).Value;
