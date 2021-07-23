@@ -34,10 +34,10 @@ namespace BoardGames.Abstractions
         public abstract Game Move(Game game, TGameMove move);
 
         public virtual string SerializeState(TGameState state)
-            => JsonSerialized.New(state).Data;
+            => NewtonsoftJsonSerialized.New(state).Data;
 
         public virtual TGameState DeserializeState(string stateJson)
-            => JsonSerialized.New<TGameState>(stateJson).Value;
+            => NewtonsoftJsonSerialized.New<TGameState>(stateJson).Value;
 
         protected Game SetPlayerScore(Game game, int playerIndex, long score)
             => game with {
