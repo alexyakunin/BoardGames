@@ -4,7 +4,8 @@
 
 <img src="https://img.shields.io/badge/-Note:-red" valign="middle"> This repository 
 wasn't updated for a while, so it uses quite outdated version of Fusion 
-(v1.3.x, while the current one is v3.7.x).
+(v1.3.x, while the current one is v3.7.x). Nevertheless, conceptually it's
+still a good example of how to use Fusion (the API has changed though).
 
 "Board Games" is a new [Fusion] sample and a fully functional 
 web app allowing you to play real-time multiplayer board games.
