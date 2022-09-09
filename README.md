@@ -6,7 +6,7 @@ web app allowing you to play real-time multiplayer board games.
 **Note:** this repository wasn't updated for a while, so it uses 
 an outdated version of Fusion (v1.3.x, while the current one is v3.7.x). 
 Nevertheless conceptually it's still a good example you can play with 
-to learn Fusion. The API has changed, but concepts are all the same.
+to learn Fusion. The APIs change, but concepts stay the same :)
 
 <img src="https://img.shields.io/badge/-Live!-green" valign="middle"> Live version of this app: https://boardgames.alexyakunin.com/
 
