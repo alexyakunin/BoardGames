@@ -1,0 +1,207 @@
+@attribute [MatchFor(typeof(DiceEngine), ComponentScopes.GamePlay)]
+@inherits GamePlayBase
+
+@{
+    var gameEngine = (DiceEngine) GameEngine;
+    var gameState = gameEngine.DeserializeState(Game.StateJson);
+    var board = gameState.Board;
+}
+
+<WhenCommandError Exception="CommandRunner.Error"/>
+
+@if (Game.Stage != GameStage.Ended) {
+    <Paragraph>
+        <GameMessage Message="@Game.StateMessage" Players="Game.Players" Users="Users"/>
+        <hr>
+
+        <Button Color="@GetDiceColor(gameState.PlayerIndex)"
+                Style="align-content: center; border-radius: 3px;"
+                disabled="@(gameState.PlayerIndex != MyPlayerIndex)"
+                @onclick="_ => MoveAsync()">
+            Drop Dice
+        </Button>
+        <Button Color="Color.Primary" Style="align-content: center; border: 1px solid darkblue;" disabled>@diceValue</Button>
+        <Button Color="Color.Light" Style="align-content: center; border: 1px solid darkblue; min-width: 50px;" disabled>@(gameState.PlayerSteps[MyPlayerIndex])</Button>
+        <button type="button" class="btn btn-custom" style="background: @CellBackground[MyPlayerIndex]" disabled>My color</button>
+        <button type="button" class="btn btn-forward" disabled>+3</button>
+        <button type="button" class="btn btn-backward" disabled>-3</button>
+
+    </Paragraph>
+}
+
+<Row><Column ColumnSize="ColumnSize.Is6">
+        <table>
+            <tbody>
+            @for (var r = 0; r < DiceEngine.BoardSize; r++)
+            {
+                var row = r;
+                <tr @key=@row>
+                    @if (r % 2 == 0)
+                    {
+                        @for (var c = 0; c < DiceEngine.BoardSize; c++)
+                        {
+                            var col = c;
+                            var cell = board[row, col];
+                            <td @key=@((row, col))>
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col));">
+                                    <tbody>
+                                    <tr>
+                                        @for (int i = 0; i < 2; i++)
+                                        {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];"></i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        @for (int i = 2; i < 4; i++)
+                                        {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];"></i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        }
+                    }
+                    else
+                    {
+                        @for (var c = DiceEngine.BoardSize - 1; c >= 0; c--)
+                        {
+                            var col = c;
+                            var cell = board[row, col];
+                            <td @key=@((row, col))>
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col));">
+                                    <tbody>
+                                    <tr>
+                                        @for (int i = 0; i < 2; i++)
+                                        {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];"></i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        @for (int i = 2; i < 4; i++)
+                                        {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];"></i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        }
+                    }
+                </tr>
+            }
+            </tbody></table>
+    </Column>
+</Row>
+
+@code {
+    private int diceValue;
+
+    private Task MoveAsync()
+    {
+        diceValue = GetRandomDigit();
+        var move = new DiceMove(MyPlayerIndex, diceValue);
+        var command = new Game.MoveCommand(Session, Game.Id, move);
+        return CommandRunner.CallAsync(command);
+    }
+
+    private Color GetDiceColor(int playerIndex)
+        => playerIndex == MyPlayerIndex ? Color.Success : Color.Danger;
+
+    private int GetRandomDigit()
+    {
+        var rnd = new Random();
+        return rnd.Next(1, 7);
+    }
+
+    private double GetCellOpacity(int playerPosition, int cellIndex)
+    {
+        if (playerPosition > cellIndex)
+            return 0.1;
+        if (playerPosition < cellIndex)
+            return 0.0;
+        return 1.0;
+    }
+
+    private string GetCellBackground(int cellIndex)
+    {
+        if (cellIndex == 10 || cellIndex == 27 || cellIndex == 44)
+            return CellBackground[6];
+        if (cellIndex == 20 || cellIndex == 35 || cellIndex == 54)
+            return CellBackground[5];
+        return CellBackground[4];
+    }
+
+    readonly string[] CellBackground = new string[]
+    {
+        "blue", "green", "red", "yellow", "lightgoldenrodyellow", "#DC381F", "#52D017"
+    };
+
+}
+
+<style>
+    .btn-custom {
+        color: white;
+        margin-left: 40px;
+    }
+    .btn-custom:hover{
+        color: white;
+        opacity: 1;
+    }
+    .btn-custom:disabled{
+        color: white;
+        opacity: 1;
+    }
+    .btn-forward {
+        background: #52D017;
+        color: white;
+        opacity: 1;
+        min-width: 50px;
+    }
+    .btn-forward:hover{
+        background: #52D017;
+        color: white;
+        opacity: 1;
+    }
+    .btn-forward:disabled{
+        opacity: 1;
+    }
+    .btn-backward {
+        background: #DC381F;
+        color: white;
+        opacity: 1;
+        min-width: 50px;
+    }
+    .btn-backward:hover{
+        background: #DC381F;
+        color: white;
+        opacity: 1;
+    }
+    .btn-backward:disabled{
+        opacity: 1;
+    }
+</style>

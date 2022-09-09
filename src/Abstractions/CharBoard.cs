@@ -72,4 +72,56 @@ namespace BoardGames.Abstractions
             return new CharBoard(Size, newCells);
         }
     }
+    
+    public record DiceBoard
+    {
+        private static readonly ConcurrentDictionary<int, DiceBoard> EmptyCache = new();
+        public static DiceBoard Empty(int size) => EmptyCache.GetOrAdd(size, size1 => new DiceBoard(size1));
+
+        public int Size { get; }
+        public string[] Cells { get; }
+        
+        public string this[int r, int c] {
+            get {
+                var cellIndex = GetCellIndex(r, c);
+                if (cellIndex < 0 || cellIndex >= Cells.Length)
+                    return "    ";
+                return Cells[cellIndex];
+            }
+        }
+        
+        public DiceBoard(int size)
+        {
+            if (size < 1)
+                throw new ArgumentOutOfRangeException(nameof(size));
+            Size = size;
+            Cells = new string[size * size];
+            for (int i = 0; i < size * size; i++) { Cells[i] = "    "; }
+        }
+        
+        [JsonConstructor]
+        public DiceBoard(int size, string[] cells)
+        {
+            if (size < 1)
+                throw new ArgumentOutOfRangeException(nameof(size));
+            if (size * size != cells.Length)
+                throw new ArgumentOutOfRangeException(nameof(size));
+            Size = size;
+            Cells = cells;
+        }
+
+        public int GetCellIndex(int r, int c) => r * Size + c;
+
+        public DiceBoard Set(int r, int c, int playerIndex, char value)
+        {
+            if (r < 0 || r >= Size)
+                throw new ArgumentOutOfRangeException(nameof(r));
+            if (c < 0 || c >= Size)
+                throw new ArgumentOutOfRangeException(nameof(c));
+            var cellIndex = GetCellIndex(r, c);
+            var cell = Cells[cellIndex];
+            cell = cell.Substring(0, playerIndex) + value + cell.Substring(playerIndex + 1);
+            return new DiceBoard(Size, Cells);
+        }
+    }
 }
