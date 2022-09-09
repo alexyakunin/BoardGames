@@ -2,7 +2,7 @@
 
 <img src="https://img.shields.io/badge/-Live!-green" valign="middle"> Live version of this app: https://boardgames.alexyakunin.com/
 
-<img src="https://img.shields.io/badge/-NOTE-red" valign="middle"> This repository 
+<img src="https://img.shields.io/badge/-Note:-red" valign="middle"> This repository 
 wasn't updated for a while, so it uses quite outdated version of Fusion 
 (v1.3.x, while the current one is v3.7.x).
 
