@@ -1,14 +1,14 @@
 # BoardGames
 
-<img src="https://img.shields.io/badge/-Live!-green" valign="middle"> Live version of this app: https://boardgames.alexyakunin.com/
-
-<img src="https://img.shields.io/badge/-Note:-red" valign="middle"> This repository 
-wasn't updated for a while, so it uses quite outdated version of Fusion 
-(v1.3.x, while the current one is v3.7.x). Nevertheless, conceptually it's
-still a good example of how to use Fusion (the API has changed though).
-
-"Board Games" is a new [Fusion] sample and a fully functional 
+"Board Games" is a [Fusion] sample and a fully functional 
 web app allowing you to play real-time multiplayer board games.
+
+**Note:** this repository wasn't updated for a while, so it uses 
+an outdated version of Fusion (v1.3.x, while the current one is v3.7.x). 
+Nevertheless conceptually it's still a good example you can play with 
+to learn Fusion. The API has changed, but concepts are all the same.
+
+<img src="https://img.shields.io/badge/-Live!-green" valign="middle"> Live version of this app: https://boardgames.alexyakunin.com/
 
 A short video explaining what's unique there:
 
