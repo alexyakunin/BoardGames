@@ -30,7 +30,7 @@ namespace BoardGames.Abstractions
 
         public virtual Game Create(Game game) => game;
         public abstract Game Start(Game game);
-        Game IGameEngine.Move(Game game, GameMove move) => Move(game, (TGameMove) move);
+        Game IGameEngine.Move(Game game, GameMove move) => Move(game, (TGameMove)move);
         public abstract Game Move(Game game, TGameMove move);
 
         public virtual string SerializeState(TGameState state)
@@ -43,7 +43,7 @@ namespace BoardGames.Abstractions
             => game with {
                 Players = game.Players.Select((p, i) =>
                     i == playerIndex
-                        ? p with { Score = score}
+                        ? p with {Score = score}
                         : p).ToImmutableList(),
             };
 
@@ -51,7 +51,7 @@ namespace BoardGames.Abstractions
             => game with {
                 Players = game.Players.Select((p, i) =>
                     i == playerIndex
-                        ? p with { Score = p.Score + score}
+                        ? p with {Score = p.Score + score}
                         : p).ToImmutableList(),
             };
     }

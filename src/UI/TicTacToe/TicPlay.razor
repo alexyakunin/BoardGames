@@ -1,0 +1,72 @@
+@attribute [MatchFor(typeof(TicEngine), ComponentScopes.GamePlay)]
+@inherits GamePlayBase
+
+@{
+    var gameEngine = (TicEngine) GameEngine;
+    var gameState = gameEngine.DeserializeState(Game.StateJson);
+    var board = gameState.Board;
+    var playerIndexes = Enumerable.Range(0, Game.Players.Count).ToList();
+    playerIndexes.RemoveAt(MyPlayerIndex);
+    playerIndexes.Insert(0, MyPlayerIndex);
+}
+
+<WhenCommandError Exception="CommandRunner.Error"/>
+
+<Row><Column ColumnSize="ColumnSize.Is6">
+    <table><tbody>
+        @for (var r = 0; r < TicEngine.BoardSize; r++) {
+            var row = r;
+            <tr @key=@row class="p-0 m-0">
+                @for (var c = 0; c < TicEngine.BoardSize; c++) {
+                    var col = c;
+                    var cell = board[row, col];
+                    <td @key=@((row, col)) class="p-0 m-0">
+                        <Button Color="Color.Light" style="padding: 0px; margin: 3px; width: 5rem; height: 5rem;"
+                                @onclick="_ => Move(row, col)">
+                            @GetIcon(cell)
+                        </Button>
+                    </td>
+                }
+            </tr>
+        }
+        </tbody></table>
+</Column></Row>
+
+<Heading Size="HeadingSize.Is4">Choices</Heading>
+<Table Narrow="true" Striped="true">
+    <TableHeader>
+        <TableHeaderCell Style="width: auto">Player</TableHeaderCell>
+        <TableHeaderCell Style="width: 20%">Score</TableHeaderCell>
+    </TableHeader>
+    <TableBody>
+        @foreach (var playerIndex in playerIndexes) {
+            var player = Game.Players[playerIndex];
+            var score = player.Score;
+            <TableRow @key="@playerIndex">
+                <TableRowCell>
+                    <AppUserBadge User="@Users[player.UserId]"/>
+                </TableRowCell>
+                <TableRowCell>
+                    <Badge Color="@(playerIndex == MyPlayerIndex ? Color.Primary : Color.Secondary)"
+                           Style="font-size: 1.25rem">@score</Badge>
+                </TableRowCell>
+            </TableRow>
+        }
+    </TableBody>
+</Table>
+
+@code {
+    private Task Move(int r, int c)
+    {
+        var move = new TicMove(r, c);
+        var command = new Game.MoveCommand(Session, Game.Id, move);
+        return CommandRunner.Call(command);
+    }
+
+    private RenderFragment GetIcon(char cell)
+        => cell switch {
+            'O' => @<Blazorise.Icon Name="FontAwesomeIcons.Circle" IconStyle="IconStyle.Regular" style="font-size: 150%;" />,
+            'X' => @<Blazorise.Icon Name="FontAwesomeIcons.Times" IconStyle="IconStyle.Solid" style="font-size: 150%;" />,
+            _ => @<span></span>,
+            };
+}

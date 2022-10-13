@@ -1,0 +1,175 @@
+@attribute [MatchFor(typeof(DiceEngine), ComponentScopes.GamePlay)]
+@inherits GamePlayBase
+
+@{
+    var gameEngine = (DiceEngine) GameEngine;
+    var gameState = gameEngine.DeserializeState(Game.StateJson);
+    var board = gameState.Board;
+}
+
+<WhenCommandError Exception="CommandRunner.Error"/>
+
+@if (Game.Stage != GameStage.Ended) {
+    <Paragraph>
+        <Button Color="Color.Primary"
+                Style="align-content: center; border-radius: 3px;"
+                disabled="@(gameState.PlayerIndex != MyPlayerIndex)"
+                @onclick="_ => MoveAsync()">
+            Drop Dice
+        </Button>
+        <Button Color="Color.Primary" Style="align-content: center; min-width: 50px; border-radius: 3px;" disabled>@diceValue</Button>
+        <Button Color="Color.Light" Style="align-content: center; min-width: 50px; border: 1px solid #5AAAFF; border-radius: 3px;" disabled>@(gameState.PlayerSteps[MyPlayerIndex])</Button>
+        <button type="button" class="btn btn-custom-light" disabled>
+            PIECE COLOR: <i class="fas fa-circle" style="color: @CellBackground[MyPlayerIndex];"></i>
+        </button>
+
+    </Paragraph>
+}
+
+<Row><Column ColumnSize="ColumnSize.Is6">
+        <table>
+            <tbody>
+            @for (var r = 0; r < DiceEngine.BoardSize; r++) {
+                var row = r;
+                <tr @key=@row>
+                    @if (r % 2 == 0) {
+                        @for (var c = 0; c < DiceEngine.BoardSize; c++) {
+                            var col = c;
+                            var cell = board[row, col];
+                            <td @key=@((row, col))>
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col)); border-radius: 3px;">
+                                    <tbody>
+                                    <tr>
+                                        @for (int i = 0; i < 2; i++) {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];">
+                                                    </i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        @for (int i = 2; i < 4; i++) {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];">
+                                                    </i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        }
+                    }
+                    else {
+                        @for (var c = DiceEngine.BoardSize - 1; c >= 0; c--) {
+                            var col = c;
+                            var cell = board[row, col];
+                            <td @key=@((row, col))>
+                                <table style="margin: 1px; min-width: 50px; min-height: 50px; background: @GetCellBackground(board.GetCellIndex(row, col)); border-radius: 3px;">
+                                    <tbody>
+                                    <tr>
+                                        @for (int i = 0; i < 2; i++) {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];">
+                                                    </i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    <tr>
+                                        @for (int i = 2; i < 4; i++) {
+                                            <td align="center">
+                                                <div align="center">
+                                                    <i class="fas fa-circle"
+                                                       style="opacity: @GetCellOpacity(gameState.PlayerPositions[i], board.GetCellIndex(row, col));
+                                                        color: @CellBackground[i];">
+                                                    </i>
+                                                </div>
+                                            </td>
+                                        }
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        }
+                    }
+                </tr>
+            }
+            </tbody></table>
+    </Column>
+</Row>
+<hr>
+<Row><Column ColumnSize="ColumnSize.Is6">
+    <i class="fas fa-square" style="color: @CellBackground[5]; font-size: 150%;"></i> - the Player goes 3 cells BACK.
+    <br>
+    <i class="fas fa-square" style="color: @CellBackground[6]; font-size: 150%;"></i> - the Player goes 3 cells FORWARD.
+</Column></Row>
+
+@code {
+    private int diceValue;
+
+    private Task MoveAsync()
+    {
+        var move = new DiceMove(MyPlayerIndex);
+        diceValue = move.Value;
+        
+        var command = new Game.MoveCommand(Session, Game.Id, move);
+        return CommandRunner.Call(command);
+    }
+
+    private Color GetDiceColor(int playerIndex)
+        => playerIndex == MyPlayerIndex ? Color.Success : Color.Danger;
+
+    private double GetCellOpacity(int playerPosition, int cellIndex)
+    {
+        if (playerPosition > cellIndex)
+            return 0.1;
+        if (playerPosition < cellIndex)
+            return 0.0;
+        return 1.0;
+    }
+
+    private string GetCellBackground(int cellIndex)
+    {
+        if (cellIndex == 10 || cellIndex == 27 || cellIndex == 44)
+            return CellBackground[6];
+        if (cellIndex == 20 || cellIndex == 35 || cellIndex == 54)
+            return CellBackground[5];
+        return CellBackground[4];
+    }
+
+    readonly string[] CellBackground = new string[]
+    {
+        "blue", "green", "red", "yellow", "#F7F7F7", "#DC3545", "#FFC107"
+    };
+
+}
+
+<style>
+    .btn-custom-light {
+        color: #212529;
+        margin-left: 40px;
+        background: #FAFBFC;
+    }
+    .btn-custom-light:hover{
+        color: #212529;
+        opacity: 1;
+        background: #FAFBFC;
+    }
+    .btn-custom-light:disabled{
+        color: #212529;
+        opacity: 1;
+        background: #FAFBFC;
+    }
+</style>
