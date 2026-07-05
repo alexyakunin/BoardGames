@@ -6,7 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ActualLab.Fusion" />
+    <PackageReference Include="ActualLab.Fusion.Ext.Contracts" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
-    <PackageReference Include="Stl.Fusion.Client" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ActualLab.Generators" PrivateAssets="all" />
   </ItemGroup>
 </Project>

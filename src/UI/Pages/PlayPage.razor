@@ -2,13 +2,11 @@
 @inherits ComputedStateComponent<PlayPage.Model>
 @inject IGameService Games
 @inject IAppUserService AppUsers
-@inject ImmutableDictionary<string, IGameEngine> GameEngines;
-@inject IAuthService AuthService
-@inject Session Session
-@inject NavigationManager Navigator
+@inject ImmutableDictionary<string, IGameEngine> GameEngines
+@inject IAuth Auth
 
 @{
-    var state = State.LatestNonErrorValue;
+    var state = State.LastNonErrorValue ?? new();
     var error = State.Error;
 }
 
@@ -17,13 +15,13 @@
 <WhenUpdateError Exception="@error" />
 
 <AuthorizeView><Authorized>
-        <div class="container"><div class="row">
+    <div class="container"><div class="row">
         @if (state.Me.Id != 0) { // Loaded
             <div class="col-md-8 py-3">
-                @switch (State.Value.Game.Stage) {
+                @switch (state.Game.Stage) {
                 case GameStage.New:
                     <Paragraph Margin="Margin.Is3.OnY">
-                        <CopyUrlField Url="@Navigator.Uri"><b>Game URL:</b></CopyUrlField>
+                        <CopyUrlField Url="@Nav.Uri"><b>Game URL:</b></CopyUrlField>
                     </Paragraph>
 
                     <GameLobbyView Model="@state" GameEngine="@GameEngine" />
@@ -65,8 +63,10 @@
     public string GameId { get; set; } = "";
     private IGameEngine GameEngine => GameEngines[GameEngineId];
 
-    protected override void ConfigureState(ComputedState<Model>.Options options)
-        => options.UpdateDelayer = UpdateDelayer.MinUpdateDelay;
+    protected override ComputedState<Model>.Options GetStateOptions()
+        => base.GetStateOptions() with {
+            UpdateDelayer = FixedDelayer.MinDelay,
+        };
 
     protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {
@@ -74,8 +74,10 @@
         if (game == null || game.EngineId != GameEngineId)
             throw new KeyNotFoundException("Specified game doesn't exist.");
         var users = await game.Players.ParallelSelectToList((p, ct) => AppUsers.TryGet(p.UserId, ct), cancellationToken);
-        var user = await AuthService.GetUser(Session, cancellationToken);
-        var appUser = user.IsAuthenticated ? new AppUser(long.Parse(user.Id), user.Name) : AppUser.None;
+        var user = await Auth.GetUser(Session, cancellationToken);
+        var appUser = user != null && user.IsAuthenticated()
+            ? new AppUser(long.Parse(user.Id), user.Name)
+            : AppUser.None;
         return new Model() {
             Game = game,
             Users = users.Where(u => u != null).ToImmutableDictionary(u => u!.Id)!,

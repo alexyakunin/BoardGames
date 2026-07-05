@@ -1,9 +1,9 @@
-namespace BoardGames.Abstractions
-{
-    public record AppUser(long Id, string Name = "(unknown)")
-    {
-        public static AppUser None { get; } = new();
+using MessagePack;
 
-        public AppUser() : this(0, "(none)") { }
-    }
+namespace BoardGames.Abstractions;
+
+[MessagePackObject(true)]
+public sealed partial record AppUser(long Id, string Name = "(unknown)")
+{
+    public static AppUser None { get; } = new(0, "(none)");
 }

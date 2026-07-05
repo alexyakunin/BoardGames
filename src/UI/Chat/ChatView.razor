@@ -1,10 +1,8 @@
 @inherits ComputedStateComponent<ChatPage>
 @inject IChatService Chats
-@inject CommandRunner CommandRunner
-@inject Session Session
 
 @{
-    var state = State.LatestNonErrorValue;
+    var state = State.LastNonErrorValue ?? ChatPage.None;
     var error = State.Error;
 }
 
@@ -26,8 +24,6 @@
     </TableBody>
 </Table>
 
-<WhenCommandError Exception="@CommandRunner.Error" />
-
 <Form @onsubmit="_ => Post()" >
     <Addons>
         <input @bind="@Message.Value" @bind:event="onchange" class="form-control" />
@@ -40,18 +36,12 @@
 </Form>
 
 @code {
-    private Editor<string> Message { get; set; } = new();
+    private ValueEditor<string> Message { get; set; } = new();
 
     [Parameter]
     public string ChatId { get; set; } = "";
     [Parameter]
     public int Limit { get; set; } = 30;
-
-    protected override void OnParametersSet()
-    {
-        CommandRunner.Component = this;
-        base.OnParametersSet();
-    }
 
     protected override async Task<ChatPage> ComputeState(CancellationToken cancellationToken)
         => await Chats.GetTail(Session, ChatId, Limit, cancellationToken);
@@ -62,6 +52,6 @@
         if (string.IsNullOrEmpty(text))
             return Task.CompletedTask;
         Message.Value = "";
-        return CommandRunner.Call(new Chat.PostCommand(Session, ChatId, text));
+        return UICommander.Run(new Chat_Post(Session, ChatId, text));
     }
 }

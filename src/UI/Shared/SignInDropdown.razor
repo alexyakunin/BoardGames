@@ -1,8 +1,13 @@
-@inject BlazorModeHelper BlazorModeHelper
+@inherits ComputedStateComponent<User?>
+@inject IAuth Auth
 @inject ClientAuthHelper ClientAuthHelper
 
 @{
-    var usedAuthSchemas = User.Identities.Select(kv => kv.Key.Schema).ToHashSet();
+    if (State.IsInitial(out var user))
+        return;
+
+    user = user.OrGuest();
+    var usedAuthSchemas = user.Identities.Select(kv => kv.Key.Schema).ToHashSet();
     var unusedAuthSchemas = AuthSchemas.Where(p => !usedAuthSchemas.Contains(p.Name)).ToArray();
 }
 
@@ -24,25 +29,20 @@
 </AuthorizeView>
 
 @code {
+    private (string Name, string DisplayName)[] AuthSchemas { get; set; } = [];
+
     [Parameter]
     public string CssClass { get; set; } = "";
     [Parameter]
     public string Why { get; set; } = "";
-    [CascadingParameter]
-    private Task<AuthState> AuthStateTask { get; set; } = null!;
-    private AuthState AuthState { get; set; } = new(new User("")); // For SSB pre-render
-    private User User => AuthState.User;
-    private (string Name, string DisplayName)[] AuthSchemas { get; set; } = Array.Empty<(string, string)>();
 
-    protected override async Task OnParametersSetAsync()
-    {
-        AuthState = await AuthStateTask;
-    }
+    protected override Task<User?> ComputeState(CancellationToken cancellationToken)
+        => Auth.GetUser(Session, cancellationToken);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender) {
-            // GetSchemasAsync requires JS interop, so it can be called only at this point
+            // GetSchemas requires JS interop, so it can be called only at this point
             AuthSchemas = await ClientAuthHelper.GetSchemas();
             StateHasChanged();
         }

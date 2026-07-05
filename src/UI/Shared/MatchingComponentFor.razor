@@ -1,0 +1,19 @@
+@typeparam TScope
+@inject TypeMapper<TScope> TypeMapper
+
+@{
+    var componentType = TypeMapper.Get(Source.GetType());
+    var attributes = new Dictionary<string, object>(Attributes ?? new()) {
+        [SourceParameterName] = Source,
+    };
+}
+<ComponentFor Type="@componentType" @attributes="@attributes" />
+
+@code {
+    [Parameter, EditorRequired]
+    public object Source { get; set; } = null!;
+    [Parameter]
+    public string SourceParameterName { get; set; } = "Source";
+    [Parameter(CaptureUnmatchedValues = true)]
+    public Dictionary<string, object>? Attributes { get; set; }
+}

@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   db:
-    image: "docker.io/bitnami/postgresql:13"
+    image: "docker.io/bitnami/postgresql:17"
     environment:
       POSTGRES_PASSWORD: "Fusion.0.to.1"
     expose:

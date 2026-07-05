@@ -1,7 +1,6 @@
-namespace BoardGames.Abstractions
-{
-    public record GamePlayer(long UserId, long Score = 0)
-    {
-        public GamePlayer() : this(0) { }
-    }
-}
+using MessagePack;
+
+namespace BoardGames.Abstractions;
+
+[MessagePackObject(true)]
+public sealed partial record GamePlayer(long UserId, long Score = 0);

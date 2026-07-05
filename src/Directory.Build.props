@@ -1,15 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="latest" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-<!--    <SolutionDir Condition="$(SolutionDir) == ''">$(MSBuildThisFileDirectory.TrimEnd('\').TrimEnd('/'))\..\</SolutionDir>-->
     <DefaultLanguage>en-US</DefaultLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
 
     <!-- Defaults for .csproj -->
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>true</WarningsAsErrors>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+
+    <!--
+    NU1901-NU1904: Package 'X' has a known vulnerability
+    IL2026: Using member 'AddFusion' which has 'RequiresUnreferencedCodeAttribute' can break functionality when trimming
+    BL0007: Component parameter '...' should be auto property
+    NETSDK1206: Found version-specific or distribution-specific runtime identifier(s)
+    -->
+    <NoWarn>$(NoWarn);NU1901;NU1902;NU1903;NU1904;IL2026;BL0007;NETSDK1206</NoWarn>
 
     <!-- Disable unused build process components -->
     <TypeScriptCompilerBlocked>true</TypeScriptCompilerBlocked>
@@ -17,4 +26,35 @@
     <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
+
+  <!-- Global usings -->
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections" />
+    <Using Include="System.Collections.Concurrent" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Collections.Immutable" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Reactive" /> <!-- Mainly for Unit type -->
+    <Using Include="System.Text" />
+    <Using Include="System.Threading" />
+    <Using Include="System.Threading.Tasks" />
+    <Using Include="ActualLab" />
+    <Using Include="ActualLab.Async" />
+    <Using Include="ActualLab.Collections" />
+    <Using Include="ActualLab.CommandR" />
+    <Using Include="ActualLab.CommandR.Configuration" />
+    <Using Include="ActualLab.CommandR.Commands" />
+    <Using Include="ActualLab.DependencyInjection" />
+    <Using Include="ActualLab.Fusion" />
+    <Using Include="ActualLab.Fusion.Operations" />
+    <Using Include="ActualLab.Reflection" />
+    <Using Include="ActualLab.Serialization" />
+    <Using Include="ActualLab.Text" />
+    <Using Include="ActualLab.Time" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
 </Project>

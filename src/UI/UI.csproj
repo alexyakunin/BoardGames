@@ -2,19 +2,27 @@
   <PropertyGroup>
     <RootNamespace>BoardGames.UI</RootNamespace>
     <AssemblyName>BoardGames.UI</AssemblyName>
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <!-- Required for WASM+Server projects -->
+    <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ActualLab.Fusion.Blazor" />
+    <PackageReference Include="ActualLab.Fusion.Blazor.Authentication" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazored.LocalStorage" />
     <PackageReference Include="Blazorise" />
-    <PackageReference Include="Blazorise.Bootstrap" />
+    <PackageReference Include="Blazorise.Bootstrap5" />
     <PackageReference Include="Blazorise.DataGrid" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" />
     <PackageReference Include="Blazorise.Sidebar" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
-    <PackageReference Include="Pluralize.NET" />
-    <PackageReference Include="Stl.Fusion.Blazor" />
     <PackageReference Include="UAParser" />
   </ItemGroup>
 
@@ -23,6 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <_ContentIncludedByDefault Remove="Shared\Chat\ChatView.razor" />
+    <PackageReference Include="ActualLab.Generators" PrivateAssets="all" />
   </ItemGroup>
 </Project>

@@ -1,33 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
+    <OutputType>Exe</OutputType>
     <RootNamespace>BoardGames.Host</RootNamespace>
     <AssemblyName>BoardGames.Host</AssemblyName>
     <ServerGarbageCollection>true</ServerGarbageCollection>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ActualLab.Fusion.EntityFramework.Npgsql" />
+    <PackageReference Include="ActualLab.Fusion.Ext.Services" />
+    <PackageReference Include="ActualLab.Fusion.Server" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
-    <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
-    <PackageReference Include="Stl.Fusion.Server" />
-    <PackageReference Include="Stl.Fusion.EntityFramework.Npgsql" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HostServices\HostServices.csproj" />
     <ProjectReference Include="..\UI\UI.csproj" />
     <ProjectReference Include="..\Migrations\Migrations.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="Pages\_Host.cshtml" CopyToPublishDirectory="PreserveNewest" />
-    <None Include="$(ProjectDir)\Resources\**" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" LinkBase="Resources\" />
   </ItemGroup>
 </Project>

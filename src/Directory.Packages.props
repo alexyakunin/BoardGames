@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="latest" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <ActualLabFusionVersion>13.0.12</ActualLabFusionVersion>
+    <AspNetCoreVersion>10.0.9</AspNetCoreVersion>
+    <BlazorVersion>$(AspNetCoreVersion)</BlazorVersion>
+    <EntityFrameworkCoreVersion>10.0.9</EntityFrameworkCoreVersion>
+    <EntityFrameworkCoreNpgsqlVersion>10.0.2</EntityFrameworkCoreNpgsqlVersion>
+    <MicrosoftExtensionsVersion>10.0.9</MicrosoftExtensionsVersion>
+    <BlazoriseVersion>2.2.1</BlazoriseVersion>
+  </PropertyGroup>
+
+  <!-- Fusion packages -->
+  <ItemGroup>
+    <PackageVersion Include="ActualLab.Fusion" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Fusion.Blazor" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Fusion.Blazor.Authentication" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Fusion.EntityFramework" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Fusion.EntityFramework.Npgsql" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Fusion.Ext.Contracts" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Fusion.Ext.Services" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Fusion.Server" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Rpc.Server" Version="$(ActualLabFusionVersion)" />
+    <PackageVersion Include="ActualLab.Testing" Version="$(ActualLabFusionVersion)" />
+    <!-- Build time only -->
+    <PackageVersion Include="ActualLab.Generators" Version="$(ActualLabFusionVersion)" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+  </ItemGroup>
+
+  <!-- Other packages -->
+  <ItemGroup>
+    <PackageVersion Include="AspNet.Security.OAuth.GitHub" Version="10.0.0" />
+    <PackageVersion Include="Blazored.LocalStorage" Version="4.5.0" />
+    <PackageVersion Include="Blazorise" Version="$(BlazoriseVersion)" />
+    <PackageVersion Include="Blazorise.Bootstrap5" Version="$(BlazoriseVersion)" />
+    <PackageVersion Include="Blazorise.DataGrid" Version="$(BlazoriseVersion)" />
+    <PackageVersion Include="Blazorise.Icons.FontAwesome" Version="$(BlazoriseVersion)" />
+    <PackageVersion Include="Blazorise.Sidebar" Version="$(BlazoriseVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.Google" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(BlazorVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(BlazorVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="$(BlazorVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EntityFrameworkCoreVersion)" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="$(EntityFrameworkCoreNpgsqlVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="$(MicrosoftExtensionsVersion)" />
+    <PackageVersion Include="Pluralize.NET" Version="1.0.2" />
+    <PackageVersion Include="UAParser" Version="3.1.47" />
+  </ItemGroup>
+
+  <!-- Test packages -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" />
+  </ItemGroup>
+</Project>

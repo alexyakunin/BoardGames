@@ -1,6 +1,7 @@
-@using Stl.Text
+@using ActualLab.OS
+@inherits CircuitHubComponentBase
 
-<CascadingAuthState SessionId="@SessionId">
+<CascadingAuthState UsePresenceReporter="true">
 <ThemeProvider Theme="@Theme">
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
@@ -18,6 +19,24 @@
 @code {
     private Theme Theme { get; } = new() { IsGradient = true, IsRounded = false };
 
-    [Parameter]
-    public string SessionId { get; set; } = Symbol.Empty;
+    private ISessionResolver SessionResolver => CircuitHub.SessionResolver;
+
+    [Parameter] public string SessionId { get; set; } = "";
+    [Parameter] public string RenderModeKey { get; set; } = "";
+
+    protected override void OnInitialized()
+    {
+        if (OSInfo.IsWebAssembly) {
+            // RPC auto-substitutes Session.Default to the cookie-based one on the server side for every call
+            SessionResolver.Session = Session.Default;
+            // That's how WASM app starts hosted services
+            var rootServices = Services.Commander().Services;
+            _ = rootServices.HostedServices().Start();
+        }
+        else {
+            SessionResolver.Session = new Session(SessionId);
+        }
+        if (CircuitHub.IsInteractive)
+            CircuitHub.Initialize(this.GetDispatcher(), RenderModeDef.GetOrDefault(RenderModeKey));
+    }
 }

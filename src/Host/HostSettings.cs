@@ -1,36 +1,29 @@
-using System;
-using System.Text;
-using Stl.DependencyInjection;
+namespace BoardGames.Host;
 
-namespace BoardGames.Host
+public class HostSettings
 {
-    [RegisterSettings("BoardGames")]
-    public class HostSettings
-    {
-        // Web
-        public bool AssumeHttps { get; set; } = false;
-        public bool UseHttpsRedirection { get; set; } = false;
-        public bool UseForwardedHeaders { get; set; } = true;
+    // Web
+    public bool AssumeHttps { get; set; } = false;
+    public bool UseHttpsRedirection { get; set; } = false;
+    public bool UseForwardedHeaders { get; set; } = true;
+    public int? Port { get; set; }
 
-        // Fusion
-        public string PublisherId { get; set; } = "p";
+    // DBs
+    public string UsePostgreSql { get; set; } =
+        "Server=localhost;Database=board_games_dev;Port=5432;User Id=postgres;Password=Fusion.0.to.1";
+    public bool UseSqlite { get; set; } = false;
 
-        // DBs
-        public string UsePostgreSql { get; set; } =
-            "Server=localhost;Database=board_games_dev;Port=5432;User Id=postgres;Password=Fusion.0.to.1";
-        public bool UseSqlite { get; set; } = false;
+    // Sign-in
+    public string MicrosoftClientId { get; set; } = "6839dbf7-d1d3-4eb2-a7e1-ce8d48f34d00";
+    public string MicrosoftClientSecret { get; set; } =
+        Encoding.UTF8.GetString(Convert.FromBase64String(
+            "REFYeH4yNTNfcVNWX2h0WkVoc1V6NHIueDN+LWRxUTA2Zw=="));
+    public string GitHubClientId { get; set; } = "7a38bc415f7e1200fee2";
+    public string GitHubClientSecret { get; set; } =
+        Encoding.UTF8.GetString(Convert.FromBase64String(
+            "OGNkMTAzM2JmZjljOTk3ODc5MjhjNTNmMmE3Y2Q1NWU0ZmNlNjU0OA=="));
 
-        // Sign-in
-        public string MicrosoftClientId { get; set; } = "6839dbf7-d1d3-4eb2-a7e1-ce8d48f34d00";
-        public string MicrosoftClientSecret { get; set; } =
-            Encoding.UTF8.GetString(Convert.FromBase64String(
-                "REFYeH4yNTNfcVNWX2h0WkVoc1V6NHIueDN+LWRxUTA2Zw=="));
-        public string GitHubClientId { get; set; } = "7a38bc415f7e1200fee2";
-        public string GitHubClientSecret { get; set; } =
-            Encoding.UTF8.GetString(Convert.FromBase64String(
-                "OGNkMTAzM2JmZjljOTk3ODc5MjhjNTNmMmE3Y2Q1NWU0ZmNlNjU0OA=="));
-
-        public string DataProtectionCert { get; set; } = @"
+    public string DataProtectionCert { get; set; } = @"
 MIIGIQIBAzCCBecGCSqGSIb3DQEHAaCCBdgEggXUMIIF0DCCAs8GCSqGSIb3DQEHBqCCAsAwggK8
 AgEAMIICtQYJKoZIhvcNAQcBMBwGCiqGSIb3DQEMAQYwDgQI+OuKRBTOqxcCAggAgIICiJ4xXxTK
 3CJQLOgjXWQR8SzKXRjGXCMrkTEkdKEM58c39c+h3p0CCITUbRl7oF6anHstJMXV08JzraDnsuAS
@@ -60,5 +53,4 @@ pn4D7+gProuEWRk2KTNDIi490bRXKMckM1M2zpnwmZl1pHvYkNuVTcvHa42C5o0XQgrYlvX6ut+R
 nDElMCMGCSqGSIb3DQEJFTEWBBQqWz7PcWzeyndOTsePRCu2C/tnVjAxMCEwCQYFKw4DAhoFAAQU
 lRWnDw0vHMN9GV8EuMUc5z/2d7IECMAuCHMOgFiwAgIIAA==
 ";
-    }
 }

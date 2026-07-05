@@ -7,8 +7,6 @@
     <AppUsersBadge Users="@OrderedUsers" />
 </Paragraph>
 
-<WhenCommandError Exception="@CommandRunner.Error"/>
-
 <Container Padding="Padding.Is0">
     @if (IsOwner) {
         <Form @onsubmit="_ => Edit()" Margin="Margin.Is0">
@@ -31,7 +29,7 @@
                     <Addon AddonType="AddonType.Start">
                         <AddonLabel>Rounds:</AddonLabel>
                     </Addon>
-                    <TextEdit @bind-Text="@RoundCount.Value" />
+                    <input @bind="@RoundCount.Value" @bind:event="onchange" class="form-control" />
                     <Addon AddonType="AddonType.End">
                         <Button Type="@ButtonType.Submit" Color="Color.Primary" Disabled="@(!RoundCount.IsValid)">
                             <Blazorise.Icon Name="FontAwesomeIcons.Check"/>
@@ -53,8 +51,8 @@
         }
     }
     <Paragraph Margin="Margin.Is3.OnY">
-        <Switch TValue="bool" Checked="@Game.IsPublic" Disabled="@(!IsOwner)"
-                CheckedChanged="_ => ChangeIsPublic()">
+        <Switch TValue="bool" Value="@Game.IsPublic" Disabled="@(!IsOwner)"
+                ValueChanged="_ => ChangeIsPublic()">
             Anyone can join
         </Switch>
     </Paragraph>
@@ -71,8 +69,8 @@
 </Paragraph>
 
 @code {
-    private Editor<string> Intro { get; set; } = new();
-    private Editor<string> RoundCount { get; set; } = new() {
+    private ValueEditor<string> Intro { get; set; } = new();
+    private ValueEditor<string> RoundCount { get; set; } = new() {
         Validator = e => e.OriginalValue == ""
             ? ""
             : int.TryParse(e.Value, out _) ? "" : "Round count must be an integer.",
@@ -81,34 +79,32 @@
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
-        using var _ = Computed.SuspendDependencyCapture(); // Otherwise the next call may try to reg. as a dependency!
+        using var _ = Computed.BeginIsolation(); // Otherwise the next call may try to reg. as a dependency!
         var parsedIntro = await MessageParser.Parse(Game.Intro);
         Intro.OriginalValue = parsedIntro.Format(true);
         RoundCount.OriginalValue = Game.RoundCount?.ToString() ?? "";
     }
 
     private Task Start()
-        => CommandRunner.Call(new Game.StartCommand(Session, Game.Id));
+        => UICommander.Run(new Game_Start(Session, Game.Id));
 
     private Task Join()
-        => CommandRunner.Call(new Game.JoinCommand(Session, Game.Id));
+        => UICommander.Run(new Game_Join(Session, Game.Id));
 
     private Task Leave()
-        => CommandRunner.Call(new Game.JoinCommand(Session, Game.Id, false));
+        => UICommander.Run(new Game_Join(Session, Game.Id, false));
 
     private Task ChangeIsPublic()
-        => CommandRunner.Call(new Game.EditCommand(Session, Game.Id, !Game.IsPublic));
+        => UICommander.Run(new Game_Edit(Session, Game.Id, !Game.IsPublic));
 
     private Task Edit()
     {
-        if (!RoundCount.IsValid) {
-            CommandRunner.Error = new ValidationException("Round count must be an integer.");
+        if (!RoundCount.IsValid)
             return Task.CompletedTask;
-        }
         var roundCount = RoundCount.Value != "" ? (int?) int.Parse(RoundCount.Value) : null;
-        var command = new Game.EditCommand(Session, Game.Id,
+        var command = new Game_Edit(Session, Game.Id,
             Intro: Intro.Value,
             RoundCount: roundCount);
-        return CommandRunner.Call(command);
+        return UICommander.Run(command);
     }
 }

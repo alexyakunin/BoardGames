@@ -6,11 +6,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ActualLab.Fusion.EntityFramework" />
+    <PackageReference Include="ActualLab.Fusion.Ext.Services" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
-    <PackageReference Include="Stl.Fusion.EntityFramework" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SharedServices\SharedServices.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ActualLab.Generators" PrivateAssets="all" />
   </ItemGroup>
 </Project>

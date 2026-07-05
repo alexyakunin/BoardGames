@@ -6,6 +6,8 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
+#nullable disable
+
 namespace BoardGames.Migrations.Migrations
 {
     [DbContext(typeof(AppDbContext))]
@@ -15,9 +17,180 @@ namespace BoardGames.Migrations.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.3")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                .HasAnnotation("ProductVersion", "10.0.9")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ActualLab.Fusion.Authentication.Services.DbSessionInfo<long>", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("AuthenticatedIdentity")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IPAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsSignOutForced")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("LastSeenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OptionsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt", "IsSignOutForced");
+
+                    b.HasIndex("IPAddress", "IsSignOutForced");
+
+                    b.HasIndex("LastSeenAt", "IsSignOutForced");
+
+                    b.HasIndex("UserId", "IsSignOutForced");
+
+                    b.ToTable("_Sessions");
+                });
+
+            modelBuilder.Entity("ActualLab.Fusion.Authentication.Services.DbUser<long>", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ClaimsJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ActualLab.Fusion.Authentication.Services.DbUserIdentity<long>", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<long>("DbUserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("UserId");
+
+                    b.Property<string>("Secret")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DbUserId");
+
+                    b.HasIndex("Id");
+
+                    b.ToTable("UserIdentities");
+                });
+
+            modelBuilder.Entity("ActualLab.Fusion.EntityFramework.Operations.DbEvent", b =>
+                {
+                    b.Property<string>("Uuid")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("DelayUntil")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("LoggedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ValueJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Uuid");
+
+                    b.HasIndex("DelayUntil", "State");
+
+                    b.HasIndex("State", "DelayUntil");
+
+                    b.ToTable("_Events");
+                });
+
+            modelBuilder.Entity("ActualLab.Fusion.EntityFramework.Operations.DbOperation", b =>
+                {
+                    b.Property<long>("Index")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Index"));
+
+                    b.Property<string>("CommandJson")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("HostId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ItemsJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("LoggedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("NestedOperations")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Uuid")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Index");
+
+                    b.HasIndex("LoggedAt");
+
+                    b.HasIndex("Uuid")
+                        .IsUnique();
+
+                    b.ToTable("_Operations");
+                });
 
             modelBuilder.Entity("BoardGames.HostServices.DbChatMessage", b =>
                 {
@@ -25,7 +198,7 @@ namespace BoardGames.Migrations.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("DbChatId")
                         .IsRequired()
@@ -37,7 +210,7 @@ namespace BoardGames.Migrations.Migrations
                         .HasColumnName("UserId");
 
                     b.Property<DateTime>("EditedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("boolean");
@@ -69,14 +242,14 @@ namespace BoardGames.Migrations.Migrations
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<long>("DbUserId")
                         .HasColumnType("bigint")
                         .HasColumnName("UserId");
 
                     b.Property<DateTime?>("EndedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("EngineId")
                         .IsRequired()
@@ -90,7 +263,7 @@ namespace BoardGames.Migrations.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastMoveAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<long?>("MaxScore")
                         .HasColumnType("bigint");
@@ -105,7 +278,7 @@ namespace BoardGames.Migrations.Migrations
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("StartedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("StateJson")
                         .IsRequired()
@@ -157,8 +330,9 @@ namespace BoardGames.Migrations.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("FriendlyName")
                         .HasColumnType("text");
@@ -171,146 +345,13 @@ namespace BoardGames.Migrations.Migrations
                     b.ToTable("DataProtectionKeys");
                 });
 
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Authentication.DbSessionInfo", b =>
+            modelBuilder.Entity("ActualLab.Fusion.Authentication.Services.DbUserIdentity<long>", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)");
-
-                    b.Property<string>("AuthenticatedIdentity")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("IPAddress")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsSignOutForced")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastSeenAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("OptionsJson")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserAgent")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt", "IsSignOutForced");
-
-                    b.HasIndex("IPAddress", "IsSignOutForced");
-
-                    b.HasIndex("LastSeenAt", "IsSignOutForced");
-
-                    b.HasIndex("UserId", "IsSignOutForced");
-
-                    b.ToTable("_Sessions");
-                });
-
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Authentication.DbUser", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("ClaimsJson")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Authentication.DbUserIdentity", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<long>("DbUserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("UserId");
-
-                    b.Property<string>("Secret")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DbUserId");
-
-                    b.HasIndex("Id");
-
-                    b.ToTable("UserIdentities");
-                });
-
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Extensions.DbKeyValue", b =>
-                {
-                    b.Property<string>("Key")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("ExpiresAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Key");
-
-                    b.HasIndex("ExpiresAt");
-
-                    b.ToTable("_KeyValues");
-                });
-
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Operations.DbOperation", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("AgentId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("CommandJson")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CommitTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("ItemsJson")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "CommitTime" }, "IX_CommitTime");
-
-                    b.HasIndex(new[] { "StartTime" }, "IX_StartTime");
-
-                    b.ToTable("_Operations");
+                    b.HasOne("ActualLab.Fusion.Authentication.Services.DbUser<long>", null)
+                        .WithMany("Identities")
+                        .HasForeignKey("DbUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("BoardGames.HostServices.DbGamePlayer", b =>
@@ -322,23 +363,14 @@ namespace BoardGames.Migrations.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Authentication.DbUserIdentity", b =>
+            modelBuilder.Entity("ActualLab.Fusion.Authentication.Services.DbUser<long>", b =>
                 {
-                    b.HasOne("Stl.Fusion.EntityFramework.Authentication.DbUser", null)
-                        .WithMany("Identities")
-                        .HasForeignKey("DbUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Identities");
                 });
 
             modelBuilder.Entity("BoardGames.HostServices.DbGame", b =>
                 {
                     b.Navigation("Players");
-                });
-
-            modelBuilder.Entity("Stl.Fusion.EntityFramework.Authentication.DbUser", b =>
-                {
-                    b.Navigation("Identities");
                 });
 #pragma warning restore 612, 618
         }

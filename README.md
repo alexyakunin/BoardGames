@@ -2,11 +2,10 @@
 
 "Board Games" is a [Fusion] sample and a fully functional 
 web app allowing you to play real-time multiplayer board games.
+It runs on .NET 10, ASP.NET Core (Blazor Server + WebAssembly),
+[ActualLab.Fusion](https://github.com/ActualLab/Fusion), EF Core,
+and [Blazorise](https://blazorise.com/).
 
-**Note:** this repository wasn't updated for a while, so it uses 
-an outdated version of Fusion (v1.3.x, while the current one is v3.7.x). 
-Nevertheless it's still a good example you can play with 
-to learn Fusion. The APIs change, but concepts stay the same :)
 
 <img src="https://img.shields.io/badge/-Live!-green" valign="middle"> Live version of this app: https://boardgames.alexyakunin.com/
 
@@ -42,8 +41,8 @@ different user accounts, and:
   MS/GitHub accounts, see all browser sessions, "kick" some
   of them or sign out from all of them.
 - Full state persistence to any DB supported by EF Core
-- Web API - it's used when the sample works in Blazor 
-  WASM mode, so whatever UI can do is available there too.
+- Fusion RPC over WebSockets - it's used when the sample works
+  in Blazor WASM mode, so whatever UI can do is available there too.
 
 Finally, the sample supports *both* Blazor Server and 
 Blazor WebAssembly modes.
@@ -70,7 +69,7 @@ The [live version] of this app is hosted on Google Cloud GKE:
 ### Ok, real-time. But seriously, what's so new there?
 
 The implementation cost of real-time updates. Everything you 
-see there required me to write [just 35 extra lines of code](https://github.com/alexyakunin/BoardGames/search?q=IsInvalidating)!
+see there required me to write [just ~50 extra lines of code](https://github.com/alexyakunin/BoardGames/search?q=Invalidation.IsActive)!
 
 - First 3 `if` blocks have ~ 15 lines of code inside
 - The last one (in `GameService.cs`, the invalidation logic is outside of 
@@ -86,7 +85,7 @@ Blazor Server.
 > WASM version would require way more - the approach used in this sample,
 where server-side services are replaced by their client-side caching
 replicas (so-called 
-["Replica Services"](https://github.com/servicetitan/Stl.Fusion.Samples/blob/master/docs/tutorial/Part04.md)
+["Replica Services"](https://github.com/ActualLab/Fusion.Samples/blob/master/docs/tutorial/Part04.md)
 in Fusion terms) simply won't work without Fusion-style distributed
 version of "computed observable" that eliminates every RPC call known 
 to return the same result as the locally cached one. 
@@ -96,7 +95,7 @@ zero implementation cost as well.
 
 **And this is what allowed me build Board Games single-handedly
 in 9 days.** Proof: 
-[the very first commit](https://github.com/servicetitan/Stl.Fusion.Samples/commit/546ae7597bc7fa3a0b3c7f3b84e3a463bc3fd28f)
+[the very first commit](https://github.com/ActualLab/Fusion.Samples/commit/546ae7597bc7fa3a0b3c7f3b84e3a463bc3fd28f)
 cloning Fusion's Blazorise template was made on Feb 1, 
 and [I wrote this README describing what's already done](https://github.com/alexyakunin/BoardGames/commit/b1042a74209050cb79fb4e248f84a03c2b600fbf)
 on Feb 10 (though at that point there was just one game). 
@@ -104,13 +103,13 @@ on Feb 10 (though at that point there was just one game).
 ### Looks interesting, how do I learn more about Fusion?
 
 Check out [Fusion] and its 
-[other samples](https://github.com/servicetitan/Stl.Fusion.Samples);
+[other samples](https://github.com/ActualLab/Fusion.Samples);
 join our [Discord Server] to ask questions.
 
 P.S. I am sure there are some bugs - if you'll find one, 
 please 
 [report an issue](https://github.com/alexyakunin/BoardGames/issues)!
 
-[Fusion]: https://github.com/servicetitan/Stl.Fusion
+[Fusion]: https://github.com/ActualLab/Fusion
 [Live version]: https://boardgames.alexyakunin.com/
 [Discord Server]: https://discord.gg/EKEwv6d

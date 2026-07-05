@@ -1,4 +1,3 @@
-@attribute [MatchFor(typeof(RpsEngine), ComponentScopes.GamePlay)]
 @inherits GamePlayBase
 
 @{
@@ -10,8 +9,6 @@
     playerIndexes.RemoveAt(MyPlayerIndex);
     playerIndexes.Insert(0, MyPlayerIndex);
 }
-
-<WhenCommandError Exception="CommandRunner.Error"/>
 
 <Heading Size="HeadingSize.Is4">Choose your destiny:</Heading>
 <Container Fluid="true">
@@ -60,13 +57,13 @@
 
 
 @code {
-    private RpsVote[] AllVotes { get; } = { RpsVote.Rock, RpsVote.Paper, RpsVote.Scissors };
+    private RpsVote[] AllVotes { get; } = [RpsVote.Rock, RpsVote.Paper, RpsVote.Scissors];
 
     private Task Move(RpsVote vote)
     {
         var move = new RpsMove(vote);
-        var command = new Game.MoveCommand(Session, Game.Id, move);
-        return CommandRunner.Call(command);
+        var command = new Game_Move(Session, Game.Id, move);
+        return UICommander.Run(command);
     }
 
     private object GetIconName(RpsVote vote)

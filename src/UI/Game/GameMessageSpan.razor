@@ -2,12 +2,12 @@
 @inject IMessageParser MessageParser
 
 @{
-    var message = State.LatestNonErrorValue;
+    var message = State.LastNonErrorValue ?? new GameMessage();
 }
 
 <span class="@CssClass">
 @foreach(var fragment in message.Fragments) {
-    <MatchingComponentFor Source="@fragment" SourceParameterName="Fragment" Scope="@ComponentScopes.GameMessage" />
+    <MatchingComponentFor TScope="MessageFragmentView" Source="@fragment" SourceParameterName="Fragment" />
 }
 </span>
 

@@ -1,0 +1,15 @@
+@inject RenderModeHelper RenderModeHelper
+
+<Buttons Class="@CssClass">
+    @foreach(var mode in RenderModeDef.All) {
+        <Button Color="Color.Secondary" Outline="@(RenderModeHelper.CurrentMode != mode)"
+                Clicked="@(() => RenderModeHelper.ChangeMode(mode))">
+            @mode.Title
+        </Button>
+    }
+</Buttons>
+
+@code {
+    [Parameter]
+    public string CssClass { get; set; } = "";
+}

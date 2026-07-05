@@ -4,12 +4,10 @@
 @inherits MixedStateComponent<OwnGameList.Model, int?>
 @inject IGameService Games
 @inject IAppUserService AppUsers
-@inject ImmutableDictionary<string, IGameEngine> GameEngines;
-@inject Session Session
-@inject NavigationManager Navigator
+@inject ImmutableDictionary<string, IGameEngine> GameEngines
 
 @{
-    var state = State.LatestNonErrorValue;
+    var state = State.LastNonErrorValue ?? new();
     var error = State.Error;
 }
 
@@ -32,7 +30,7 @@
                 @foreach(var game in state.Games) {
                     var gameUrl = LinkBuilder.Game(game.EngineId, game.Id);
                     var message = string.IsNullOrEmpty(game.StateMessage) ? game.Intro : game.StateMessage;
-                    <TableRow @key="@game.Id" Clicked="_ => Navigator.NavigateTo(gameUrl)">
+                    <TableRow @key="@game.Id" Clicked="_ => Nav.NavigateTo(gameUrl)">
                         <TableRowCell>
                             <Button Size="Size.Small" Color="Color.Primary" Type="@ButtonType.Link" To="@gameUrl">
                                 <Blazorise.Icon Name="@FontAwesomeIcons.Gamepad" />
@@ -57,13 +55,7 @@
                             <ChatMessageCountBadge ChatId="@Chat.GetGameChatId(game.Id)" />
                         </TableRowCell>
                         <TableRowCell>
-                            @if (game.LastMoveAt.HasValue) {
-                                <MomentsAgoBadge Value="@game.LastMoveAt.GetValueOrDefault()"/>
-                            } else if (game.StartedAt.HasValue) {
-                                <MomentsAgoBadge Value="@game.StartedAt.GetValueOrDefault()"/>
-                            } else {
-                                <MomentsAgoBadge Value="@game.CreatedAt"/>
-                            }
+                            <MomentsAgoBadge Value="@(game.LastMoveAt ?? game.StartedAt ?? game.CreatedAt)"/>
                         </TableRowCell>
                     </TableRow>
                 }

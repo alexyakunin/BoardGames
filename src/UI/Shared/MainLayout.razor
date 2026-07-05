@@ -1,4 +1,11 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager Nav
+@inject UIActionFailureTracker UIActionFailureTracker
+
+@{
+    var failures = UIActionFailureTracker.Items;
+}
 
 <Layout Sider="true">
     <LayoutSider>
@@ -12,7 +19,30 @@
         </LayoutHeader>
 
         <LayoutContent Padding="Padding.Is4">
+            @foreach (var failure in failures) {
+                <WhenCommandError @key="failure" Exception="failure.Error" Dismissed="@(() => UIActionFailureTracker.Remove(failure))" />
+            }
             @Body
         </LayoutContent>
     </Layout>
 </Layout>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Nav.LocationChanged += OnLocationChanged;
+        UIActionFailureTracker.Changed += OnUIActionFailureTrackerChanged;
+    }
+
+    public void Dispose()
+    {
+        Nav.LocationChanged -= OnLocationChanged;
+        UIActionFailureTracker.Changed -= OnUIActionFailureTrackerChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+        => UIActionFailureTracker.Clear();
+
+    private void OnUIActionFailureTrackerChanged()
+        => this.NotifyStateHasChanged();
+}

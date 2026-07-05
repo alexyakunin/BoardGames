@@ -1,12 +1,7 @@
-using System.Threading;
-using System.Threading.Tasks;
-using Stl.Fusion;
+namespace BoardGames.Abstractions;
 
-namespace BoardGames.Abstractions
+public interface IMessageParser : IComputeService
 {
-    public interface IMessageParser
-    {
-        [ComputeMethod(KeepAliveTime = 1)]
-        public Task<GameMessage> Parse(string text, CancellationToken cancellationToken = default);
-    }
+    [ComputeMethod(MinCacheDuration = 1)]
+    public Task<GameMessage> Parse(string text, CancellationToken cancellationToken = default);
 }

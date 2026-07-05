@@ -1,15 +1,12 @@
 @page "/profile"
 @using UAParser
 @using System.Collections.Concurrent
-@using Stl.Fusion.Authentication.Commands
 @inherits ComputedStateComponent<ProfilePage.Model>
-@inject Session Session
-@inject IAuthService AuthService
+@inject IAuth Auth
 @inject ClientAuthHelper ClientAuthHelper
-@inject NavigationManager Navigator
 
 @{
-    var state = State.LatestNonErrorValue;
+    var state = State.LastNonErrorValue ?? new();
     var error = State.Error;
     var usedAuthSchemas = state.User.Identities.Select(kv => kv.Key.Schema).ToHashSet();
     var unusedAuthSchemas = AuthSchemas.Where(p => !usedAuthSchemas.Contains(p.Name)).ToArray();
@@ -27,8 +24,6 @@
 This comment resets the indent :) -->
 
 <h4>User properties</h4>
-
-<WhenCommandError Exception="CommandRunner.Error"/>
 
 <Row Margin="Margin.Is3.OnY">
     <Column ColumnSize="ColumnSize.Is6">
@@ -73,7 +68,7 @@ This comment resets the indent :) -->
     </TableHeader>
     <TableBody>
         @foreach (var session in state.Sessions) {
-            <TableRow @key="@session.Id">
+            <TableRow @key="@session.SessionHash">
                 <TableRowCell>@session.IPAddress</TableRowCell>
                 <TableRowCell>@session.UserAgent</TableRowCell>
                 <TableRowCell><MomentsAgoBadge Value="@session.CreatedAt"/></TableRowCell>
@@ -84,7 +79,7 @@ This comment resets the indent :) -->
                     }
                     else {
                         <Button Size="Size.Small" Color="Color.Danger"
-                                Clicked="@(_ => ClientAuthHelper.SignOut(session.Id))">
+                                Clicked="@(_ => ClientAuthHelper.Kick(Session, session.SessionHash))">
                             Kick
                         </Button>
                     }
@@ -103,15 +98,15 @@ This comment resets the indent :) -->
 </AuthorizeView>
 
 @code {
-    public class Model
+    public record Model
     {
-        public User User { get; init; } = new("none");
+        public User User { get; init; } = User.NewGuest();
         public ImmutableList<SessionModel> Sessions { get; init; } = ImmutableList<SessionModel>.Empty;
     }
 
-    public class SessionModel
+    public record SessionModel
     {
-        public string Id { get; init; } = "";
+        public string SessionHash { get; init; } = "";
         public string IPAddress { get; init; } = "";
         public string UserAgent { get; init; } = "";
         public DateTime? CreatedAt { get; init; }
@@ -122,21 +117,13 @@ This comment resets the indent :) -->
     private static readonly Parser Parser = Parser.GetDefault();
     private static readonly ConcurrentDictionary<string, UserAgent> UserAgentCache = new();
 
-    [Inject]
-    private CommandRunner CommandRunner { get; set; } = null!;
-    private (string Name, string DisplayName)[] AuthSchemas { get; set; } = Array.Empty<(string, string)>();
-    private Editor<string> UserName { get; set; } = new();
-
-    protected override void OnParametersSet()
-    {
-        CommandRunner.Component = this;
-        base.OnParametersSet();
-    }
+    private (string Name, string DisplayName)[] AuthSchemas { get; set; } = [];
+    private ValueEditor<string> UserName { get; set; } = new();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender) {
-            // GetSchemasAsync requires JS interop, so it can be called only at this point
+            // GetSchemas requires JS interop, so it can be called only at this point
             AuthSchemas = await ClientAuthHelper.GetSchemas();
             StateHasChanged();
         }
@@ -144,15 +131,16 @@ This comment resets the indent :) -->
 
     protected override async Task<Model> ComputeState(CancellationToken cancellationToken)
     {
-        var user = await AuthService.GetUser(Session, cancellationToken);
-        var sessions = await AuthService.GetUserSessions(Session, cancellationToken);
+        var user = await Auth.GetUser(Session, cancellationToken);
+        user = user.OrGuest();
+        var sessions = await Auth.GetUserSessions(Session, cancellationToken);
 
         var sessionModels = new List<SessionModel>();
         foreach (var session in sessions) {
             var userAgent = UserAgentCache.GetOrAdd(session.UserAgent, ua => Parser.ParseUserAgent(ua));
             var sessionModel = new SessionModel() {
-                Id = session.Id,
-                IsCurrent = Session.Id == session.Id,
+                SessionHash = session.SessionHash,
+                IsCurrent = Session.Hash == session.SessionHash,
                 IPAddress = session.IPAddress,
                 UserAgent = $"{userAgent.Family} {userAgent.Major}.{userAgent.Minor}",
                 CreatedAt = session.CreatedAt,
@@ -167,9 +155,6 @@ This comment resets the indent :) -->
         };
     }
 
-    private async Task ChangeUserName()
-    {
-        var command = new EditUserCommand(Session, UserName.Value);
-        await CommandRunner.Call(command);
-    }
+    private Task ChangeUserName()
+        => UICommander.Run(new Auth_EditUser(Session, UserName.Value));
 }

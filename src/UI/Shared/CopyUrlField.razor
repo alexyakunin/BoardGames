@@ -4,7 +4,7 @@
     <Addon AddonType="AddonType.Start">
         <AddonLabel>@ChildContent</AddonLabel>
     </Addon>
-    <TextEdit Text="@Url" ReadOnly="true" />
+    <TextInput Value="@Url" ReadOnly="true" />
     <Addon AddonType="AddonType.End">
         <Button Color="Color.Primary" Clicked="_ => CopyUrl()">
             <Blazorise.Icon Name="FontAwesomeIcons.Copy"/> Copy

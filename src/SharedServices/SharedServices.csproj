@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <OutputType>Library</OutputType>
     <RootNamespace>BoardGames.ClientServices</RootNamespace>
     <AssemblyName>BoardGames.ClientServices</AssemblyName>
   </PropertyGroup>
@@ -7,10 +8,13 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
     <PackageReference Include="Pluralize.NET" />
-    <PackageReference Include="UAParser" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Abstractions\Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ActualLab.Generators" PrivateAssets="all" />
   </ItemGroup>
 </Project>

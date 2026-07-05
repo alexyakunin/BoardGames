@@ -1,12 +1,12 @@
-using System.Collections.Immutable;
+using MessagePack;
 
-namespace BoardGames.Abstractions
+namespace BoardGames.Abstractions;
+
+[MessagePackObject(true)]
+public sealed partial record ChatPage(string ChatId, int Limit)
 {
-    public record ChatPage(string ChatId, int Limit)
-    {
-        public ImmutableList<ChatMessage> Messages { get; init; } = ImmutableList<ChatMessage>.Empty;
-        public ImmutableDictionary<long, AppUser> Users { get; init; } = ImmutableDictionary<long, AppUser>.Empty;
+    public static ChatPage None { get; } = new("", 0);
 
-        public ChatPage() : this("", 0) { }
-    }
+    public ImmutableList<ChatMessage> Messages { get; init; } = ImmutableList<ChatMessage>.Empty;
+    public ImmutableDictionary<long, AppUser> Users { get; init; } = ImmutableDictionary<long, AppUser>.Empty;
 }
