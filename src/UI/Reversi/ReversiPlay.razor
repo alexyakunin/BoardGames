@@ -1,0 +1,49 @@
+@inherits GamePlayBase
+
+@{
+    var gameEngine = (ReversiEngine) GameEngine;
+    var gameState = gameEngine.DeserializeState(Game.StateJson);
+    var board = gameState.Board;
+    var isMyTurn = Game.Stage == GameStage.Playing && gameState.PlayerIndex == MyPlayerIndex;
+    var myMarker = gameEngine.GetPlayerMarker(MyPlayerIndex);
+}
+
+<Row><Column ColumnSize="ColumnSize.Is6">
+    <table style="border-collapse: separate; border-spacing: 2px; background: #2a7a3b; border-radius: 0.5rem; padding: 0.25rem;"><tbody>
+        @for (var r = 0; r < ReversiEngine.BoardSize; r++) {
+            var row = r;
+            <tr @key=@row class="p-0 m-0">
+                @for (var c = 0; c < ReversiEngine.BoardSize; c++) {
+                    var col = c;
+                    var cell = board[row, col];
+                    var isLegal = isMyTurn && cell == ' ' && ReversiEngine.IsLegalMove(board, row, col, myMarker);
+                    var cellStyle = "padding: 0px; width: 2.5rem; height: 2.5rem; background: #3c9d51;"
+                        + (isLegal ? "" : " cursor: default;");
+                    <td @key=@((row, col)) class="p-0 m-0">
+                        <Button Style="@cellStyle"
+                                @onclick="_ => Move(row, col)">
+                            @GetDisc(cell, isLegal)
+                        </Button>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody></table>
+</Column></Row>
+
+@code {
+    private Task Move(int r, int c)
+    {
+        var move = new ReversiMove(r, c);
+        var command = new Game_Move(Session, Game.Id, move);
+        return UICommander.Run(command);
+    }
+
+    private RenderFragment GetDisc(char cell, bool isLegal)
+        => cell switch {
+            'X' => @<Blazorise.Icon Name="FontAwesomeIcons.Circle" IconStyle="IconStyle.Solid" Style="color: #212529; font-size: 2rem;" />,
+            'O' => @<Blazorise.Icon Name="FontAwesomeIcons.Circle" IconStyle="IconStyle.Solid" Style="color: #f8f9fa; font-size: 2rem;" />,
+            _ when isLegal => @<Blazorise.Icon Name="FontAwesomeIcons.Circle" IconStyle="IconStyle.Regular" Style="color: rgba(255, 255, 255, 0.5); font-size: 1rem;" />,
+            _ => @<span></span>,
+            };
+}

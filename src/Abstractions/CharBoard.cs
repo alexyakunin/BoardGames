@@ -4,70 +4,84 @@ namespace BoardGames.Abstractions;
 
 public record CharBoard
 {
-    private static readonly ConcurrentDictionary<int, CharBoard> EmptyCache = new();
-    public static CharBoard Empty(int size) => EmptyCache.GetOrAdd(size, size1 => new CharBoard(size1));
+    private static readonly ConcurrentDictionary<(int Width, int Height), CharBoard> EmptyCache = new();
 
-    public int Size { get; }
+    public static CharBoard Empty(int size) => Empty(size, size);
+    public static CharBoard Empty(int width, int height)
+        => EmptyCache.GetOrAdd((width, height), key => new CharBoard(key.Width, key.Height));
+
+    public int Width { get; }
+    public int Height { get; }
     public string Cells { get; }
+
+    [JsonIgnore]
+    public bool IsFull => !Cells.Contains(' ');
 
     [JsonIgnore]
     public char this[int r, int c] {
         get {
-            var cellIndex = GetCellIndex(r, c);
-            if (cellIndex < 0 || cellIndex >= Cells.Length)
+            if (r < 0 || r >= Height || c < 0 || c >= Width)
                 return ' ';
-            return Cells[cellIndex];
+            return Cells[GetCellIndex(r, c)];
         }
     }
 
     [JsonIgnore]
     public string this[int r] {
         get {
-            var startIndex = GetCellIndex(r, 0);
-            if (startIndex < 0 || startIndex >= Cells.Length)
+            if (r < 0 || r >= Height)
                 return "";
-            return Cells.Substring(startIndex, Size);
+            return Cells.Substring(GetCellIndex(r, 0), Width);
         }
     }
 
-    public CharBoard(int size)
+    public CharBoard(int width, int height)
     {
-        if (size < 1)
-            throw new ArgumentOutOfRangeException(nameof(size));
-        Size = size;
-        Cells = new string(' ', size * size);
+        if (width < 1)
+            throw new ArgumentOutOfRangeException(nameof(width));
+        if (height < 1)
+            throw new ArgumentOutOfRangeException(nameof(height));
+        Width = width;
+        Height = height;
+        Cells = new string(' ', width * height);
     }
 
     [JsonConstructor]
-    public CharBoard(int size, string cells)
+    public CharBoard(int width, int height, string cells)
     {
-        if (size < 1)
-            throw new ArgumentOutOfRangeException(nameof(size));
-        if (size * size != cells.Length)
-            throw new ArgumentOutOfRangeException(nameof(size));
-        Size = size;
+        if (width < 1)
+            throw new ArgumentOutOfRangeException(nameof(width));
+        if (height < 1)
+            throw new ArgumentOutOfRangeException(nameof(height));
+        if (width * height != cells.Length)
+            throw new ArgumentOutOfRangeException(nameof(cells));
+        Width = width;
+        Height = height;
         Cells = cells;
     }
 
     protected virtual bool PrintMembers(StringBuilder builder)
     {
-        builder.AppendFormat("Cells[{0}x{0}] = [\r\n", Size);
-        for (var rowIndex = 0; rowIndex < Size; rowIndex++)
+        builder.AppendFormat("Cells[{0}x{1}] = [\r\n", Width, Height);
+        for (var rowIndex = 0; rowIndex < Height; rowIndex++)
             builder.AppendFormat("  |{0}|\r\n", this[rowIndex]);
         builder.Append("  ]");
         return true;
     }
 
-    public int GetCellIndex(int r, int c) => r * Size + c;
+    public int GetCellIndex(int r, int c) => r * Width + c;
+
+    public int Count(char value)
+        => Cells.Count(c => c == value);
 
     public CharBoard Set(int r, int c, char value)
     {
-        if (r < 0 || r >= Size)
+        if (r < 0 || r >= Height)
             throw new ArgumentOutOfRangeException(nameof(r));
-        if (c < 0 || c >= Size)
+        if (c < 0 || c >= Width)
             throw new ArgumentOutOfRangeException(nameof(c));
         var cellIndex = GetCellIndex(r, c);
         var newCells = Cells.Substring(0, cellIndex) + value + Cells.Substring(cellIndex + 1);
-        return new CharBoard(Size, newCells);
+        return new CharBoard(Width, Height, newCells);
     }
 }

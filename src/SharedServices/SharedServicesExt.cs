@@ -1,5 +1,6 @@
 using BoardGames.Abstractions;
 using ActualLab.Fusion.Extensions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Pluralize.NET;
 
 namespace BoardGames.ClientServices;
@@ -14,8 +15,8 @@ public static class SharedServicesExt
     {
         var services = fusion.Services;
         services.AddGameEngines();
-        services.AddSingleton<IPluralize, Pluralizer>();
-        services.AddSingleton<IUserNameService, UserNameService>();
+        services.TryAddSingleton<IPluralize, Pluralizer>();
+        services.TryAddSingleton<IUserNameService, UserNameService>();
         fusion.AddFusionTime();
         fusion.AddComputeService<IMessageParser, MessageParser>();
         return fusion;

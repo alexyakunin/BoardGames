@@ -151,7 +151,7 @@ void ConfigureServices()
     fusion.AddServer<IGameService, GameService>();
     fusion.AddServer<IChatService, ChatService>();
     fusion.AddServer<IAppUserService, AppUserService>();
-    fusion.AddSharedServices();
+    // The rest is registered by ClientStartup.ConfigureSharedServices below
 
     // Data protection
     var dpCert = X509CertificateLoader.LoadPkcs12(

@@ -2,29 +2,31 @@ using MessagePack;
 
 namespace BoardGames.Abstractions.Games;
 
-public enum GomokuGameEndingKind
+public enum MnkGameEndingKind
 {
     None = 0,
     Win,
     Draw,
 }
 
-public record GomokuState(CharBoard Board, int MoveIndex = 0, int FirstPlayerIndex = 0)
+public record MnkGameState(CharBoard Board, int MoveIndex = 0, int FirstPlayerIndex = 0)
 {
     public int PlayerIndex => (MoveIndex + FirstPlayerIndex) % 2;
     public int NextPlayerIndex => (PlayerIndex + 1) % 2;
 }
 
 [MessagePackObject(true)]
-public sealed partial record GomokuMove(int Row, int Column) : GameMove;
+public sealed partial record MnkGameMove(int Row, int Column) : GameMove;
 
-public class GomokuEngine : GameEngine<GomokuState, GomokuMove>
+/// <summary>
+/// The base engine for m,n,k-games (https://en.wikipedia.org/wiki/M,n,k-game):
+/// two players alternately place markers on a NxN board, the first one to get
+/// K markers in a row (horizontally, vertically, or diagonally) wins.
+/// </summary>
+public abstract class MnkGameEngine : GameEngine<MnkGameState, MnkGameMove>
 {
-    public static int BoardSize { get; } = 19;
-
-    public override string Id => "gomoku";
-    public override string Title => "Gomoku (Five in a Row)";
-    public override string Icon => "fa-border-all";
+    public abstract int BoardSize { get; }
+    public abstract int WinLength { get; }
     public override int MinPlayerCount => 2;
     public override int MaxPlayerCount => 2;
     public override bool AutoStart => true;
@@ -32,7 +34,7 @@ public class GomokuEngine : GameEngine<GomokuState, GomokuMove>
     public override Game Start(Game game)
     {
         var firstPlayerIndex = Random.Shared.Next() & 1;
-        var state = new GomokuState(CharBoard.Empty(BoardSize), 0, firstPlayerIndex);
+        var state = new MnkGameState(CharBoard.Empty(BoardSize), 0, firstPlayerIndex);
         var player = game.Players[state.PlayerIndex];
         return game with {
             StateJson = SerializeState(state),
@@ -40,7 +42,7 @@ public class GomokuEngine : GameEngine<GomokuState, GomokuMove>
         };
     }
 
-    public override Game Move(Game game, GomokuMove move)
+    public override Game Move(Game game, MnkGameMove move)
     {
         if (game.Stage == GameStage.Ended)
             throw new ApplicationException("Game is ended.");
@@ -62,17 +64,17 @@ public class GomokuEngine : GameEngine<GomokuState, GomokuMove>
 
         var gameEndingKind = GetGameEnding(nextBoard, move);
         switch (gameEndingKind) {
-        case GomokuGameEndingKind.None:
+        case MnkGameEndingKind.None:
             return nextGame with {
                 StateMessage = StandardMessages.MoveTurn(new AppUser(nextPlayer.UserId)),
             };
-        case GomokuGameEndingKind.Win:
+        case MnkGameEndingKind.Win:
             return IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
                 StateMessage = StandardMessages.Win(new AppUser(player.UserId)),
                 Stage = GameStage.Ended,
             };
-        case GomokuGameEndingKind.Draw:
-            return IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
+        case MnkGameEndingKind.Draw:
+            return nextGame with {
                 StateMessage = StandardMessages.Draw(),
                 Stage = GameStage.Ended,
             };
@@ -84,24 +86,42 @@ public class GomokuEngine : GameEngine<GomokuState, GomokuMove>
     public char GetPlayerMarker(int playerIndex)
         => playerIndex == 0 ? 'X' : 'O';
 
-    private GomokuGameEndingKind GetGameEnding(CharBoard board, GomokuMove lastMove)
+    private MnkGameEndingKind GetGameEnding(CharBoard board, MnkGameMove lastMove)
     {
         var marker = GetPlayerMarker(lastMove.PlayerIndex);
         int Count(int dr, int dc)
-            => Enumerable.Range(0, 5)
+            => Enumerable.Range(0, WinLength)
                 .Select(i => board[lastMove.Row + dr * i, lastMove.Column + dc * i])
                 .TakeWhile(c => c == marker)
-                .Take(5)
+                .Take(WinLength)
                 .Count();
         int SymmetricCount(int dr, int dc)
             => Count(dr, dc) + Count(-dr, -dc) - 1;
         bool IsWin(int dr, int dc)
-            => SymmetricCount(dr, dc) >= 5;
+            => SymmetricCount(dr, dc) >= WinLength;
 
         if (IsWin(0, 1) || IsWin(1, 0) || IsWin(1, 1) || IsWin(-1, 1))
-            return GomokuGameEndingKind.Win;
-        if (board.Cells.All(c => c != ' '))
-            return GomokuGameEndingKind.Draw;
-        return GomokuGameEndingKind.None;
+            return MnkGameEndingKind.Win;
+        if (board.IsFull)
+            return MnkGameEndingKind.Draw;
+        return MnkGameEndingKind.None;
     }
+}
+
+public class GomokuEngine : MnkGameEngine
+{
+    public override string Id => "gomoku";
+    public override string Title => "Gomoku (Five in a Row)";
+    public override string Icon => "fa-border-all";
+    public override int BoardSize => 19;
+    public override int WinLength => 5;
+}
+
+public class TicTacToeEngine : MnkGameEngine
+{
+    public override string Id => "tictactoe";
+    public override string Title => "Tic-Tac-Toe";
+    public override string Icon => "fa-hashtag";
+    public override int BoardSize => 3;
+    public override int WinLength => 3;
 }

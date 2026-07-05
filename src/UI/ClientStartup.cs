@@ -12,9 +12,11 @@ using ActualLab.Rpc;
 using BoardGames.Abstractions;
 using BoardGames.Abstractions.Games;
 using BoardGames.ClientServices;
+using BoardGames.UI.ConnectFour;
 using BoardGames.UI.Game;
 using BoardGames.UI.Game.MessageFragmentViews;
-using BoardGames.UI.Gomoku;
+using BoardGames.UI.MnkGames;
+using BoardGames.UI.Reversi;
 using BoardGames.UI.RockPaperScissors;
 using BoardGames.UI.Services;
 
@@ -62,12 +64,19 @@ public static class ClientStartup
         // UI-related Fusion services
         services.AddScoped<IUpdateDelayer>(c => new UpdateDelayer(c.UIActionTracker(), 0.5));
 
-        // Type maps binding models to their views (AOT-friendly - no assembly scanning)
+        // Type maps binding models to their views (AOT-friendly - no assembly scanning).
+        // Note that the lookup walks the base type chain, so a single MnkGameEngine
+        // entry covers every MnkGameEngine subclass (Gomoku, Tic-Tac-Toe, etc.).
         services.AddTypeMapper<GameRulesBase>(map => map
             .Add<GomokuEngine, GomokuRules>()
+            .Add<TicTacToeEngine, TicTacToeRules>()
+            .Add<ConnectFourEngine, ConnectFourRules>()
+            .Add<ReversiEngine, ReversiRules>()
             .Add<RpsEngine, RockPaperScissorsRules>());
         services.AddTypeMapper<GamePlayBase>(map => map
-            .Add<GomokuEngine, GomokuPlay>()
+            .Add<MnkGameEngine, MnkGamePlay>()
+            .Add<ConnectFourEngine, ConnectFourPlay>()
+            .Add<ReversiEngine, ReversiPlay>()
             .Add<RpsEngine, RockPaperScissorsPlay>());
         services.AddTypeMapper<MessageFragmentView>(map => map
             .Add<PlainText, PlainTextSpan>()

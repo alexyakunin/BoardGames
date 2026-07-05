@@ -26,9 +26,9 @@ different user accounts, and:
   
 ### What's implemented in Board Games
 
-- Two games. I plan to add a couple more  a bit later - 
-  there is a common base API allowing to add new games 
-  pretty quickly
+- Five games: Gomoku, Tic-Tac-Toe, Connect Four, Reversi,
+  and Rock-Paper-Scissors - there is a common base API allowing
+  to add new games pretty quickly
 - Game lobby, where you can track the state of games you
   participate in, browse open games created by other users 
   and join them

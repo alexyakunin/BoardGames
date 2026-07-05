@@ -1,0 +1,47 @@
+@inherits GamePlayBase
+
+@{
+    var gameEngine = (ConnectFourEngine) GameEngine;
+    var gameState = gameEngine.DeserializeState(Game.StateJson);
+    var board = gameState.Board;
+    var isMyTurn = Game.Stage == GameStage.Playing && gameState.PlayerIndex == MyPlayerIndex;
+}
+
+<Row><Column ColumnSize="ColumnSize.Is6">
+    <table style="border-collapse: separate; border-spacing: 2px; background: #1d5fbf; border-radius: 0.5rem; padding: 0.25rem;"><tbody>
+        @for (var r = 0; r < ConnectFourEngine.Height; r++) {
+            var row = r;
+            <tr @key=@row class="p-0 m-0">
+                @for (var c = 0; c < ConnectFourEngine.Width; c++) {
+                    var col = c;
+                    var cell = board[row, col];
+                    var isDroppable = isMyTurn && cell == ' ' && ConnectFourEngine.GetDropRow(board, col) >= 0;
+                    var cellStyle = "padding: 0px; width: 3rem; height: 3rem; background: white; border-radius: 50%;"
+                        + (isDroppable ? "" : " cursor: default;");
+                    <td @key=@((row, col)) class="p-0 m-0">
+                        <Button Style="@cellStyle"
+                                @onclick="_ => Move(col)">
+                            @GetDisc(cell)
+                        </Button>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody></table>
+</Column></Row>
+
+@code {
+    private Task Move(int column)
+    {
+        var move = new ConnectFourMove(column);
+        var command = new Game_Move(Session, Game.Id, move);
+        return UICommander.Run(command);
+    }
+
+    private RenderFragment GetDisc(char cell)
+        => cell switch {
+            'X' => @<Blazorise.Icon Name="FontAwesomeIcons.Circle" IconStyle="IconStyle.Solid" Style="color: #e63946; font-size: 2.5rem;" />,
+            'O' => @<Blazorise.Icon Name="FontAwesomeIcons.Circle" IconStyle="IconStyle.Solid" Style="color: #ffb703; font-size: 2.5rem;" />,
+            _ => @<span></span>,
+            };
+}

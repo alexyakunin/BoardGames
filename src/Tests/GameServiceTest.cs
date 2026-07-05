@@ -59,7 +59,7 @@ public class GameServiceTest : IClassFixture<TestAppHostFixture>
         var state = engine.DeserializeState(startedGame.StateJson);
         var currentPlayerSession = state.PlayerIndex == 0 ? session1 : session2;
 
-        await ClientCommander.Call(new Game_Move(currentPlayerSession, game.Id, new GomokuMove(9, 9)));
+        await ClientCommander.Call(new Game_Move(currentPlayerSession, game.Id, new MnkGameMove(9, 9)));
         computed = await computed.When(
             g => g != null && engine.DeserializeState(g.StateJson).MoveIndex == 1,
             cts.Token);
