@@ -1,2 +1,2 @@
 @echo off
-docker-compose build
+docker compose build

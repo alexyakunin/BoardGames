@@ -1,2 +1,2 @@
 @echo off
-docker-compose run --service-ports app_debug
+docker compose run --service-ports app_debug

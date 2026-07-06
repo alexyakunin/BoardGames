@@ -1,13 +1,15 @@
-version: '3.4'
 services:
   db:
-    image: "docker.io/bitnami/postgresql:17"
+    image: "postgres"
     environment:
-      POSTGRES_PASSWORD: "Fusion.0.to.1"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_HOST_AUTH_METHOD: "password"
     expose:
      - "5432"
     ports:
      - "5432:5432"
+    entrypoint: ["docker-entrypoint.sh", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
 
   app_debug:
     build:
@@ -19,7 +21,7 @@ services:
       - "5030:5030"
     environment:
       ASPNETCORE_URLS: "http://*:5030"
-      BoardGames__UsePostgreSql: "Server=db;Database=board_games_dev;Port=5432;User Id=postgres;Password=Fusion.0.to.1"
+      BoardGames__UsePostgreSql: "Server=db;Database=board_games_dev;Port=5432;User Id=postgres;Password=postgres"
 
   app_release:
     build:
@@ -32,4 +34,4 @@ services:
     environment:
       ASPNETCORE_URLS: "http://*:80"
       HTTPS_PORT: 443
-      BoardGames__UsePostgreSql: "Server=db;Database=board_games_dev;Port=5432;User Id=postgres;Password=Fusion.0.to.1"
+      BoardGames__UsePostgreSql: "Server=db;Database=board_games_dev;Port=5432;User Id=postgres;Password=postgres"
