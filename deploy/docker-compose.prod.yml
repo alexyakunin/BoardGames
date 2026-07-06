@@ -53,7 +53,7 @@ services:
         condition: service_healthy
 
   db:
-    image: postgres
+    image: postgres:17
     restart: unless-stopped
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
