@@ -1,0 +1,11 @@
+[Unit]
+Description=Poll for new BoardGames commits and redeploy
+
+[Timer]
+# First run 2 min after boot, then every minute.
+OnBootSec=2min
+OnUnitActiveSec=60s
+AccuracySec=10s
+
+[Install]
+WantedBy=timers.target

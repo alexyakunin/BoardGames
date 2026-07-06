@@ -39,3 +39,7 @@ node_modules/
 *.vspx
 *.sap
 *.e2e
+
+# Deployment secrets/certs
+deploy/.env
+deploy/certs/

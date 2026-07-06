@@ -1,0 +1,75 @@
+# Production stack for a single-host deployment (e.g. the Oracle Cloud A1 VM
+# behind Cloudflare). Brings up:
+#   caddy - TLS termination (Cloudflare Origin cert) + reverse proxy, ports 80/443
+#   app   - BoardGames.Host, built from the repo Dockerfile
+#   db    - PostgreSQL with a persistent volume
+#
+# Usage on the host:
+#   cd deploy && docker compose -f docker-compose.prod.yml up -d --build
+#
+# Configuration is read from deploy/.env (see .env.example).
+name: boardgames
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/etc/caddy/certs:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    environment:
+      DOMAIN: "${DOMAIN:-boardgames.actuallab.net}"
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: app_release
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Production"
+      # Caddy terminates TLS, so the app runs behind an HTTPS proxy
+      BoardGames__AssumeHttps: "true"
+      BoardGames__UseForwardedHeaders: "true"
+      BoardGames__UsePostgreSql: "Server=db;Database=board_games;Port=5432;User Id=postgres;Password=${POSTGRES_PASSWORD:-postgres}"
+      # OAuth apps must list https://${DOMAIN}/signin-github & /signin-microsoft as callbacks.
+      # These default to the repo's public demo credentials; override in .env for a real deployment.
+      BoardGames__GitHubClientId: "${BOARDGAMES_GITHUBCLIENTID:-7a38bc415f7e1200fee2}"
+      BoardGames__GitHubClientSecret: "${BOARDGAMES_GITHUBCLIENTSECRET:-}"
+      BoardGames__MicrosoftClientId: "${BOARDGAMES_MICROSOFTCLIENTID:-6839dbf7-d1d3-4eb2-a7e1-ce8d48f34d00}"
+      BoardGames__MicrosoftClientSecret: "${BOARDGAMES_MICROSOFTCLIENTSECRET:-}"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "board_games"
+      POSTGRES_HOST_AUTH_METHOD: "scram-sha-256"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    entrypoint: ["docker-entrypoint.sh", "-c", "shared_buffers=256MB", "-c", "max_connections=1000"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  caddy_data:
+  caddy_config:
+  pg_data:

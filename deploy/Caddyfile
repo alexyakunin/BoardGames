@@ -1,0 +1,15 @@
+# Caddy sits behind Cloudflare (proxied / "orange cloud") and terminates TLS
+# using a Cloudflare Origin CA certificate. Cloudflare's SSL/TLS mode for the
+# host should be Full (strict).
+#
+# WebSockets (Fusion RPC + Blazor Server) are reverse-proxied transparently.
+{
+	# No ACME - the TLS cert is provided explicitly below.
+	auto_https disable_redirects
+}
+
+{$DOMAIN} {
+	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
+	encode zstd gzip
+	reverse_proxy app:8080
+}

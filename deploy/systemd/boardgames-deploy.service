@@ -1,0 +1,11 @@
+[Unit]
+Description=BoardGames poll-based auto-deploy
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ubuntu
+Environment=REPO_DIR=/opt/apps/boardgames
+Environment=BRANCH=main
+ExecStart=/opt/apps/boardgames/deploy/deploy.sh
