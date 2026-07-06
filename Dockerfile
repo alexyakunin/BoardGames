@@ -7,7 +7,8 @@ RUN dotnet build -c:Release --no-restore
 RUN dotnet publish -c:Release --no-build --no-restore src/Host/Host.csproj
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine as runtime
-RUN apk add --no-cache icu-libs
+# icu-libs: globalization; krb5-libs: libgssapi_krb5.so.2 that Npgsql probes at startup
+RUN apk add --no-cache icu-libs krb5-libs
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 WORKDIR /app
 COPY --from=build /app/src/Host/bin/Release/net10.0/publish .
