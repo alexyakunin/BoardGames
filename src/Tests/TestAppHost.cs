@@ -1,6 +1,6 @@
-using System.IO;
 using ActualLab.Fusion.Authentication;
 using ActualLab.Fusion.EntityFramework;
+using ActualLab.Fusion.EntityFramework.Npgsql;
 using ActualLab.Fusion.EntityFramework.Operations;
 using ActualLab.Fusion.Server;
 using ActualLab.IO;
@@ -42,8 +42,22 @@ public sealed class TestAppHost : IAsyncDisposable
 
     private async Task StartServer()
     {
-        var appTempDir = FilePath.GetApplicationTempDirectory("", true);
-        DbPath = appTempDir & $"BoardGames_Tests_{Ulid.NewUlid()}.db";
+        // Sqlite is used by default; set BOARDGAMES_TESTS_POSTGRES to a Npgsql
+        // connection string (its Database part is replaced with a unique name)
+        // to run the tests against PostgreSQL instead.
+        var postgresTemplate = Environment.GetEnvironmentVariable("BOARDGAMES_TESTS_POSTGRES");
+        var usePostgres = !string.IsNullOrEmpty(postgresTemplate);
+        var postgresConnectionString = "";
+        if (usePostgres) {
+            var csb = new Npgsql.NpgsqlConnectionStringBuilder(postgresTemplate) {
+                Database = $"board_games_tests_{Ulid.NewUlid().ToString().ToLowerInvariant()}",
+            };
+            postgresConnectionString = csb.ConnectionString;
+        }
+        else {
+            var appTempDir = FilePath.GetApplicationTempDirectory("", true);
+            DbPath = appTempDir & $"BoardGames_Tests_{Ulid.NewUlid()}.db";
+        }
 
         var builder = WebApplication.CreateBuilder();
         builder.Logging.ClearProviders();
@@ -51,10 +65,18 @@ public sealed class TestAppHost : IAsyncDisposable
         var services = builder.Services;
 
         // DbContext & related services
-        services.AddDbContextFactory<AppDbContext>(db => db.UseSqlite($"Data Source={DbPath}"));
+        services.AddDbContextFactory<AppDbContext>(db => {
+            if (usePostgres)
+                db.UseNpgsql(postgresConnectionString);
+            else
+                db.UseSqlite($"Data Source={DbPath}");
+        });
         services.AddDbContextServices<AppDbContext>(db => {
             db.AddOperations(operations => {
-                operations.AddFileSystemOperationLogWatcher();
+                if (usePostgres)
+                    operations.AddNpgsqlOperationLogWatcher();
+                else
+                    operations.AddFileSystemOperationLogWatcher();
             });
             db.AddEntityResolver<string, DbGame>(_ => new() {
                 QueryTransformer = games => games.Include(g => g.Players),
@@ -120,15 +142,17 @@ public sealed class TestAppHost : IAsyncDisposable
         if (ClientServices is IAsyncDisposable cs)
             await cs.DisposeAsync();
         if (App != null!) {
+            try {
+                // Works for both Sqlite (deletes the file) and PostgreSQL (drops the DB)
+                var dbContextFactory = App.Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
+                await using (var dbContext = await dbContextFactory.CreateDbContextAsync())
+                    await dbContext.Database.EnsureDeletedAsync();
+            }
+            catch {
+                // Intentional
+            }
             await App.StopAsync();
             await App.DisposeAsync();
-        }
-        try {
-            if (File.Exists(DbPath))
-                File.Delete(DbPath);
-        }
-        catch {
-            // Intentional
         }
     }
 }
