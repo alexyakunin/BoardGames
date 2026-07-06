@@ -111,7 +111,7 @@ public abstract class MnkGameEngine : GameEngine<MnkGameState, MnkGameMove>
 public class GomokuEngine : MnkGameEngine
 {
     public override string Id => "gomoku";
-    public override string Title => "Gomoku (Five in a Row)";
+    public override string Title => "Gomoku (5 in a Row)";
     public override string Icon => "fa-border-all";
     public override int BoardSize => 19;
     public override int WinLength => 5;

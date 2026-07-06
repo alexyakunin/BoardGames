@@ -230,7 +230,7 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
     }
 
     public virtual async Task<ImmutableList<Game>> ListOwn(
-        string? engineId, GameStage? stage, int count, Session session,
+        Session session, string? engineId, GameStage? stage, int count,
         CancellationToken cancellationToken = default)
     {
         if (count < 1)

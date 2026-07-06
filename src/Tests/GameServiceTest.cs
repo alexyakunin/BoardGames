@@ -32,7 +32,7 @@ public class GameServiceTest : IClassFixture<TestAppHostFixture>
         Assert.Equal(game.Id, readGame.Id);
 
         // And it must be listed among the creator's own games
-        var ownGames = await games.ListOwn(null, null, 10, session);
+        var ownGames = await games.ListOwn(session, null, null, 10);
         Assert.Contains(ownGames, g => g.Id == game.Id);
     }
 
@@ -74,7 +74,7 @@ public class GameServiceTest : IClassFixture<TestAppHostFixture>
         var games = ClientServices.GetRequiredService<IGameService>();
 
         // Capture the client-side computed for the own games list
-        var computed = await Computed.Capture(() => games.ListOwn(null, null, 10, session));
+        var computed = await Computed.Capture(() => games.ListOwn(session, null, null, 10));
         Assert.DoesNotContain(computed.Value, g => g.UserId == 0);
         var oldCount = computed.Value.Count;
 

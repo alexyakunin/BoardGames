@@ -112,7 +112,7 @@
     {
         var count = MutableState.Value ?? 100;
         try {
-            var games = await Games.ListOwn(GameEngineId, GameStage, count, Session, cancellationToken);
+            var games = await Games.ListOwn(Session, GameEngineId, GameStage, count, cancellationToken);
             var userIds = games.SelectMany(g => g.Players.Select(p => p.UserId)).ToHashSet();
             var users = await userIds.ParallelSelectToList((id, ct) => AppUsers.TryGet(id, ct), cancellationToken);
             return new Model() {

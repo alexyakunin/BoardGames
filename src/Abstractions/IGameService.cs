@@ -20,7 +20,9 @@ public interface IGameService : IComputeService
     [ComputeMethod(MinCacheDuration = 1)]
     Task<Game?> TryGet(string id, CancellationToken cancellationToken = default);
     [ComputeMethod(MinCacheDuration = 1)]
-    Task<ImmutableList<Game>> ListOwn(string? engineId, GameStage? stage, int count, Session session, CancellationToken cancellationToken = default);
+    // Session must be the first parameter so Fusion's RpcDefaultSessionReplacer
+    // substitutes Session.Default with the connection's session for WASM clients.
+    Task<ImmutableList<Game>> ListOwn(Session session, string? engineId, GameStage? stage, int count, CancellationToken cancellationToken = default);
     [ComputeMethod(MinCacheDuration = 1)]
     Task<ImmutableList<Game>> List(string? engineId, GameStage? stage, int count, CancellationToken cancellationToken = default);
 }
