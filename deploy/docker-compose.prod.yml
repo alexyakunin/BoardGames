@@ -45,8 +45,8 @@ services:
       # OAuth: defaults are the repo's public demo credentials (same as HostSettings.cs),
       # so leaving them unset is valid. Override in .env for a real deployment, and make
       # sure the OAuth apps list https://${DOMAIN}/signin-github & /signin-microsoft as callbacks.
-      BoardGames__GitHubClientId: "${BOARDGAMES_GITHUBCLIENTID:-7a38bc415f7e1200fee2}"
-      BoardGames__GitHubClientSecret: "${BOARDGAMES_GITHUBCLIENTSECRET:-8cd1033bff9c99787928c53f2a7cd55e4fce6548}"
+      BoardGames__GitHubClientId: "${BOARDGAMES_GITHUBCLIENTID:-Iv23liclgDFiYO8LJoHM}"
+      BoardGames__GitHubClientSecret: "${BOARDGAMES_GITHUBCLIENTSECRET:-fdbae91e208663689f2c519b424f6bee46260ee7}"
       BoardGames__MicrosoftClientId: "${BOARDGAMES_MICROSOFTCLIENTID:-6839dbf7-d1d3-4eb2-a7e1-ce8d48f34d00}"
     depends_on:
       db:
