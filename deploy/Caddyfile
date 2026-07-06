@@ -3,11 +3,8 @@
 # host should be Full (strict).
 #
 # WebSockets (Fusion RPC + Blazor Server) are reverse-proxied transparently.
-{
-	# No ACME - the TLS cert is provided explicitly below.
-	auto_https disable_redirects
-}
-
+# The site uses an explicit TLS cert, so Caddy performs no ACME. It still sets
+# up the automatic HTTP (:80) -> HTTPS (:443) redirect, which Cloudflare relays.
 {$DOMAIN} {
 	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 	encode zstd gzip
