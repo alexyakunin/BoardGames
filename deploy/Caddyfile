@@ -1,12 +1,31 @@
 # Caddy sits behind Cloudflare (proxied / "orange cloud") and terminates TLS
-# using a Cloudflare Origin CA certificate. Cloudflare's SSL/TLS mode for the
-# host should be Full (strict).
+# using a Cloudflare Origin CA certificate. Cloudflare's SSL/TLS mode is Full.
+#
+# This Caddy is the shared edge for the whole VM: besides BoardGames it also
+# routes the Fusion.Samples subdomains to their app containers. Those containers
+# join this stack's network (boardgames_default) as an external network, so
+# Caddy resolves them by name. The wildcard Origin cert covers every subdomain.
 #
 # WebSockets (Fusion RPC + Blazor Server) are reverse-proxied transparently.
-# The site uses an explicit TLS cert, so Caddy performs no ACME. It still sets
+# The sites use an explicit TLS cert, so Caddy performs no ACME. It still sets
 # up the automatic HTTP (:80) -> HTTPS (:443) redirect, which Cloudflare relays.
-{$DOMAIN} {
+
+(tls_and_encode) {
 	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin.key
 	encode zstd gzip
+}
+
+{$DOMAIN} {
+	import tls_and_encode
 	reverse_proxy app:8080
+}
+
+todoapp.actuallab.net {
+	import tls_and_encode
+	reverse_proxy todoapp-app:8080
+}
+
+blazor-samples.actuallab.net {
+	import tls_and_encode
+	reverse_proxy blazor-app:8080
 }
