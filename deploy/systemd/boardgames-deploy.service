@@ -8,4 +8,5 @@ Type=oneshot
 User=ubuntu
 Environment=REPO_DIR=/opt/apps/boardgames
 Environment=BRANCH=main
-ExecStart=/opt/apps/boardgames/deploy/deploy.sh
+# Invoke via bash so it runs regardless of the file's executable bit
+ExecStart=/bin/bash /opt/apps/boardgames/deploy/deploy.sh
