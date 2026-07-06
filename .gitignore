@@ -43,3 +43,7 @@ node_modules/
 # Deployment secrets/certs
 deploy/.env
 deploy/certs/
+
+# Claude Code / AgentCli
+.claude/settings.local.json
+.mcp.json
