@@ -42,12 +42,12 @@ services:
       BoardGames__AssumeHttps: "true"
       BoardGames__UseForwardedHeaders: "true"
       BoardGames__UsePostgreSql: "Server=db;Database=board_games;Port=5432;User Id=postgres;Password=${POSTGRES_PASSWORD:-postgres}"
-      # OAuth apps must list https://${DOMAIN}/signin-github & /signin-microsoft as callbacks.
-      # These default to the repo's public demo credentials; override in .env for a real deployment.
+      # OAuth: defaults are the repo's public demo credentials (same as HostSettings.cs),
+      # so leaving them unset is valid. Override in .env for a real deployment, and make
+      # sure the OAuth apps list https://${DOMAIN}/signin-github & /signin-microsoft as callbacks.
       BoardGames__GitHubClientId: "${BOARDGAMES_GITHUBCLIENTID:-7a38bc415f7e1200fee2}"
-      BoardGames__GitHubClientSecret: "${BOARDGAMES_GITHUBCLIENTSECRET:-}"
+      BoardGames__GitHubClientSecret: "${BOARDGAMES_GITHUBCLIENTSECRET:-8cd1033bff9c99787928c53f2a7cd55e4fce6548}"
       BoardGames__MicrosoftClientId: "${BOARDGAMES_MICROSOFTCLIENTID:-6839dbf7-d1d3-4eb2-a7e1-ce8d48f34d00}"
-      BoardGames__MicrosoftClientSecret: "${BOARDGAMES_MICROSOFTCLIENTSECRET:-}"
     depends_on:
       db:
         condition: service_healthy
