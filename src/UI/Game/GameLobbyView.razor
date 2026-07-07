@@ -51,7 +51,7 @@
         }
     }
     <Paragraph Margin="Margin.Is3.OnY">
-        <Switch TValue="bool" Value="@Game.IsPublic" Disabled="@(!IsOwner)"
+        <Switch TValue="bool" Value="@(_isPublicOverride ?? Game.IsPublic)" Disabled="@(!IsOwner)"
                 ValueChanged="_ => ChangeIsPublic()">
             Anyone can join
         </Switch>
@@ -69,6 +69,7 @@
 </Paragraph>
 
 @code {
+    private bool? _isPublicOverride;
     private ValueEditor<string> Intro { get; set; } = new();
     private ValueEditor<string> RoundCount { get; set; } = new() {
         Validator = e => e.OriginalValue == ""
@@ -79,6 +80,8 @@
     protected override async Task OnParametersSetAsync()
     {
         await base.OnParametersSetAsync();
+        if (_isPublicOverride == Game.IsPublic)
+            _isPublicOverride = null;
         using var _ = Computed.BeginIsolation(); // Otherwise the next call may try to reg. as a dependency!
         var parsedIntro = await MessageParser.Parse(Game.Intro);
         Intro.OriginalValue = parsedIntro.Format(true);
@@ -95,7 +98,13 @@
         => UICommander.Run(new Game_Join(Session, Game.Id, false));
 
     private Task ChangeIsPublic()
-        => UICommander.Run(new Game_Edit(Session, Game.Id, !Game.IsPublic));
+    {
+        // Show the new state right away and hold it until the invalidated Game catches up -
+        // otherwise Blazor's post-event render repaints the still-stale value, so the switch
+        // visibly flips back before the command's invalidation arrives.
+        _isPublicOverride = !Game.IsPublic;
+        return UICommander.Run(new Game_Edit(Session, Game.Id, _isPublicOverride));
+    }
 
     private Task Edit()
     {
