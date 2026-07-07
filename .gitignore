@@ -46,4 +46,3 @@ deploy/certs/
 
 # Claude Code / AgentCli
 .claude/settings.local.json
-.mcp.json
