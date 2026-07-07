@@ -7,7 +7,7 @@ It runs on .NET 10, ASP.NET Core (Blazor Server + WebAssembly),
 and [Blazorise](https://blazorise.com/).
 
 
-<img src="https://img.shields.io/badge/-Live!-green" valign="middle"> Live version of this app: https://boardgames.alexyakunin.com/
+<img src="https://img.shields.io/badge/-Live!-green" valign="middle"> Live version of this app: https://boardgames.actuallab.net/
 
 A short video explaining what's unique there:
 
@@ -59,7 +59,7 @@ The [live version] of this app is hosted on Google Cloud GKE:
   [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/examples/affinity/cookie/)
   configured to route requests to the same backend host
   (selected using consistent hashing) relying on `_ngsa` cookie
-- Try opening https://boardgames.alexyakunin.com/api/hostInfo/getHostName
+- Try opening https://boardgames.actuallab.net/api/hostInfo/getHostName
   normally and without this cookie (e.g. in incognito mode) to see 
   how it works. 
 - Check out [deployment.yml](deployment.yml), [service.yml](service.yml),
@@ -111,5 +111,5 @@ please
 [report an issue](https://github.com/alexyakunin/BoardGames/issues)!
 
 [Fusion]: https://github.com/ActualLab/Fusion
-[Live version]: https://boardgames.alexyakunin.com/
+[Live version]: https://boardgames.actuallab.net/
 [Discord Server]: https://discord.gg/EKEwv6d
