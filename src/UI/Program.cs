@@ -1,5 +1,15 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using ActualLab.Serialization.Internal;
+using ActualLab.Trimming;
 using BoardGames.UI;
+
+// Commands that "return nothing" complete with a System.Reactive.Unit result, whose
+// MessagePack formatter DefaultMessagePackResolver instantiates reflectively. Full trimming
+// can't see that hop, so it drops the formatter's ctor and every authenticated command then
+// fails to deserialize its result - keep the ctor explicitly.
+if (CodeKeeper.AlwaysFalse) {
+    CodeKeeper.Keep<UnitMessagePackFormatter>();
+}
 
 try {
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
