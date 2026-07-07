@@ -7,7 +7,7 @@ It runs on .NET 10, ASP.NET Core (Blazor Server + WebAssembly),
 and [Blazorise](https://blazorise.com/).
 
 
-<img src="https://img.shields.io/badge/-Live!-green" valign="middle"> Live version of this app: https://boardgames.actuallab.net/
+<img src="https://img.shields.io/badge/-Live%20demo:-green" valign="middle"> https://boardgames.actuallab.net/
 
 A short video explaining what's unique there:
 
