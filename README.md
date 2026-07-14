@@ -51,24 +51,26 @@ different user accounts, and:
 Finally, the sample supports *both* Blazor Server and 
 Blazor WebAssembly modes.
 
-The [live version] of this app is hosted on Google Cloud GKE:
-- The deployment runs 3 replicas of this service on a small
-  Kubernetes cluster that includes 3 preemptive
-  [e2-small](https://cloud.google.com/compute/vm-instance-pricing#e2_sharedcore_machine_types) 
-  nodes ($3.67/mo each)
-- Cloud PostgreSql stores the data; it also runs on
-  the cheapest 1 core/3.75GB RAM host.
-- Both Blazor Server and Fusion require session affinity. 
-  It's achieved here with 
-  [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/examples/affinity/cookie/)
-  configured to route requests to the same backend host
-  (selected using consistent hashing) relying on `_ngsa` cookie
-- Try opening https://boardgames.actuallab.net/api/hostInfo/getHostName
-  normally and without this cookie (e.g. in incognito mode) to see 
-  how it works. 
-- Check out [deployment.yml](deployment.yml), [service.yml](service.yml),
-  [ingress.yml](ingress.yml), and [.github/workflows/gke.yml](.github/workflows/gke.yml), 
-  if you're interested how to configure this.
+The [live version] of this app runs on a single **free-tier Arm VM in
+Oracle Cloud** (the "Always Free" A1 tier), sharing that one host with the
+other Fusion samples ([TownHall](https://townhall.actuallab.net/),
+[TodoApp](https://todoapp.actuallab.net/), and the
+[Blazor samples](https://blazor-samples.actuallab.net/)):
+- A single [Caddy](https://caddyserver.com/) container is the shared edge
+  for the whole VM: it terminates TLS and reverse-proxies each subdomain to
+  its app container. [Cloudflare](https://www.cloudflare.com/) sits in front
+  (proxied, Full-strict TLS with a Cloudflare Origin certificate).
+- **PostgreSQL** runs in Docker on the same VM; its data is persisted to a
+  host folder (`/var/lib/boardgames/postgres`), so it survives redeploys.
+  The app applies EF Core migrations (`src/Migrations`) on startup.
+- The whole stack is plain Docker Compose, auto-redeployed by a systemd
+  timer that polls `main` and rebuilds when it moves - no CI/CD service or
+  inbound webhooks required.
+- Try opening https://boardgames.actuallab.net/api/hostInfo/getHostName to
+  see which host served the request.
+- Check out [deploy/](deploy/) - [docker-compose.prod.yml](deploy/docker-compose.prod.yml),
+  [Caddyfile](deploy/Caddyfile), and [deploy/README.md](deploy/README.md) -
+  if you're interested how it's configured.
                    
 ### Ok, real-time. But seriously, what's so new there?
 
