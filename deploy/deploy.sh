@@ -20,15 +20,7 @@ if [[ "$LOCAL" == "$REMOTE" && "${1:-}" != "--force" ]]; then
 fi
 
 echo "$(date -u +%FT%TZ) Deploying $REMOTE (was $LOCAL)"
-caddyfile_before="$(sha1sum deploy/Caddyfile 2>/dev/null | cut -d' ' -f1)"
 git reset --hard "origin/$BRANCH"
-caddyfile_after="$(sha1sum deploy/Caddyfile 2>/dev/null | cut -d' ' -f1)"
 docker compose -f "$COMPOSE_FILE" up -d --build
-# The Caddyfile is bind-mounted as a file; git replaces it via rename (new inode),
-# so the running container keeps the stale one. When it changes, recreate Caddy
-# so it re-binds the current file.
-if [[ "$caddyfile_before" != "$caddyfile_after" ]]; then
-    docker compose -f "$COMPOSE_FILE" up -d --force-recreate caddy
-fi
 docker image prune -f >/dev/null 2>&1 || true
 echo "$(date -u +%FT%TZ) Deploy complete"
