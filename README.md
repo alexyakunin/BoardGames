@@ -15,7 +15,7 @@ a bare minimum — is kept in [docs/ai-sessions/](docs/ai-sessions/).
 
 A short video explaining what's unique there:
 
-[<img src="doc/img/BoardGames.jpg">](https://www.youtube.com/watch?v=R1XB8UKJ1dk)
+[<img src="docs/img/BoardGames.jpg">](https://www.youtube.com/watch?v=R1XB8UKJ1dk)
 
 The sample implements a number of features that are 
 hard to implement without Fusion. In particular, you might notice
