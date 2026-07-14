@@ -21,6 +21,6 @@ fi
 
 echo "$(date -u +%FT%TZ) Deploying $REMOTE (was $LOCAL)"
 git reset --hard "origin/$BRANCH"
-docker compose -f "$COMPOSE_FILE" up -d --build
+docker compose -f "$COMPOSE_FILE" up -d --build --remove-orphans
 docker image prune -f >/dev/null 2>&1 || true
 echo "$(date -u +%FT%TZ) Deploy complete"

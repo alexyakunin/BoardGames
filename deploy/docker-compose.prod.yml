@@ -19,7 +19,7 @@
 name: boardgames
 
 services:
-  app:
+  boardgames-app:
     build:
       context: ..
       dockerfile: Dockerfile
@@ -34,7 +34,7 @@ services:
       # Caddy terminates TLS, so the app runs behind an HTTPS proxy
       BoardGames__AssumeHttps: "true"
       BoardGames__UseForwardedHeaders: "true"
-      BoardGames__UsePostgreSql: "Server=db;Database=boardgames;Port=5432;User Id=postgres;Password=${POSTGRES_PASSWORD:-postgres}"
+      BoardGames__UsePostgreSql: "Server=boardgames-db;Database=boardgames;Port=5432;User Id=postgres;Password=${POSTGRES_PASSWORD:-postgres}"
       # OAuth: defaults are the repo's public demo credentials (same as HostSettings.cs),
       # so leaving them unset is valid. Override in .env for a real deployment, and make
       # sure the OAuth apps list https://boardgames.actuallab.net/signin-github & /signin-microsoft as callbacks.
@@ -42,13 +42,13 @@ services:
       BoardGames__GitHubClientSecret: "${BOARDGAMES_GITHUBCLIENTSECRET:-fdbae91e208663689f2c519b424f6bee46260ee7}"
       BoardGames__MicrosoftClientId: "${BOARDGAMES_MICROSOFTCLIENTID:-6839dbf7-d1d3-4eb2-a7e1-ce8d48f34d00}"
     depends_on:
-      db:
+      boardgames-db:
         condition: service_healthy
     networks:
       - edge
       - internal
 
-  db:
+  boardgames-db:
     image: postgres:17
     container_name: boardgames-db
     restart: unless-stopped
