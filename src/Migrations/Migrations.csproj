@@ -7,6 +7,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <!-- Non-private, so the whole graph (incl. the Host) unifies on the same EF
+         version the Design package builds this assembly against - a mismatch
+         silently breaks migration discovery at runtime. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers;" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>

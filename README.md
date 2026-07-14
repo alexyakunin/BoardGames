@@ -9,6 +9,10 @@ and [Blazorise](https://blazorise.com/).
 
 <img src="https://img.shields.io/badge/-Live%20demo:-green" valign="middle"> https://boardgames.actuallab.net/
 
+This app is generated and kept up to date with [Claude Code](https://www.anthropic.com/claude-code).
+The full interaction log — every prompt, with Claude's responses summarized to
+a bare minimum — is kept in [docs/ai-sessions/](docs/ai-sessions/).
+
 A short video explaining what's unique there:
 
 [<img src="doc/img/BoardGames.jpg">](https://www.youtube.com/watch?v=R1XB8UKJ1dk)

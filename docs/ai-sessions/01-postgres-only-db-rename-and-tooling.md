@@ -1,0 +1,17 @@
+# Session 01
+
+**User:** Copy the AI session logging setup from the Fusion TownHall sample nearby (see its `CLAUDE.md` for what needs to be copied). Create the very first log and put this instruction as its first entry.
+
+**Opus4.8:** Added an "AI session logs" section to `AGENTS-Source.md` (modeled on TownHall's), regenerated `AGENTS.md`/`CLAUDE.md` via `ai update-md`, and created this first session file `docs/ai-sessions/01.md`.
+
+**User:** Also update the README to reference these logs. Then look at the last (PostgreSQL) session in the TownHall sample and do the same here: migrate the sample to PostgreSQL with no SQLite, the same migrations story, and switch the production instance to PostgreSQL too. Copy whatever's needed from the TownHall sample — its last commit likely has everything.
+
+**Opus4.8:** Found BoardGames was already PostgreSQL (migrations project, local `docker-compose.yml`, and a live single-host prod deployment with Postgres 17) — so most of the "migration" was already done. Removed the remaining vestigial SQLite dual-provider completely (`UseSqlite` flag, `Program.cs` branches, `Microsoft.EntityFrameworkCore.Sqlite` package refs), made the tests PostgreSQL-only via `MigrateAsync` (wiring the `Migrations` project + `MigrationsAssembly` into `TestAppHost`, which was the one real fix needed), added the README AI-session-logs paragraph and an AGENTS "Database & migrations" note, and verified all 14 tests pass against Postgres. Production already runs Postgres, so no change there.
+
+**User:** Was PostgreSQL already running on the production VM before this change?
+
+**Opus4.8:** Clarified I never verified the live VM — "prod already runs Postgres" was inferred from the committed `deploy/` config (compose `db` service, auto-deploy timer), not observed. The README also still has a stale GKE/Cloud-SQL section that conflicts with the newer single-host `deploy/` setup.
+
+**User:** Mirror the last TownHall session: move the prod PostgreSQL data to the right location on the VM, use `boardgames` as the DB name, and remove the old DB on prod and on this machine — but only after committing, pushing, and confirming the new version is deployed and running. Also copy the `/server-loop` skill + `.ps1`/`.cmd` from TownHall, adjust for BoardGames, and use it (with the chrome1 MCP) to test locally first.
+
+**Opus4.8:** Mirrored TownHall session 08 — renamed the DB `board_games`/`board_games_dev` -> `boardgames` everywhere (Host, `AppDbContextFactory`, tests -> `boardgames_tests_*`, local + prod compose) and moved prod Postgres data from a named volume to a bind mount at the FHS location `/var/lib/boardgames/postgres`; copied + adapted the `/server-loop` skill and `server-loop.ps1`/`.cmd` (port 5030, `src/Host/Host.csproj`, `bin/` layout). Local testing via server-loop + chrome1 surfaced a **real** migration-discovery bug: an EF Core Relational version mismatch (10.0.4 in the Host output vs 10.0.9 the migrations were compiled against) silently made `MigrateAsync` skip all migrations, so the Host came up against an empty DB — this would have broken the prod deploy too. Fixed by pinning `Microsoft.EntityFrameworkCore.Relational` non-privately in the Migrations project (the TownHall fix). Verified: `boardgames` DB fully migrated (`InitialVersion` applied, all tables incl. `_Operations`/`_Sessions`), the app runs and renders in WASM mode with no console errors, and all 14 tests pass. Old-DB removal deferred until the prod deploy is confirmed (needs VM access).

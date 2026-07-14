@@ -8,10 +8,9 @@ public class HostSettings
     public bool UseForwardedHeaders { get; set; } = true;
     public int? Port { get; set; }
 
-    // DBs
+    // DB
     public string UsePostgreSql { get; set; } =
-        "Server=localhost;Database=board_games_dev;Port=5432;User Id=postgres;Password=postgres";
-    public bool UseSqlite { get; set; } = false;
+        "Server=localhost;Database=boardgames;Port=5432;User Id=postgres;Password=postgres";
 
     // Sign-in
     public string MicrosoftClientId { get; set; } = "6839dbf7-d1d3-4eb2-a7e1-ce8d48f34d00";

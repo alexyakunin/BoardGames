@@ -14,7 +14,6 @@
     <PackageReference Include="ActualLab.Fusion.EntityFramework.Npgsql" />
     <PackageReference Include="ActualLab.Fusion.Ext.Services" />
     <PackageReference Include="ActualLab.Fusion.Server" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 
@@ -26,5 +25,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HostServices\HostServices.csproj" />
+    <ProjectReference Include="..\Migrations\Migrations.csproj" />
   </ItemGroup>
 </Project>

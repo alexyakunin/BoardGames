@@ -16,7 +16,6 @@
     <PackageReference Include="AspNet.Security.OAuth.GitHub" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
   </ItemGroup>
 

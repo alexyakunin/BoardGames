@@ -17,13 +17,17 @@ Browser ──HTTPS──> Cloudflare (proxied, Full strict)
   (`certs/origin.pem` + `certs/origin.key`, not committed) and reverse-proxies
   to the app, passing WebSockets through for Fusion RPC + Blazor Server.
 - **app** is `BoardGames.Host`, built from the repo `Dockerfile` (`app_release`).
-- **db** is PostgreSQL with a persistent volume.
+- **db** is PostgreSQL. Its data is persisted on the host in
+  `/var/lib/boardgames/postgres` (the standard FHS location for service state),
+  so it survives redeploys and container recreation. The app applies EF Core
+  migrations (`src/Migrations/Migrations`) on startup.
 
 ## First-time host setup
 
 ```bash
 sudo mkdir -p /opt/apps && sudo chown $USER /opt/apps
 git clone https://github.com/alexyakunin/BoardGames /opt/apps/boardgames
+sudo mkdir -p /var/lib/boardgames/postgres   # persistent Postgres data dir
 cd /opt/apps/boardgames/deploy
 cp .env.example .env            # edit secrets as needed
 mkdir -p certs                  # drop origin.pem + origin.key here
@@ -52,6 +56,9 @@ Force a deploy immediately: `deploy/deploy.sh --force`.
 
 ## Notes
 
+- The `db` container publishes no ports and sits on the stack-internal network,
+  so it's reachable only from the VM. To open a psql shell, SSH to the host and
+  run: `docker exec -it boardgames-db-1 psql -U postgres boardgames`.
 - OAuth sign-in requires the GitHub/Microsoft OAuth apps to whitelist
   `https://boardgames.actuallab.net/signin-github` and `/signin-microsoft`.
   Browsing works without this; only sign-in redirects need it.

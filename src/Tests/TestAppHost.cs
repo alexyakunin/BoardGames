@@ -3,12 +3,12 @@ using ActualLab.Fusion.EntityFramework;
 using ActualLab.Fusion.EntityFramework.Npgsql;
 using ActualLab.Fusion.EntityFramework.Operations;
 using ActualLab.Fusion.Server;
-using ActualLab.IO;
 using ActualLab.Rpc;
 using ActualLab.Rpc.Server;
 using BoardGames.Abstractions;
 using BoardGames.ClientServices;
 using BoardGames.HostServices;
+using BoardGames.Migrations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server;
@@ -30,7 +30,7 @@ public sealed class TestAppHost : IAsyncDisposable
     public IServiceProvider ServerServices => App.Services;
     public IServiceProvider ClientServices { get; private set; } = null!;
     public string BaseUrl { get; private set; } = "";
-    public FilePath DbPath { get; private set; }
+    public string ConnectionString { get; private set; } = "";
 
     public static async Task<TestAppHost> Start()
     {
@@ -42,22 +42,15 @@ public sealed class TestAppHost : IAsyncDisposable
 
     private async Task StartServer()
     {
-        // Sqlite is used by default; set BOARDGAMES_TESTS_POSTGRES to a Npgsql
-        // connection string (its Database part is replaced with a unique name)
-        // to run the tests against PostgreSQL instead.
+        // Tests run against PostgreSQL (the docker-compose `db` service). Each test host
+        // gets a unique database. Override the base connection string (login/password/host)
+        // via BOARDGAMES_TESTS_POSTGRES; only its Database part is replaced.
         var postgresTemplate = Environment.GetEnvironmentVariable("BOARDGAMES_TESTS_POSTGRES");
-        var usePostgres = !string.IsNullOrEmpty(postgresTemplate);
-        var postgresConnectionString = "";
-        if (usePostgres) {
-            var csb = new Npgsql.NpgsqlConnectionStringBuilder(postgresTemplate) {
-                Database = $"board_games_tests_{Ulid.NewUlid().ToString().ToLowerInvariant()}",
-            };
-            postgresConnectionString = csb.ConnectionString;
-        }
-        else {
-            var appTempDir = FilePath.GetApplicationTempDirectory("", true);
-            DbPath = appTempDir & $"BoardGames_Tests_{Ulid.NewUlid()}.db";
-        }
+        if (string.IsNullOrEmpty(postgresTemplate))
+            postgresTemplate = "Server=localhost;Database=boardgames;Port=5432;User Id=postgres;Password=postgres";
+        ConnectionString = new Npgsql.NpgsqlConnectionStringBuilder(postgresTemplate) {
+            Database = $"boardgames_tests_{Ulid.NewUlid().ToString().ToLowerInvariant()}",
+        }.ConnectionString;
 
         var builder = WebApplication.CreateBuilder();
         builder.Logging.ClearProviders();
@@ -66,17 +59,13 @@ public sealed class TestAppHost : IAsyncDisposable
 
         // DbContext & related services
         services.AddDbContextFactory<AppDbContext>(db => {
-            if (usePostgres)
-                db.UseNpgsql(postgresConnectionString);
-            else
-                db.UseSqlite($"Data Source={DbPath}");
+            db.UseNpgsql(
+                ConnectionString,
+                o => o.MigrationsAssembly(typeof(AppDbContextFactory).Assembly.FullName));
         });
         services.AddDbContextServices<AppDbContext>(db => {
             db.AddOperations(operations => {
-                if (usePostgres)
-                    operations.AddNpgsqlOperationLogWatcher();
-                else
-                    operations.AddFileSystemOperationLogWatcher();
+                operations.AddNpgsqlOperationLogWatcher();
             });
             db.AddEntityResolver<string, DbGame>(_ => new() {
                 QueryTransformer = games => games.Include(g => g.Players),
@@ -99,7 +88,7 @@ public sealed class TestAppHost : IAsyncDisposable
 
         var dbContextFactory = App.Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
         await using (var dbContext = await dbContextFactory.CreateDbContextAsync())
-            await dbContext.Database.EnsureCreatedAsync();
+            await dbContext.Database.MigrateAsync();
 
         await App.StartAsync();
         var server = App.Services.GetRequiredService<IServer>();
@@ -143,7 +132,7 @@ public sealed class TestAppHost : IAsyncDisposable
             await cs.DisposeAsync();
         if (App != null!) {
             try {
-                // Works for both Sqlite (deletes the file) and PostgreSQL (drops the DB)
+                // Drops the unique per-host PostgreSQL database
                 var dbContextFactory = App.Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
                 await using (var dbContext = await dbContextFactory.CreateDbContextAsync())
                     await dbContext.Database.EnsureDeletedAsync();

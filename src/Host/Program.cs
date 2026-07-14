@@ -6,7 +6,6 @@ using ActualLab.Fusion.EntityFramework;
 using ActualLab.Fusion.EntityFramework.Npgsql;
 using ActualLab.Fusion.EntityFramework.Operations;
 using ActualLab.Fusion.Server;
-using ActualLab.IO;
 using ActualLab.Rpc;
 using ActualLab.Rpc.Server;
 using BoardGames.Abstractions;
@@ -57,17 +56,11 @@ StaticLog.Factory = app.Services.LoggerFactory();
 var log = StaticLog.For<Program>();
 ConfigureApp();
 
-// Migrate the DB to the latest schema (or create it for Sqlite)
+// Migrate the DB to the latest schema
 {
     var dbContextFactory = app.Services.GetRequiredService<IDbContextFactory<AppDbContext>>();
     await using var dbContext = await dbContextFactory.CreateDbContextAsync();
-    var database = dbContext.Database;
-    if (hostSettings.UseSqlite) {
-        await database.EnsureDeletedAsync();
-        await database.EnsureCreatedAsync();
-    } else {
-        await database.MigrateAsync();
-    }
+    await dbContext.Database.MigrateAsync();
 }
 
 // Run the app
@@ -96,17 +89,10 @@ void ConfigureServices()
     services.AddSingleton(hostSettings);
 
     // DbContext & related services
-    var appTempDir = FilePath.GetApplicationTempDirectory("", true);
-    var sqliteDbPath = appTempDir & "BoardGames_v1.db";
     services.AddDbContextFactory<AppDbContext>(db => {
-        if (hostSettings.UseSqlite)
-            db.UseSqlite(
-                $"Data Source={sqliteDbPath}",
-                o => o.MigrationsAssembly(typeof(AppDbContextFactory).Assembly.FullName));
-        else
-            db.UseNpgsql(
-                hostSettings.UsePostgreSql,
-                o => o.MigrationsAssembly(typeof(AppDbContextFactory).Assembly.FullName));
+        db.UseNpgsql(
+            hostSettings.UsePostgreSql,
+            o => o.MigrationsAssembly(typeof(AppDbContextFactory).Assembly.FullName));
         if (env.IsDevelopment())
             db.EnableSensitiveDataLogging();
     });
@@ -121,10 +107,7 @@ void ConfigureServices()
             operations.ConfigureEventLogReader(_ => new() {
                 CheckPeriod = TimeSpan.FromSeconds(env.IsDevelopment() ? 60 : 5),
             });
-            if (hostSettings.UseSqlite)
-                operations.AddFileSystemOperationLogWatcher();
-            else
-                operations.AddNpgsqlOperationLogWatcher();
+            operations.AddNpgsqlOperationLogWatcher();
         });
         db.AddEntityResolver<string, DbGame>(_ => new() {
             QueryTransformer = games => games.Include(g => g.Players),
