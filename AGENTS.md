@@ -17,6 +17,13 @@ documentation comments"](CODING_STYLE.md#regular-comments-docstrings-xml-documen
 This is an [ActualLab.Fusion](https://github.com/ActualLab/Fusion) app, so
 its conventions apply here as well.
 
+# Git workflow — don't branch unless asked
+
+Commit your changes directly to the default branch (`main`). **You typically
+should NOT create a feature branch in this repo unless the user explicitly asks
+for one.** Small, self-contained changes (docs, fixes, tweaks) belong on
+`main`; a needless branch only adds a merge step later.
+
 # Database & migrations
 
 The app is PostgreSQL-only. The EF Core model (entities + `AppDbContext`)
