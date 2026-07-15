@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="latest" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ActualLabFusionVersion>13.0.12</ActualLabFusionVersion>
+    <ActualLabFusionVersion>13.0.126</ActualLabFusionVersion>
     <AspNetCoreVersion>10.0.9</AspNetCoreVersion>
     <BlazorVersion>$(AspNetCoreVersion)</BlazorVersion>
     <EntityFrameworkCoreVersion>10.0.9</EntityFrameworkCoreVersion>
