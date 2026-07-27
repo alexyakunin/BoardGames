@@ -174,6 +174,14 @@ Search for `<Using>` to get the full list. Avoid adding explicit usings for glob
   The only exception is slow-path async methods inside other async methods
   (e.g., `CompleteAsync` inside `Write` method that handles the case
   when the operation cannot complete synchronously).
+- **Boolean (and bool-like `int`) variables, fields and parameters**: prefix them,
+  typically with `is`, `must`, or `has` — `isDisposed`, `mustPersistIndex`,
+  `hasOldEntry`. A bare adjective/participle (`disposed`, `dirty`, `checkpointDue`)
+  is wrong. This covers `int` fields used as flags via `Interlocked`/`Volatile`
+  (`_isDirty`), and locals (`var isClosedCleanly = ...`).
+- **Variables and fields storing a `Task`/`ValueTask`**: name them `XxxTask`
+  (`_flushLoopTask`, `readTask`) or `WhenXxx` (`whenCompleted`) — the name must say
+  it's a task, not the operation itself.
 
 ### Braces and Formatting
 
@@ -213,15 +221,92 @@ More restrictive than default:
 - **0 blank lines** inside types (default allows 1)
 - **0 blank lines** around single-line properties, fields, and methods
 - Keep maximum **1 blank line** in code (default allows more)
-- A blank line typically follows any `return`, `break`, `continue`, `yield return`,
-  or `yield break` statement — i.e. any block-escaping statement — unless it's on
-  the very last line of the enclosing statement block.
-- Methods whose body ends with one or more **local functions** typically have an
-  explicit `return;` right before the first local function, followed by a blank
-  line. This marks where the method's actual execution ends and makes the
-  local-function section unambiguous to the reader.
+- See [Control-Flow Statements](#control-flow-statements) for the blank lines
+  around `return`, `break`, `continue`, etc.
 
-Example:
+### Control-Flow Statements
+
+**Control-flow statement** here means any statement that escapes the enclosing
+block or jumps elsewhere: `return`, `throw`, `break`, `continue`, `goto`,
+`yield return`, and `yield break`.
+
+Such statements are the most important thing to see when you skim a method, so
+the formatting exists to make them stand out. Two rules do that:
+
+**1. A control-flow statement always gets its own line.** Never place it on the
+same line as its `if`, `for`, `while`, `case`, etc.
+
+```csharp
+// Wrong
+if (computed is null) return null;
+
+// Correct
+if (computed is null)
+    return null;
+```
+
+**2. A control-flow statement is followed by a blank line.** The blank line
+separates it from whatever follows, so the statement terminates a visually
+distinct chunk of code:
+
+```csharp
+public CommandHandlerChain GetHandlerChain(ICommand command)
+{
+    if (command is not IEventCommand eventCommand)
+        return SingleHandlerChain;
+
+    var chainId = eventCommand.ChainId;
+    if (chainId.IsNullOrEmpty())
+        return CommandHandlerChain.Empty;
+
+    return HandlerChains.TryGetValue(chainId, out var result)
+        ? result
+        : CommandHandlerChain.Empty;
+}
+```
+
+The blank line is **omitted** when something else already provides the same
+separation, or when adding it would break apart a group that reads as a single
+unit:
+
+- **The enclosing block ends right after the statement.** The closing `}` sits
+  on its own line, which leaves the statement equally visible — so never put a
+  blank line right before a closing brace.
+- **A run of guard clauses.** Consecutive `if (...)` + control-flow pairs form
+  one group; the blank line goes after the last pair, not between them:
+  ```csharp
+  private static object GetParameterValue(ParameterInfo parameter, ...)
+  {
+      if (parameter.ParameterType == typeof(CommandContext))
+          return context;
+      if (parameter.HasDefaultValue)
+          return services.GetService(parameter.ParameterType) ?? parameter.DefaultValue!;
+
+      return services.GetRequiredService(parameter.ParameterType);
+  }
+  ```
+- **The next line is a `case`/`default:` label**, an `else`/`catch`/`finally`
+  clause, or a preprocessor directive such as `#endif` — all of these already
+  read as separators.
+
+**3. When the control-flow statement is the last statement of a nested block,
+the blank line goes after that block's closing brace** rather than before it —
+unless the block itself ends the enclosing method or lambda body:
+
+```csharp
+if (handlerChains.Count == 0) {
+    await OnUnhandledEvent(command, context, cancellationToken).ConfigureAwait(false);
+    return context;
+}
+
+var callTasks = new Task[handlerChains.Count];
+```
+
+**4. Methods whose body ends with one or more local functions** typically have
+an explicit `return;` right before the first local function, followed by a blank
+line. This marks where the method's actual execution ends and makes the
+local-function section unambiguous to the reader:
+
 ```csharp
 protected override async Task OnRun(CancellationToken cancellationToken)
 {
@@ -264,15 +349,18 @@ Members within a class should be ordered as follows:
 5. Lazy style is often preferred for DI-injected properties,
    especially in the UI-related code.
    Use `=> field ??= Services.GetRequiredService<T>()`.
-6. **Constructor-like static NewXxx-style methods**
+6. **Constructor-like static methods** (`New*`, `Open`, `Create`, …) — they go
+   **before** the constructors, including private ones.
 7. **Constructors** (public, then private),
    though primary constructors are preferred.
-8. **Public methods**, ordered by importance/usage frequency.
-9. **Protected/internal methods**.
-   Use `// Protected/internal methods` comment to separate this section
-10. **Private methods**, such as helper methods and utilities.
+8. **`Dispose` / `DisposeAsync`** — right **after** the constructors, not at the
+   end of the type: disposal is part of the lifecycle the constructors start.
+9. **Public methods**, ordered by importance/usage frequency.
+10. **Protected/internal methods**.
+    Use `// Protected/internal methods` comment to separate this section
+11. **Private methods**, such as helper methods and utilities.
     Use `// Private methods` comment to separate this section.
-11. All other nested types.
+12. All other nested types.
     Use `// Nested types` comment to separate this section.
 
 #### Method order within a section
@@ -292,22 +380,23 @@ order by call direction:
 - **Public methods are the entry points**, so they run roughly in order of use:
   what an outside caller reaches for first comes first.
 
-Example — `ConnectFourEngine`. `Move` is what the class does; `IsWin` is a
-board-scanning helper it calls, so it goes last:
+Example — the private section of `ConsolidatingComputed<T>`.
+`OnSourceInvalidated` is what the class does; `AreOutputsEqual` is a comparison
+helper it calls, so it goes last:
 
 ```csharp
-    public override Game Move(Game game, ConnectFourMove move)
+    // Private methods
+
+    private void OnSourceInvalidated(Computed invalidated)
     {
         // ...
-        if (IsWin(nextBoard, row, move.Column))
-            return IncrementPlayerScore(nextGame, state.PlayerIndex, 1) with {
-                StateMessage = StandardMessages.Win(new AppUser(player.UserId)),
-                Stage = GameStage.Ended,
-            };
+        nextSource = AreOutputsEqual(UntypedOutput, updatedSource.UntypedOutput)
+            ? updatedSource
+            : null; // Invalidate
         // ...
     }
 
-    private static bool IsWin(CharBoard board, int row, int column)
+    private bool AreOutputsEqual(Result x, Result y)
     { /* ... */ }
 ```
 
@@ -490,14 +579,11 @@ See [`.editorconfig`](../.editorconfig) for the complete list of silenced analyz
 
 ## TypeScript
 
-TypeScript follows the same flow-control spacing rules as C#:
-- Never place a flow-control statement on the same line as its `if`, `for`,
-  `while`, or similar condition.
-- A `return`, `break`, `continue`, `throw`, or `yield` statement is typically
-  followed by a blank line unless it is the last statement in its enclosing block.
-- If the flow-control statement is the last statement in a nested block, put the
-  blank line after that block instead, unless the block is the whole method or
-  function body.
+TypeScript follows the C# [Control-Flow Statements](#control-flow-statements)
+rules verbatim: `return`, `throw`, `break`, `continue`, and `yield` always get
+their own line, and each is followed by a blank line except in the cases listed
+there (block closing right after it, a run of guard clauses, `case`/`else`/`catch`
+following it).
 
 TypeScript uses the same member-section comments as .NET:
 - Order class members similarly to .NET classes: static fields first, then
