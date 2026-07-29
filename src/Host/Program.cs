@@ -27,6 +27,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
 using Microsoft.Extensions.Hosting;
+using ActualLab.Compliance;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment;
@@ -81,6 +82,9 @@ void ConfigureLogging()
             logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Information);
             logging.AddFilter("ActualLab.Fusion.Operations", LogLevel.Information);
         }
+        // Masks Session, User and the auth commands in the log - and only there.
+        // Drop this line (or pass false) to see raw values while debugging.
+        logging.AddSanitizingLoggerFactory();
     });
 }
 

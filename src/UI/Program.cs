@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using BoardGames.UI;
+using ActualLab.Compliance;
 
 try {
     var builder = WebAssemblyHostBuilder.CreateDefault(args);
     ClientStartup.ConfigureServices(builder.Services, builder);
     var host = builder.Build();
-    StaticLog.Factory = host.Services.LoggerFactory();
+    StaticLog.Factory = host.Services.LoggerFactory().Sanitizing();
     await host.RunAsync();
 }
 catch (Exception error) {
