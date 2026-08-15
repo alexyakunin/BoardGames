@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="latest" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ActualLabFusionVersion>14.3.11</ActualLabFusionVersion>
-    <!-- ActualLab.* net11.0 assets bind to this .NET 11 preview, and efcore.pg 11 pins EF Core
-         to it exactly, so every Microsoft package here has to match or NuGet sees a downgrade. -->
-    <DotNet11Version>11.0.0-preview.6.26359.118</DotNet11Version>
+    <ActualLabFusionVersion>14.3.18</ActualLabFusionVersion>
+    <!-- ActualLab.* net11.0 assets bind to this .NET 11 preview, so the Microsoft packages here
+         have to match or NuGet sees a downgrade. -->
+    <DotNet11Version>11.0.0-preview.7.26381.103</DotNet11Version>
     <AspNetCoreVersion>$(DotNet11Version)</AspNetCoreVersion>
     <BlazorVersion>$(AspNetCoreVersion)</BlazorVersion>
-    <EntityFrameworkCoreVersion>$(DotNet11Version)</EntityFrameworkCoreVersion>
+    <!-- EF Core trails DotNet11Version: efcore.pg's newest preview exact-pins EF Core to
+         preview.6, so every EF package here has to stay on that build. -->
+    <EntityFrameworkCoreVersion>11.0.0-preview.6.26359.118</EntityFrameworkCoreVersion>
     <EntityFrameworkCoreNpgsqlVersion>11.0.0-preview.6</EntityFrameworkCoreNpgsqlVersion>
     <MicrosoftExtensionsVersion>$(DotNet11Version)</MicrosoftExtensionsVersion>
     <BlazoriseVersion>2.2.1</BlazoriseVersion>
@@ -43,7 +45,7 @@
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(BlazorVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="$(BlazorVersion)" />
     <PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="$(BlazorVersion)" />
-    <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
+    <PackageVersion Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="$(EntityFrameworkCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(EntityFrameworkCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(EntityFrameworkCoreVersion)" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(EntityFrameworkCoreVersion)" />
