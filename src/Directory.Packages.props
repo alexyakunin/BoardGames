@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="latest" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ActualLabFusionVersion>14.4.16</ActualLabFusionVersion>
+    <ActualLabFusionVersion>15.0.8</ActualLabFusionVersion>
     <!-- ActualLab.* net11.0 assets bind to this .NET 11 preview, so the Microsoft packages here
          have to match or NuGet sees a downgrade. -->
     <DotNet11Version>11.0.0-rc.1.26425.128</DotNet11Version>
@@ -9,8 +9,8 @@
     <BlazorVersion>$(AspNetCoreVersion)</BlazorVersion>
     <!-- EF Core trails DotNet11Version: efcore.pg's newest preview exact-pins EF Core to
          preview.6, so every EF package here has to stay on that build. -->
-    <EntityFrameworkCoreVersion>11.0.0-preview.6.26359.118</EntityFrameworkCoreVersion>
-    <EntityFrameworkCoreNpgsqlVersion>11.0.0-preview.6</EntityFrameworkCoreNpgsqlVersion>
+    <EntityFrameworkCoreVersion>11.0.0-rc.1.26425.128</EntityFrameworkCoreVersion>
+    <EntityFrameworkCoreNpgsqlVersion>11.0.0-rc.1.1</EntityFrameworkCoreNpgsqlVersion>
     <MicrosoftExtensionsVersion>$(DotNet11Version)</MicrosoftExtensionsVersion>
     <BlazoriseVersion>2.2.1</BlazoriseVersion>
   </PropertyGroup>

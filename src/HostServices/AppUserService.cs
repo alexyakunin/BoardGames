@@ -5,6 +5,7 @@ using ActualLab.Fusion.EntityFramework;
 
 namespace BoardGames.HostServices;
 
+[DeferredInvalidationMode(DeferredInvalidationMode.Replicated)]
 public class AppUserService : DbServiceBase<AppDbContext>, IAppUserService
 {
     protected IAuth Auth { get; }
@@ -61,9 +62,12 @@ public class AppUserService : DbServiceBase<AppDbContext>, IAppUserService
         await context.InvokeRemainingHandlers(cancellationToken);
         var operation = completion.Operation;
         switch (operation.Command) {
-        case AuthBackend_SignIn:
-            var sessionInfo = operation.Items.KeylessGet<SessionInfo>();
-            if (sessionInfo != null && long.TryParse(sessionInfo.UserId, out var signedInUserId)) {
+        case AuthBackend_SignIn signIn:
+            // The session's user used to arrive via Operation.Items, which 15.0 removed. This
+            // handler runs after the commit, so reading it back is both correct and simplest.
+            var signedInUser = await Auth.GetUser(signIn.Session, cancellationToken)
+                .ConfigureAwait(false);
+            if (signedInUser != null && long.TryParse(signedInUser.Id, out var signedInUserId)) {
                 using (Invalidation.Begin())
                     _ = IsOnline(signedInUserId, default);
             }
@@ -87,12 +91,18 @@ public class AppUserService : DbServiceBase<AppDbContext>, IAppUserService
         // The code below renames the user if it happens that its name isn't unique.
         // Note that it shares the same transaction & connection as the original
         // sign-in command handler.
-        var sessionInfo = context.Operation.Items.KeylessGet<SessionInfo>();
-        if (sessionInfo == null || !long.TryParse(sessionInfo.UserId, out var userId))
-            return;
-
         var dbContext = await DbHub.CreateOperationDbContext(cancellationToken);
         await using var _1 = dbContext.ConfigureAwait(false);
+
+        // Operation.Items used to carry the SessionInfo here. Reading the session row through the
+        // operation DbContext keeps this on the sign-in's own transaction and connection, so it
+        // sees the row that command just wrote.
+        var sessionId = command.Session.Id;
+        var dbSessionInfo = await dbContext.Sessions
+            .SingleOrDefaultAsync(s => s.Id == sessionId, cancellationToken)
+            .ConfigureAwait(false);
+        if (dbSessionInfo?.UserId is not { } userId)
+            return;
         var dbUser = await dbContext.Users
             .SingleOrDefaultAsync(u => u.Id == userId, cancellationToken);
         if (dbUser == null)

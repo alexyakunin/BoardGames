@@ -5,6 +5,7 @@ using ActualLab.Fusion.EntityFramework;
 
 namespace BoardGames.HostServices;
 
+[DeferredInvalidationMode(DeferredInvalidationMode.Replicated)]
 public class GameService : DbServiceBase<AppDbContext>, IGameService
 {
     private readonly Lazy<IMessageParser> _messageParserLazy;
@@ -28,11 +29,6 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
         var (session, engineId) = command;
         var engine = GameEngines[engineId]; // Just to check it exists
         var context = CommandContext.GetCurrent();
-        if (Invalidation.IsActive) {
-            InvalidateGameRelatedComputed(context);
-            return null!;
-        }
-
         var user = await Auth.GetUser(session, cancellationToken);
         user = user.Require(User.MustBeAuthenticated);
         var userId = long.Parse(user.Id);
@@ -54,7 +50,7 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
         dbGame.UpdateFrom(game);
         dbContext.Add(dbGame);
         await dbContext.SaveChangesAsync(cancellationToken);
-        context.Operation.Items.KeylessSet(game);
+        Invalidation.Defer(() => InvalidateGameRelatedComputed(game));
         return game;
     }
 
@@ -62,11 +58,6 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
     {
         var (session, id, join) = command;
         var context = CommandContext.GetCurrent();
-        if (Invalidation.IsActive) {
-            InvalidateGameRelatedComputed(context);
-            return;
-        }
-
         var user = await Auth.GetUser(session, cancellationToken);
         user = user.Require(User.MustBeAuthenticated);
         var userId = long.Parse(user.Id);
@@ -79,6 +70,8 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
 
         if (game.Stage != GameStage.New)
             throw new InvalidOperationException("Game has already been started.");
+
+        var leftPlayer = (GamePlayer?)null;
         if (join) {
             if (game.Players.Any(p => p.UserId == userId))
                 throw new InvalidOperationException("You've already joined this game.");
@@ -86,16 +79,15 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
                 throw new InvalidOperationException("You can't join this game: there too many players already.");
             game = game with { Players = game.Players.Add(new GamePlayer(userId)) };
         } else { // Leave
-            var leftPlayer = game.Players.SingleOrDefault(p => p.UserId == userId);
+            leftPlayer = game.Players.SingleOrDefault(p => p.UserId == userId);
             if (leftPlayer == null)
                 throw new InvalidOperationException("You've already left this game.");
             game = game with { Players = game.Players.Remove(leftPlayer) };
-            context.Operation.Items.KeylessSet(leftPlayer);
         }
 
         dbGame.UpdateFrom(game);
         await dbContext.SaveChangesAsync(cancellationToken);
-        context.Operation.Items.KeylessSet(game);
+        Invalidation.Defer(() => InvalidateGameRelatedComputed(game, leftPlayer: leftPlayer));
 
         // Try auto-start
         if (join && engine.AutoStart && game.Players.Count == engine.MaxPlayerCount) {
@@ -107,11 +99,6 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
     {
         var (session, id) = command;
         var context = CommandContext.GetCurrent();
-        if (Invalidation.IsActive) {
-            InvalidateGameRelatedComputed(context);
-            return;
-        }
-
         var user = await Auth.GetUser(session, cancellationToken);
         user = user.Require(User.MustBeAuthenticated);
         var userId = long.Parse(user.Id);
@@ -133,7 +120,7 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
             throw new InvalidOperationException(
                 $"Too many players: {engine.MaxPlayerCount - game.Players.Count} player(s) must leave to start the game.");
 
-        context.Operation.Items.Set("PrevStage", game.Stage); // Saving prev. stage
+        var prevStage = game.Stage;
         var now = Clocks.SystemClock.Now;
         game = game with {
             StartedAt = now,
@@ -143,18 +130,13 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
         game = engine.Start(game);
         dbGame.UpdateFrom(game);
         await dbContext.SaveChangesAsync(cancellationToken);
-        context.Operation.Items.KeylessSet(game);
+        Invalidation.Defer(() => InvalidateGameRelatedComputed(game, prevStage));
     }
 
     public virtual async Task Move(Game_Move command, CancellationToken cancellationToken = default)
     {
         var (session, id, move) = command;
         var context = CommandContext.GetCurrent();
-        if (Invalidation.IsActive) {
-            InvalidateGameRelatedComputed(context);
-            return;
-        }
-
         var user = await Auth.GetUser(session, cancellationToken);
         user = user.Require(User.MustBeAuthenticated);
         var userId = long.Parse(user.Id);
@@ -177,24 +159,19 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
             Time = now,
         };
 
-        context.Operation.Items.Set("PrevStage", game.Stage); // Saving prev. stage
+        var prevStage = game.Stage;
         game = engine.Move(game, move) with { LastMoveAt = now };
         if (game.Stage == GameStage.Ended)
             game = game with { EndedAt = now };
         dbGame.UpdateFrom(game);
         await dbContext.SaveChangesAsync(cancellationToken);
-        context.Operation.Items.KeylessSet(game);
+        Invalidation.Defer(() => InvalidateGameRelatedComputed(game, prevStage));
     }
 
     public virtual async Task Edit(Game_Edit command, CancellationToken cancellationToken = default)
     {
         var session = command.Session;
         var context = CommandContext.GetCurrent();
-        if (Invalidation.IsActive) {
-            InvalidateGameRelatedComputed(context);
-            return;
-        }
-
         var user = await Auth.GetUser(session, cancellationToken);
         user = user.Require(User.MustBeAuthenticated);
         var parsedIntro = command.Intro == null
@@ -218,7 +195,7 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
             dbGame.Intro = parsedIntro.Format();
         var game = dbGame.ToModel();
         await dbContext.SaveChangesAsync(cancellationToken);
-        context.Operation.Items.KeylessSet(game);
+        Invalidation.Defer(() => InvalidateGameRelatedComputed(game));
     }
 
     // Queries
@@ -274,15 +251,16 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
 
     // Invalidation
 
-    // Common invalidation logic for all game commands.
-    // It's called from the Invalidation.IsActive blocks of all command handlers here.
-    protected void InvalidateGameRelatedComputed(CommandContext context)
+    // Common invalidation logic for all game commands - deferred by every one of them.
+    // These used to travel through Operation.Items into the replayed pass; a deferred block
+    // closes over them instead, so they're plain parameters.
+    protected void InvalidateGameRelatedComputed(
+        Game? game, GameStage? prevStage = null, GamePlayer? leftPlayer = null)
     {
-        var operationItems = context.Operation.Items;
-        var game = operationItems.KeylessGet<Game>();
         if (game == null)
             return;
-        var prevStage = operationItems.Get("PrevStage", game.Stage);
+
+        prevStage ??= game.Stage;
 
         // The game itself
         _ = TryGet(game.Id, default);
@@ -290,7 +268,6 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
         // Own games of all affected players
         foreach (var gamePlayer in game.Players)
             _ = PseudoListOwn(gamePlayer.UserId.ToString(), default);
-        var leftPlayer = operationItems.KeylessGet<GamePlayer>();
         if (leftPlayer != null)
             _ = PseudoListOwn(leftPlayer.UserId.ToString(), default);
 

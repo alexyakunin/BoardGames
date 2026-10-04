@@ -6,6 +6,7 @@ using ActualLab.Fusion.EntityFramework;
 
 namespace BoardGames.HostServices;
 
+[DeferredInvalidationMode(DeferredInvalidationMode.Replicated)]
 public class ChatService : DbServiceBase<AppDbContext>, IChatService
 {
     private readonly Lazy<IMessageParser> _messageParserLazy;
@@ -29,11 +30,6 @@ public class ChatService : DbServiceBase<AppDbContext>, IChatService
     {
         var (session, chatId, text) = command;
         var context = CommandContext.GetCurrent();
-        if (Invalidation.IsActive) {
-            _ = PseudoGetTail(chatId, default);
-            return null!;
-        }
-
         var user = await Auth.GetUser(session, cancellationToken);
         user = user.Require(User.MustBeAuthenticated);
         var userId = long.Parse(user.Id);
@@ -56,7 +52,7 @@ public class ChatService : DbServiceBase<AppDbContext>, IChatService
         dbContext.Add(dbChatMessage);
         await dbContext.SaveChangesAsync(cancellationToken);
 
-        context.Operation.Items.KeylessSet(chatMessage);
+        Invalidation.Defer(() => _ = PseudoGetTail(chatId, default));
         return chatMessage;
     }
 
