@@ -1,20 +1,22 @@
-FROM mcr.microsoft.com/dotnet/sdk:10.0 as build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 as build
 WORKDIR /app
 COPY ["src/", "src/"]
 COPY BoardGames.sln .
 RUN dotnet build -c:Debug
 RUN dotnet build -c:Release --no-restore
-RUN dotnet publish -c:Release --no-build --no-restore src/Host/Host.csproj
+# -o keeps the output off the TFM-versioned bin path, so a .NET version bump
+# does not have to be mirrored in the COPY below
+RUN dotnet publish -c:Release --no-build --no-restore -o /publish src/Host/Host.csproj
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine as runtime
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-alpine as runtime
 # icu-libs: globalization; krb5-libs: libgssapi_krb5.so.2 that Npgsql probes at startup
 RUN apk add --no-cache icu-libs krb5-libs
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 WORKDIR /app
-COPY --from=build /app/src/Host/bin/Release/net10.0/publish .
+COPY --from=build /publish .
 
 FROM build as app_debug
-WORKDIR /app/src/Host/bin/Debug/net10.0
+WORKDIR /app/src/Host/bin/Debug/net11.0
 ENTRYPOINT ["dotnet", "BoardGames.Host.dll"]
 
 FROM runtime as app_release
