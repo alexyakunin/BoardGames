@@ -29,11 +29,9 @@ public static class ClientStartup
     {
         builder.Logging.SetMinimumLevel(LogLevel.Warning);
 
-        // Default RPC client serialization format
-        RpcSerializationFormatResolver.Default = new("msgpack6c");
-
         // Fusion services
         var fusion = services.AddFusion();
+        fusion.Rpc.ConfigureWireFormats(f => f.DefaultFormat = f["msgpack6c"]); // The RPC client's format
         fusion.AddAuthClient();
         fusion.AddBlazor().AddAuthentication().AddPresenceReporter();
 

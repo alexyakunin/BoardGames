@@ -1,6 +1,7 @@
 using ActualLab.Fusion.Authentication;
 using ActualLab.Fusion.EntityFramework;
 using ActualLab.Fusion.EntityFramework.Npgsql;
+using ActualLab.Generators;
 using ActualLab.Fusion.EntityFramework.Operations;
 using ActualLab.Fusion.Server;
 using ActualLab.Rpc;
@@ -49,7 +50,7 @@ public sealed class TestAppHost : IAsyncDisposable
         if (string.IsNullOrEmpty(postgresTemplate))
             postgresTemplate = "Server=localhost;Database=boardgames;Port=5432;User Id=postgres;Password=postgres";
         ConnectionString = new Npgsql.NpgsqlConnectionStringBuilder(postgresTemplate) {
-            Database = $"boardgames_tests_{Ulid.NewUlid().ToString().ToLowerInvariant()}",
+            Database = $"boardgames_tests_{UlidUuidGenerator.Instance.Next().ToLowerInvariant()}",
         }.ConnectionString;
 
         var builder = WebApplication.CreateBuilder();
@@ -97,12 +98,10 @@ public sealed class TestAppHost : IAsyncDisposable
 
     private void StartClient()
     {
-        // The same RPC serialization format the WASM client uses
-        RpcSerializationFormatResolver.Default = new("msgpack6c");
-
         var services = new ServiceCollection();
         services.AddLogging();
         var fusion = services.AddFusion();
+        fusion.Rpc.ConfigureWireFormats(f => f.DefaultFormat = f["msgpack6c"]); // The same format the WASM client uses
         fusion.AddAuthClient();
         fusion.AddClient<IGameService>();
         fusion.AddClient<IChatService>();

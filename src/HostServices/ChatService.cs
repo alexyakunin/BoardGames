@@ -3,6 +3,7 @@ using BoardGames.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using ActualLab.Fusion.Authentication;
 using ActualLab.Fusion.EntityFramework;
+using ActualLab.Generators;
 
 namespace BoardGames.HostServices;
 
@@ -41,7 +42,7 @@ public class ChatService : DbServiceBase<AppDbContext>, IChatService
         var dbContext = await DbHub.CreateOperationDbContext(cancellationToken);
         await using var _1 = dbContext.ConfigureAwait(false);
         DateTime now = Clocks.SystemClock.Now;
-        var chatMessage = new ChatMessage(Ulid.NewUlid().ToString(), chatId) {
+        var chatMessage = new ChatMessage(UlidUuidGenerator.Instance.Next(), chatId) {
             UserId = userId,
             CreatedAt = now,
             EditedAt = now,

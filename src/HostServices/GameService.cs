@@ -2,6 +2,7 @@ using BoardGames.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using ActualLab.Fusion.Authentication;
 using ActualLab.Fusion.EntityFramework;
+using ActualLab.Generators;
 
 namespace BoardGames.HostServices;
 
@@ -37,7 +38,7 @@ public class GameService : DbServiceBase<AppDbContext>, IGameService
         await using var _1 = dbContext.ConfigureAwait(false);
 
         var game = new Game() {
-            Id = Ulid.NewUlid().ToString(),
+            Id = UlidUuidGenerator.Instance.Next(),
             EngineId = engineId,
             UserId = userId,
             Intro = "",
